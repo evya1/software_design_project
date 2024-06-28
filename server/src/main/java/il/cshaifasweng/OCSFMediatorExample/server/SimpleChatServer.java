@@ -1,6 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Initializer;
+import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import java.io.IOException;
@@ -22,13 +22,13 @@ public class SimpleChatServer
             Scanner scanner = new Scanner(System.in);
             System.out.print("Please enter your password of database: \n");
             String password = scanner.nextLine();
-            SessionFactory sessionFactory = Initializer.getSessionFactory(password);
+            SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(password);
             session = sessionFactory.openSession();
             session.beginTransaction();
 
-            Initializer.setSession(session);
-            Initializer.generateMovieList2();
-            Initializer.printAllEntities();
+            DataCommunicationDB.setSession(session);
+            DataCommunicationDB.generateMovieList();
+            DataCommunicationDB.printAllEntities();
 
             session.getTransaction().commit(); // Save everything.
 
