@@ -2,7 +2,6 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.Arrays;
 
 import org.hibernate.HibernateException;
@@ -13,8 +12,9 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
-public class Initializer
+public class DataCommunicationDB
 {
     //Attributes
     private static Session session;
@@ -25,7 +25,7 @@ public class Initializer
         return session;
     }
     public static void setSession(Session session) {
-        Initializer.session = session;
+        DataCommunicationDB.session = session;
     }
 
     //Hibernate Method to start a session and declare all the entities classes being used throughout the program.
@@ -105,68 +105,7 @@ public class Initializer
             }
         }
     }
-    public static void generateMovieList()throws Exception{
-
-
-        Random random = new Random();
-
-        // Create a Theater
-        Theater theater = new Theater(50, 50, new ArrayList<>(), new ArrayList<>(), 10);
-        session.save(theater);
-        session.flush();
-
-        // Create a Movie
-        Movie movie = new Movie("Inception", "Leonardo DiCaprio", null, "Christopher Nolan", "A mind-bending thriller", 148, new ArrayList<>(), null);
-
-
-        session.flush();
-
-        // Create TypeOfMovie
-        TypeOfMovie typeOfMovie = new TypeOfMovie(false, true, true);
-        session.save(typeOfMovie);
-        session.flush();
-
-        // Associate TypeOfMovie with Movie
-        movie.setUpcomingMovies(typeOfMovie);
-        session.save(movie);
-        session.flush();
-
-        List<MovieSlot> movieSlots = new ArrayList<>();
-        for(int i = 0; i < 3; i++) {
-            int year = random.nextInt(2024,2025);
-            int month = random.nextInt(7,12);
-            int day = random.nextInt(1,31);
-
-            MovieSlot movieSlot = new MovieSlot(movie,LocalDateTime.of(year,month,day,10,0),
-                    LocalDateTime.of(year,month,day,12,30),theater);
-            movieSlots.add(movieSlot);
-            session.save(movieSlot);
-            session.flush();
-
-        }
-
-        // Create Seats
-        List<Seat> seats = new ArrayList<>();
-        for (int i = 0; i < theater.getNumOfSeats(); i++) {
-            Seat seat = new Seat(true, theater);
-            seats.add(seat);
-            session.save(seat);
-            session.flush();
-        }
-
-
-        // Update Theater and Movie with MovieSlots and Seats
-        theater.setSeatList(seats);
-        theater.setMovieTime(movieSlots);
-        movie.setMovieScreeningTime(movieSlots);
-        session.save(theater);
-        session.save(movie);
-        session.flush();
-
-
-
-    }
-    public static void generateMovieList2() throws Exception {
+    public static void generateMovieList() throws Exception {
         Random random = new Random();
 
         // Create a Theater
@@ -238,66 +177,44 @@ public class Initializer
         session.save(theater);
         session.flush();
     }
-    public static void printData() {
-        List<Theater> theaters = session.createQuery("from Theater", Theater.class).list();
-        for (Theater theater : theaters) {
-            System.out.println("Theater ID: " + theater.getTheaterNum());
-            System.out.println("Number of Seats: " + theater.getNumOfSeats());
-            System.out.println("Available Seats: " + theater.getAvailableSeats());
-            System.out.println("Seats:");
-            for (Seat seat : theater.getSeatList()) {
-                System.out.println("  Seat ID: " + seat.getSeatNum() + ", Available: " + !seat.isTaken());
-            }
 
-            System.out.println("Movie Slots:");
-            for (MovieSlot slot : theater.getMovieTime()) {
-                System.out.println("  Slot ID: " + slot.getId() + ", Movie: " + slot.getMovieTitle()
-                        + ", Start Time: " + slot.getStartDateTime() + ", End Time: " + slot.getEndDateTime());
-            }
-            System.out.println();
-        }
 
-        List<Movie> movies = session.createQuery("from Movie", Movie.class).list();
-        for (Movie movie : movies) {
-            System.out.println("Movie ID: " + movie.getId());
-            System.out.println("Title: " + movie.getMovieName());
-            System.out.println("Main Cast: " + movie.getMainCast());
-            System.out.println("Producer: " + movie.getProducer());
-            System.out.println("Description: " + movie.getMovieDescription());
-            System.out.println("Duration: " + movie.getMovieDuration() + " minutes");
 
-            if (movie.getUpcomingMovies() != null) {
-                TypeOfMovie type = movie.getUpcomingMovies();
-                System.out.println("Upcoming: " + type.isUpcoming() + ", Currently Running: " + type.isCurrentlyRunning() + ", Purchasable: " + type.isPurchasable());
-            }
-
-            System.out.println("Movie Slots:");
-            for (MovieSlot slot : movie.getMovieScreeningTime()) {
-                System.out.println("  Slot ID: " + slot.getId() + ", Start Time: " + slot.getStartDateTime()
-                        + ", End Time: " + slot.getEndDateTime() + ", Theater ID: " + slot.getTheater().getTheaterNum());
-            }
-            System.out.println();
-        }
+    /******************* GETTERS **************************/
+    public static Movie getMovieByID(int movieID){
+        return session.get(Movie.class, movieID);
+    }
+    public static MovieSlot getMovieSlotByID(int movieSlotID){
+        return session.get(MovieSlot.class, movieSlotID);
+    }
+    public static Theater getTheaterByID(int theaterID){
+        return session.get(Theater.class, theaterID);
+    }
+    public static TypeOfMovie getTypeOfMovieByID(int movieTypeID){
+        return session.get(TypeOfMovie.class, movieTypeID);
+    }
+    public static Seat getSeatByID(int seatID){
+        return session.get(Seat.class, seatID);
     }
 
-    //Work In Progress
-    public static void modifyMovie(int movieId, String newMovieName, String newMainCast, String newProducer, String newMovieDescription, int newMovieDuration) {
+
+
+    /*************** Movie ENTITY SETTERS********************/
+
+    //Generic method that accepts lambda function to modify a specific field in Movie entity.
+    public static void updateMovieField(int movieId, Consumer<Movie> updater) {
         try {
             session.beginTransaction();
 
             // Retrieve the movie from the database
-            Movie movie = session.get(Movie.class, movieId);
+            Movie movie = getMovieByID(movieId);
             if (movie == null) {
                 System.out.println("Movie with ID " + movieId + " not found.");
                 return;
             }
 
-            // Modify the movie details
-            movie.setMovieName(newMovieName);
-            movie.setMainCast(newMainCast);
-            movie.setProducer(newProducer);
-            movie.setMovieDescription(newMovieDescription);
-            movie.setMovieDuration(newMovieDuration);
+            // Apply the updater function to modify the movie
+            updater.accept(movie);
 
             // Save the updated movie back to the database
             session.update(movie);
@@ -311,6 +228,124 @@ public class Initializer
             exception.printStackTrace();
         }
     }
+
+    //Update Name field by movieID
+    public static void modifyMovieName(int movieID, String newMovieName){
+        updateMovieField(movieID,movie -> movie.setMovieName(newMovieName));
+    }
+
+    //Update main cast field by movieID
+    public static void modifyMovieMainCast(int movieID, String newMainCast){
+        updateMovieField(movieID,movie -> movie.setMainCast(newMainCast));
+    }
+
+    //Update producer by movieID
+    public static void modifyMovieProducer(int movieId, String newProducer) {
+        updateMovieField(movieId, movie -> movie.setProducer(newProducer));
+    }
+
+    //Update movie description field by movieID
+    public static void modifyMovieDescription(int movieId, String newMovieDescription) {
+        updateMovieField(movieId, movie -> movie.setMovieDescription(newMovieDescription));
+    }
+
+    //Update movie duration field by movieID
+    public static void modifyMovieDuration(int movieId, int newMovieDuration) {
+        updateMovieField(movieId, movie -> movie.setMovieDuration(newMovieDuration));
+    }
+
+
+    /****************** TypeOfMovie ENTITY SETTERS *******************/
+
+    //Generic method that accepts lambda function to modify a specific field in TypeOfMovie entity.
+    public static void updateTypeOfMovieField(int typeId, Consumer<TypeOfMovie> updater) {
+        try {
+            session.beginTransaction();
+
+            // Retrieve the TypeOfMovie from the database
+            TypeOfMovie typeOfMovie = getTypeOfMovieByID(typeId);
+            if (typeOfMovie == null) {
+                System.out.println("TypeOfMovie with ID " + typeId + " not found.");
+                return;
+            }
+
+            // Apply the updater function to modify the TypeOfMovie
+            updater.accept(typeOfMovie);
+
+            // Save the updated TypeOfMovie back to the database
+            session.update(typeOfMovie);
+            session.getTransaction().commit();
+            System.out.println("TypeOfMovie with ID " + typeId + " has been updated.");
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
+    //Update upcoming field by typeID
+    public static void modifyTypeOfMovieUpcoming(int typeId, boolean upcoming) {
+        updateTypeOfMovieField(typeId, typeOfMovie -> typeOfMovie.setUpcoming(upcoming));
+    }
+
+    //Update currently in theaters field by typeID
+    public static void modifyTypeOfMovieCurrentlyRunning(int typeId, boolean currentlyRunning) {
+        updateTypeOfMovieField(typeId, typeOfMovie -> typeOfMovie.setCurrentlyRunning(currentlyRunning));
+    }
+
+    //Update purchasable field by typeID
+    public static void modifyTypeOfMoviePurchasable(int typeId, boolean purchasable) {
+        updateTypeOfMovieField(typeId, typeOfMovie -> typeOfMovie.setPurchasable(purchasable));
+    }
+
+    //Update release date field by typeID
+    public static void modifyTypeOfMovieReleaseDate(int typeId, LocalDateTime releaseDate) {
+        updateTypeOfMovieField(typeId, typeOfMovie -> typeOfMovie.setReleaseDate(releaseDate));
+    }
+
+
+    /*************** MovieSlot ENTITY SETTERS********************/
+
+    //Generic method that accepts lambda function to modify a specific field in MovieSlot entity.
+    public static void updateMovieSlotField(int slotId, Consumer<MovieSlot> updater) {
+        try {
+            session.beginTransaction();
+
+            // Retrieve the MovieSlot from the database
+            MovieSlot movieSlot = getMovieSlotByID(slotId);
+            if (movieSlot == null) {
+                System.out.println("MovieSlot with ID " + slotId + " not found.");
+                return;
+            }
+
+            // Apply the updater function to modify the MovieSlot
+            updater.accept(movieSlot);
+
+            // Save the updated MovieSlot back to the database
+            session.update(movieSlot);
+            session.getTransaction().commit();
+            System.out.println("MovieSlot with ID " + slotId + " has been updated.");
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
+    //Update start time field by slotID
+    public static void modifyMovieSlotStartTime(int slotId, LocalDateTime startTime) {
+        updateMovieSlotField(slotId, movieSlot -> movieSlot.setStartDateTime(startTime));
+    }
+
+    //Update end time field by slotID
+    public static void modifyMovieSlotEndTime(int slotId, LocalDateTime endTime) {
+        updateMovieSlotField(slotId, movieSlot -> movieSlot.setEndDateTime(endTime));
+    }
+
 
     public static void main( String[] args ) {
 
