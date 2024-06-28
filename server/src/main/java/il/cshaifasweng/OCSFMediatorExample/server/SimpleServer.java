@@ -1,7 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Car;
-import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
@@ -30,17 +29,6 @@ public class SimpleServer extends AbstractServer {
 	public SimpleServer(int port) {
 		super(port);
 		
-	}
-
-	protected static SessionFactory getSessionFactory(String password) throws HibernateException {
-
-		Configuration configuration = new Configuration();
-		configuration.setProperty("hibernate.connection.password", password);
-		// Add ALL of your entities here. You can also try adding a whole package.
-//		configuration.addAnnotatedClass(SimpleChatServer.class);
-		configuration.addAnnotatedClass(Car.class);
-		ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
-		return configuration.buildSessionFactory(serviceRegistry);
 	}
 
 	@Override
