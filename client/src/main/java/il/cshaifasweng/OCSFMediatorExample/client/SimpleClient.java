@@ -4,9 +4,21 @@ import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
+
 public class SimpleClient extends AbstractClient {
 
     private static SimpleClient client = null;
+    private static String ipAddress = "localhost";
+    private static int port = 3000;
+
+    public static int getClientPort() {
+        return port;
+    }
+
+    public static void setClientPort(int port) {
+        SimpleClient.port = port;
+    }
 
     private SimpleClient(String host, int port) {
         super(host, port);
@@ -14,9 +26,17 @@ public class SimpleClient extends AbstractClient {
 
     public static SimpleClient getClient() {
         if (client == null) {
-            client = new SimpleClient("localhost", 3000);
+            client = new SimpleClient(ipAddress, port);
         }
         return client;
+    }
+
+    public static void setIpAddress(String ip) {
+        ipAddress = ip;
+    }
+
+    public String getIpAddress(){
+        return ipAddress;
     }
 
     @Override
