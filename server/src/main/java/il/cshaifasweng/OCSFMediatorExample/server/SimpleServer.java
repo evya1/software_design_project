@@ -25,7 +25,6 @@ public class SimpleServer extends AbstractServer {
 	@Override
 	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
 		MessageObject message = (MessageObject) msg;
-		//Message message = (Message) msg;
 		String request = message.getMsg();
 		try {
 			//we got an empty message, so we will send back an error message with the error details.
@@ -34,27 +33,6 @@ public class SimpleServer extends AbstractServer {
 				client.sendToClient(message);
 				System.out.println("Sent empty message");
 			}
-			//we got a request to change submitters IDs with the updated IDs at the end of the string, so we save
-			// the IDs at data field in Message entity and send back to all subscribed clients a request to update
-			//their IDs text fields. An example of use of observer design pattern.
-			//message format: "change submitters IDs: 123456789, 987654321"
-			/*else if(request.startsWith("change submitters IDs:")){
-				message.setData(request.substring(23));
-				message.setMessage("update submitters IDs");
-				sendToAllClients(message);
-			}
-			//we got a request to add a new client as a subscriber.
-			else if (request.equals("add client")){
-				SubscribedClient connection = new SubscribedClient(client);
-				SubscribersList.add(connection);
-				message.setMessage("client added successfully");
-				client.sendToClient(message);
-			}
-			//we got a message from client requesting to echo Hello, so we will send back to client Hello world!
-			else if(request.startsWith("echo Hello")){
-				message.setMessage("Hello World!");
-				client.sendToClient(message);
-			}*/
 			else if(request.startsWith("show all movies")){
 				try {
 					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
@@ -97,7 +75,9 @@ public class SimpleServer extends AbstractServer {
 				try {
 					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
 					session = sessionFactory.openSession();
-					// to be continued
+					List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
+					MessageObject answer = new MessageObject("all updated movies",movies);
+					client.sendToClient(answer);
 				} catch (Exception e) {
 					System.err.println("An error occured");
 					e.printStackTrace();
@@ -105,18 +85,6 @@ public class SimpleServer extends AbstractServer {
 					assert session != null;
 					session.close();
 				}
-			}
-			else if (request.startsWith("")){
-				//add code here to multiply 2 numbers received in the message and send result back to client
-				//(use substring method as shown above)
-				//message format: "multiply n*m"
-			}else{
-				//add code here to send received message to all clients.
-				//The string we received in the message is the message we will send back to all clients subscribed.
-				//Example:
-					// message received: "Good morning"
-					// message sent: "Good morning"
-				//see code for changing submitters IDs for help
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
