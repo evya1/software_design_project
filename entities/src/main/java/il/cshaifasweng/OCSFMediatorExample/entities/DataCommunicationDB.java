@@ -18,8 +18,10 @@ public class DataCommunicationDB
 {
     //Attributes
     private static Session session;
+    private static String password;
 
-
+    public static String getPassword() { return password; }
+    public static void setPassword(String password) { DataCommunicationDB.password = password; }
     //Session Methods
     public static Session getSession() {
         return session;
