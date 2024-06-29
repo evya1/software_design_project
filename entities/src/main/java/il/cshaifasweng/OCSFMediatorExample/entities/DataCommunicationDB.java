@@ -108,76 +108,86 @@ public class DataCommunicationDB
         }
     }
     public static void generateMovieList() throws Exception {
-        Random random = new Random();
+        try {
+            session.beginTransaction();
+            Random random = new Random();
 
-        // Create a Theater
-        Theater theater = new Theater(100, 100, new ArrayList<>(), new ArrayList<>(), 10);
-        session.save(theater);
-        session.flush();
-
-        // Create 10 specific Movies
-        Movie movie1 = new Movie("Inception", "Leonardo DiCaprio", null, "Christopher Nolan", "A mind-bending thriller", 148, new ArrayList<>(), null);
-        Movie movie2 = new Movie("The Matrix", "Keanu Reeves", null, "Lana Wachowski, Lilly Wachowski", "A sci-fi action film", 136, new ArrayList<>(), null);
-        Movie movie3 = new Movie("Interstellar", "Matthew McConaughey", null, "Christopher Nolan", "A journey through space", 169, new ArrayList<>(), null);
-        Movie movie4 = new Movie("The Dark Knight", "Christian Bale", null, "Christopher Nolan", "A superhero film", 152, new ArrayList<>(), null);
-        Movie movie5 = new Movie("Fight Club", "Brad Pitt", null, "David Fincher", "An underground fight club", 139, new ArrayList<>(), null);
-        Movie movie6 = new Movie("Pulp Fiction", "John Travolta", null, "Quentin Tarantino", "A crime film", 154, new ArrayList<>(), null);
-        Movie movie7 = new Movie("Forrest Gump", "Tom Hanks", null, "Robert Zemeckis", "A man's extraordinary life", 142, new ArrayList<>(), null);
-        Movie movie8 = new Movie("The Shawshank Redemption", "Tim Robbins", null, "Frank Darabont", "A story of hope", 142, new ArrayList<>(), null);
-        Movie movie9 = new Movie("Gladiator", "Russell Crowe", null, "Ridley Scott", "A Roman epic", 155, new ArrayList<>(), null);
-        Movie movie10 = new Movie("The Godfather", "Marlon Brando", null, "Francis Ford Coppola", "A crime family saga", 175, new ArrayList<>(), null);
-
-        List<Movie> movies = Arrays.asList(movie1, movie2, movie3, movie4, movie5, movie6, movie7, movie8, movie9, movie10);
-
-        for (Movie movie : movies) {
-            session.save(movie);
+            // Create a Theater
+            Theater theater = new Theater(100, 100, new ArrayList<>(), new ArrayList<>(), 10);
+            session.save(theater);
             session.flush();
 
-            // Create TypeOfMovie
-            TypeOfMovie typeOfMovie = new TypeOfMovie(false, true, true);
-            session.save(typeOfMovie);
-            session.flush();
+            // Create 10 specific Movies
+            Movie movie1 = new Movie("Inception", "Leonardo DiCaprio", null, "Christopher Nolan", "A mind-bending thriller", 148, new ArrayList<>(), null);
+            Movie movie2 = new Movie("The Matrix", "Keanu Reeves", null, "Lana Wachowski, Lilly Wachowski", "A sci-fi action film", 136, new ArrayList<>(), null);
+            Movie movie3 = new Movie("Interstellar", "Matthew McConaughey", null, "Christopher Nolan", "A journey through space", 169, new ArrayList<>(), null);
+            Movie movie4 = new Movie("The Dark Knight", "Christian Bale", null, "Christopher Nolan", "A superhero film", 152, new ArrayList<>(), null);
+            Movie movie5 = new Movie("Fight Club", "Brad Pitt", null, "David Fincher", "An underground fight club", 139, new ArrayList<>(), null);
+            Movie movie6 = new Movie("Pulp Fiction", "John Travolta", null, "Quentin Tarantino", "A crime film", 154, new ArrayList<>(), null);
+            Movie movie7 = new Movie("Forrest Gump", "Tom Hanks", null, "Robert Zemeckis", "A man's extraordinary life", 142, new ArrayList<>(), null);
+            Movie movie8 = new Movie("The Shawshank Redemption", "Tim Robbins", null, "Frank Darabont", "A story of hope", 142, new ArrayList<>(), null);
+            Movie movie9 = new Movie("Gladiator", "Russell Crowe", null, "Ridley Scott", "A Roman epic", 155, new ArrayList<>(), null);
+            Movie movie10 = new Movie("The Godfather", "Marlon Brando", null, "Francis Ford Coppola", "A crime family saga", 175, new ArrayList<>(), null);
 
-            // Associate TypeOfMovie with Movie
-            movie.setUpcomingMovies(typeOfMovie);
-            session.save(movie);
-            session.flush();
+            List<Movie> movies = Arrays.asList(movie1, movie2, movie3, movie4, movie5, movie6, movie7, movie8, movie9, movie10);
 
-            // Create MovieSlots
-            List<MovieSlot> movieSlots = new ArrayList<>();
-            for (int i = 0; i < 10; i++) {
-                int year = random.nextInt(2) + 2024; // Year between 2024 and 2025
-                int month = random.nextInt(6) + 7; // Month between 7 and 12
-                int day = random.nextInt(28) + 1; // Ensuring valid day of month
+            for (Movie movie : movies) {
+                session.save(movie);
+                session.flush();
 
-                MovieSlot movieSlot = new MovieSlot(movie, LocalDateTime.of(year, month, day, 10, 0),
-                        LocalDateTime.of(year, month, day, 12 , 0), theater);
-                movieSlots.add(movieSlot);
-                session.save(movieSlot);
+                // Create TypeOfMovie
+                TypeOfMovie typeOfMovie = new TypeOfMovie(false, true, true);
+                session.save(typeOfMovie);
+                session.flush();
+
+                // Associate TypeOfMovie with Movie
+                movie.setUpcomingMovies(typeOfMovie);
+                session.save(movie);
+                session.flush();
+
+                // Create MovieSlots
+                List<MovieSlot> movieSlots = new ArrayList<>();
+                for (int i = 0; i < 10; i++) {
+                    int year = random.nextInt(2) + 2024; // Year between 2024 and 2025
+                    int month = random.nextInt(6) + 7; // Month between 7 and 12
+                    int day = random.nextInt(28) + 1; // Ensuring valid day of month
+
+                    MovieSlot movieSlot = new MovieSlot(movie, LocalDateTime.of(year, month, day, 10, 0),
+                            LocalDateTime.of(year, month, day, 12 , 0), theater);
+                    movieSlots.add(movieSlot);
+                    session.save(movieSlot);
+                    session.flush();
+                }
+
+                movie.setMovieScreeningTime(movieSlots);
+                session.save(movie);
+                session.flush();
+
+                // Associate movieSlots with Theater
+                theater.getMovieTime().addAll(movieSlots);
+            }
+
+            // Create Seats
+            List<Seat> seats = new ArrayList<>();
+            for (int i = 0; i < theater.getNumOfSeats(); i++) {
+                Seat seat = new Seat(false, theater);
+                seats.add(seat);
+                session.save(seat);
                 session.flush();
             }
 
-            movie.setMovieScreeningTime(movieSlots);
-            session.save(movie);
+            // Update Theater with Seats
+            theater.setSeatList(seats);
+            session.save(theater);
             session.flush();
-
-            // Associate movieSlots with Theater
-            theater.getMovieTime().addAll(movieSlots);
+            session.getTransaction().commit();
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
         }
-
-        // Create Seats
-        List<Seat> seats = new ArrayList<>();
-        for (int i = 0; i < theater.getNumOfSeats(); i++) {
-            Seat seat = new Seat(false, theater);
-            seats.add(seat);
-            session.save(seat);
-            session.flush();
-        }
-
-        // Update Theater with Seats
-        theater.setSeatList(seats);
-        session.save(theater);
-        session.flush();
     }
 
 
@@ -189,6 +199,7 @@ public class DataCommunicationDB
     public static MovieSlot getMovieSlotByID(int movieSlotID){
         return session.get(MovieSlot.class, movieSlotID);
     }
+
     public static Theater getTheaterByID(int theaterID){
         return session.get(Theater.class, theaterID);
     }
@@ -324,9 +335,10 @@ public class DataCommunicationDB
 
             // Apply the updater function to modify the MovieSlot
             updater.accept(movieSlot);
-
             // Save the updated MovieSlot back to the database
             session.update(movieSlot);
+            session.flush();
+
             session.getTransaction().commit();
             System.out.println("MovieSlot with ID " + slotId + " has been updated.");
         } catch (Exception exception) {

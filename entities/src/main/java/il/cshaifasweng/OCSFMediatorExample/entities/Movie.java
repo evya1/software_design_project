@@ -91,6 +91,16 @@ public class Movie {
         return movieScreeningTime;
     }
 
+    public MovieSlot getScreeningTimeByID(int screeningID){
+        for (MovieSlot slot : movieScreeningTime) {
+            if (slot.getId() == screeningID) {
+                return slot;
+            }
+        }
+        System.out.println("Screening ID wasn't found.");
+        return null;
+    }
+
     public void setMovieScreeningTime(List <MovieSlot> movieScreeningTime) {
         this.movieScreeningTime = movieScreeningTime;
     }

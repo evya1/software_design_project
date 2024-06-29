@@ -19,7 +19,7 @@ public class SimpleServer extends AbstractServer {
 
 	public SimpleServer(int port) {
 		super(port);
-		
+
 	}
 
 	@Override
@@ -28,17 +28,16 @@ public class SimpleServer extends AbstractServer {
 		String request = message.getMsg();
 		try {
 			//we got an empty message, so we will send back an error message with the error details.
-			if (request.isBlank()){
+			if (request.isBlank()) {
 				message.setMsg("Error! we got an empty message");
 				client.sendToClient(message);
 				System.out.println("Sent empty message");
-			}
-			else if(request.startsWith("show all movies")){
+			} else if (request.startsWith("show all movies")) {
 				try {
 					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
 					session = sessionFactory.openSession();
 					List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
-					MessageObject answer = new MessageObject("showing all movies",movies);
+					MessageObject answer = new MessageObject("showing all movies", movies);
 					client.sendToClient(answer);
 				} catch (Exception e) {
 					System.err.println("An error occured");
@@ -47,20 +46,17 @@ public class SimpleServer extends AbstractServer {
 					assert session != null;
 					session.close();
 				}
-			}
-			else if (request.startsWith("change screening times of the movie")){
-				try{
+			} else if (request.startsWith("change screening times of the movie")) {
+				try {
 					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
 					session = sessionFactory.openSession();
 					DataCommunicationDB.setSession(session);
-					// the client should put in the object of the message a new movie such that the fields
-					// take the same fields of the movie we want to change screening times
-					// apart from the field of the List of the movieSlot to be changed with the new time slots.
-					Movie movie = (Movie) message.getObject();
-					for (MovieSlot current : movie.getMovieScreeningTime()) {
-						DataCommunicationDB.modifyMovieSlotStartTime(current.getId(), current.getStartDateTime());
-						DataCommunicationDB.modifyMovieSlotEndTime(current.getId(), current.getEndDateTime());
-					}
+					// the client should put in the object of the message a new movieSlot such that the fields
+					// take the same fields of the movieSlot we want to change screening times.
+					MovieSlot movieSlot = (MovieSlot) message.getObject();
+					DataCommunicationDB.modifyMovieSlotStartTime(movieSlot.getId(), movieSlot.getStartDateTime());
+					DataCommunicationDB.modifyMovieSlotEndTime(movieSlot.getId(), movieSlot.getEndDateTime());
+
 					MessageObject answer = new MessageObject("screening times of the movie updated");
 					client.sendToClient(answer);
 				} catch (Exception e) {
@@ -70,13 +66,12 @@ public class SimpleServer extends AbstractServer {
 					assert session != null;
 					session.close();
 				}
-			}
-			else if (request.equals("update movies list")) {
+			} else if (request.equals("update movies list")) {
 				try {
 					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
 					session = sessionFactory.openSession();
 					List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
-					MessageObject answer = new MessageObject("all updated movies",movies);
+					MessageObject answer = new MessageObject("all updated movies", movies);
 					client.sendToClient(answer);
 				} catch (Exception e) {
 					System.err.println("An error occured");
@@ -100,5 +95,6 @@ public class SimpleServer extends AbstractServer {
 			e1.printStackTrace();
 		}
 	}
-
 }
+
+
