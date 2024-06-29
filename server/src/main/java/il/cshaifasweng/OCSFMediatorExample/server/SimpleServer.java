@@ -93,6 +93,8 @@ public class SimpleServer extends AbstractServer {
 						DataCommunicationDB.modifyMovieSlotStartTime(current.getId(), current.getStartDateTime());
 						DataCommunicationDB.modifyMovieSlotEndTime(current.getId(), current.getEndDateTime());
 					}
+					msgOb answer = new msgOb("screening times of the movie updated");
+					client.sendToClient(answer);
 				} catch (Exception e) {
 					System.err.println("An error occured");
 					e.printStackTrace();
