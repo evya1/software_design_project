@@ -2,18 +2,18 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import java.io.Serializable;
 
-public class msgOb implements Serializable {
+public class MessageObject implements Serializable {
     String msg;
     Object object;
 
-    public msgOb() {}
+    public MessageObject() {}
 
-    public msgOb(String msg, Object object ) {
+    public MessageObject(String msg, Object object ) {
         this.msg = msg;
         this.object = object;
     }
 
-    public msgOb(String msg) {
+    public MessageObject(String msg) {
         this.msg = msg;
         this.object = null;
     }

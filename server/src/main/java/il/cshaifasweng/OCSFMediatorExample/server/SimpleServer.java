@@ -6,23 +6,12 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
 import java.io.IOException;
-import java.net.StandardSocketOptions;
 import java.util.ArrayList;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
-
-import static il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB.*;
 
 public class SimpleServer extends AbstractServer {
 	private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
@@ -35,7 +24,7 @@ public class SimpleServer extends AbstractServer {
 
 	@Override
 	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
-		msgOb message = (msgOb) msg;
+		MessageObject message = (MessageObject) msg;
 		//Message message = (Message) msg;
 		String request = message.getMsg();
 		try {
@@ -71,7 +60,7 @@ public class SimpleServer extends AbstractServer {
 					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
 					session = sessionFactory.openSession();
 					List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
-					msgOb answer = new msgOb("showing all movies",movies);
+					MessageObject answer = new MessageObject("showing all movies",movies);
 					client.sendToClient(answer);
 				} catch (Exception e) {
 					System.err.println("An error occured");
@@ -85,6 +74,7 @@ public class SimpleServer extends AbstractServer {
 				try{
 					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
 					session = sessionFactory.openSession();
+					DataCommunicationDB.setSession(session);
 					// the client should put in the object of the message a new movie such that the fields
 					// take the same fields of the movie we want to change screening times
 					// apart from the field of the List of the movieSlot to be changed with the new time slots.
@@ -93,7 +83,7 @@ public class SimpleServer extends AbstractServer {
 						DataCommunicationDB.modifyMovieSlotStartTime(current.getId(), current.getStartDateTime());
 						DataCommunicationDB.modifyMovieSlotEndTime(current.getId(), current.getEndDateTime());
 					}
-					msgOb answer = new msgOb("screening times of the movie updated");
+					MessageObject answer = new MessageObject("screening times of the movie updated");
 					client.sendToClient(answer);
 				} catch (Exception e) {
 					System.err.println("An error occured");

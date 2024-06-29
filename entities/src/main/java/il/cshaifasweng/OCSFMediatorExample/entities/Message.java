@@ -2,7 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
+@Deprecated
 public class Message implements Serializable {
     int id;
     LocalDateTime timeStamp;
