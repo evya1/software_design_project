@@ -17,14 +17,20 @@
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
 		<maven.assemblyPlugin.version>3.3.0</maven.assemblyPlugin.version>
-		<javafx.version>17.0.1</javafx.version>
+		<javafx.version>21</javafx.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.13.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>il.cshaifasweng.OCSFMediatorExample</groupId>
 				<artifactId>entities</artifactId>
-				<version>${project.version}</version>
+				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>mysql</groupId>
@@ -34,7 +40,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>5.4.12.final</version>
+				<version>5.4.12.Final</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -1,13 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import javafx.animation.Animation;
@@ -20,17 +18,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.util.Duration;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 public class PrimaryController {
-
-	@FXML
-	private TextField submitterID1;
-
-	@FXML
-	private TextField submitterID2;
 
 	@FXML
 	private TextField timeTF;
@@ -44,6 +37,18 @@ public class PrimaryController {
 	@FXML
 	private TextField DataFromServerTF;
 
+	@FXML
+	private DatePicker movieDate;
+
+	@FXML
+	private Label dateLabel;
+
+	@FXML
+	private ListView<String> movieList;
+
+	@FXML
+	private Label movieInfo;
+
 	private int msgId;
 
 	@FXML
@@ -53,7 +58,6 @@ public class PrimaryController {
 			MessageTF.clear();
 			SimpleClient.getClient().sendToServer(message);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -64,18 +68,11 @@ public class PrimaryController {
 	}
 
 	@Subscribe
-	public void setSubmittersTF(UpdateMessageEvent event) {
-		submitterID1.setText(event.getMessage().getData().substring(0, 9));
-		submitterID2.setText(event.getMessage().getData().substring(11, 20));
-	}
-
-	@Subscribe
 	public void getStarterData(NewSubscriberEvent event) {
 		try {
 			Message message = new Message(msgId, "send Submitters IDs");
 			SimpleClient.getClient().sendToServer(message);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -84,7 +81,7 @@ public class PrimaryController {
 	public void errorEvent(ErrorEvent event) {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 		Platform.runLater(() -> {
-			Alert alert = new Alert(Alert.AlertType.ERROR,
+			Alert alert = new Alert(AlertType.ERROR,
 					String.format("Message:\nId: %d\nData: %s\nTimestamp: %s\n",
 							event.getMessage().getId(),
 							event.getMessage().getMessage(),
@@ -115,12 +112,10 @@ public class PrimaryController {
 			Message message = new Message(msgId, "add client");
 			SimpleClient.getClient().sendToServer(message);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//---------GUI---------
 
-		//Making it so previous dates become disabled
+		// Making it so previous dates become disabled
 		movieDate.setDayCellFactory(picker -> new DateCell() {
 			public void updateItem(LocalDate date, boolean empty) {
 				super.updateItem(date, empty);
@@ -128,7 +123,8 @@ public class PrimaryController {
 				setDisable(empty || date.compareTo(today) < 0);
 			}
 		});
-		//Filling the list
+
+		// Filling the list
 		movieList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
@@ -137,23 +133,9 @@ public class PrimaryController {
 						currentMovie, "שם סרט בעברית", "Producer producer", "That guy, that girl, and these guys", "In a far distant land, it's said there's a distant land that contains a story about a distant land that talks about a distant land and a distant land.".replaceAll("(.{80})", "$1-\n-")));
 			}
 		});
-
 	}
 
-	//----------GUI--------------------
-
-	@FXML
-	private DatePicker movieDate;
-
-	@FXML
-	private Label dateLabel;
-
-	@FXML
-	private ListView<String> movieList;
-
-	@FXML
-	private Label movieInfo;
-
+	// GUI-related variables and methods
 	String[] movies = {"Jacked Sparrow", "The Assignment - Return of Calculas", "Bobsponge The Movie"};
 	double[] duration = {2.5, 2.75, 3};
 	int[] hours = {1230, 1515, 1000, 1800};
@@ -176,7 +158,7 @@ public class PrimaryController {
 					indices.add(i);
 				}
 			}
-			for (int i = 0; i < indices.toArray().length; i++) {
+			for (int i = 0; i < indices.size(); i++) {
 				currentMovies.add(movies[indices.get(i)]);
 			}
 			movieList.getItems().addAll(currentMovies);
