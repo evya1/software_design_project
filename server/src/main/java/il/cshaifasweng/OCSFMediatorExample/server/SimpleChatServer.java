@@ -27,6 +27,7 @@ public class SimpleChatServer
             session.beginTransaction();
 
             DataCommunicationDB.setSession(session);
+            DataCommunicationDB.setPassword(password);
             DataCommunicationDB.generateMovieList();
             DataCommunicationDB.printAllEntities();
 

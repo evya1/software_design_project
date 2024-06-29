@@ -22,9 +22,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB.*;
+
 public class SimpleServer extends AbstractServer {
 	private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
-
+	private static Session session;
 
 	public SimpleServer(int port) {
 		super(port);
@@ -33,12 +35,13 @@ public class SimpleServer extends AbstractServer {
 
 	@Override
 	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
-		Message message = (Message) msg;
-		String request = message.getMessage();
+		msgOb message = (msgOb) msg;
+		//Message message = (Message) msg;
+		String request = message.getMsg();
 		try {
 			//we got an empty message, so we will send back an error message with the error details.
 			if (request.isBlank()){
-				message.setMessage("Error! we got an empty message");
+				message.setMsg("Error! we got an empty message");
 				client.sendToClient(message);
 				System.out.println("Sent empty message");
 			}
@@ -46,7 +49,7 @@ public class SimpleServer extends AbstractServer {
 			// the IDs at data field in Message entity and send back to all subscribed clients a request to update
 			//their IDs text fields. An example of use of observer design pattern.
 			//message format: "change submitters IDs: 123456789, 987654321"
-			else if(request.startsWith("change submitters IDs:")){
+			/*else if(request.startsWith("change submitters IDs:")){
 				message.setData(request.substring(23));
 				message.setMessage("update submitters IDs");
 				sendToAllClients(message);
@@ -62,17 +65,56 @@ public class SimpleServer extends AbstractServer {
 			else if(request.startsWith("echo Hello")){
 				message.setMessage("Hello World!");
 				client.sendToClient(message);
+			}*/
+			else if(request.startsWith("show all movies")){
+				try {
+					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
+					session = sessionFactory.openSession();
+					List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
+					msgOb answer = new msgOb("showing all movies",movies);
+					client.sendToClient(answer);
+				} catch (Exception e) {
+					System.err.println("An error occured");
+					e.printStackTrace();
+				} finally {
+					assert session != null;
+					session.close();
+				}
 			}
-			else if(request.startsWith("send Submitters IDs")){
-				//add code here to send submitters IDs to client
+			else if (request.startsWith("change screening times of the movie")){
+				try{
+					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
+					session = sessionFactory.openSession();
+					// the client should put in the object of the message a new movie such that the fields
+					// take the same fields of the movie we want to change screening times
+					// apart from the field of the List of the movieSlot to be changed with the new time slots.
+					Movie movie = (Movie) message.getObject();
+					for (MovieSlot current : movie.getMovieScreeningTime()) {
+						DataCommunicationDB.modifyMovieSlotStartTime(current.getId(), current.getStartDateTime());
+						DataCommunicationDB.modifyMovieSlotEndTime(current.getId(), current.getEndDateTime());
+					}
+				} catch (Exception e) {
+					System.err.println("An error occured");
+					e.printStackTrace();
+				} finally {
+					assert session != null;
+					session.close();
+				}
 			}
-			else if (request.startsWith("send Submitters")){
-				//add code here to send submitters names to client
+			else if (request.equals("update movies list")) {
+				try {
+					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
+					session = sessionFactory.openSession();
+					// to be continued
+				} catch (Exception e) {
+					System.err.println("An error occured");
+					e.printStackTrace();
+				} finally {
+					assert session != null;
+					session.close();
+				}
 			}
-			else if (request.equals("what’s the time?")) {
-				//add code here to send the time to client
-			}
-			else if (request.startsWith("multiply")){
+			else if (request.startsWith("")){
 				//add code here to multiply 2 numbers received in the message and send result back to client
 				//(use substring method as shown above)
 				//message format: "multiply n*m"
