@@ -25,12 +25,14 @@ public class SimpleChatClient extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-    	EventBus.getDefault().register(this);
-    	client = SimpleClient.getClient();
-    	client.openConnection();
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        scene = new Scene(loadFXML("ServerLogin"));
         stage.setScene(scene);
+        EventBus.getDefault().register(this);
         stage.show();
+
+        //If you want to display a screen after ServerLogin go to:
+        //ServerLoginController.java and change the resource in line 58.
+        //the currently set is primary.fxml
     }
 
     static void setRoot(String fxml) throws IOException {
@@ -41,15 +43,17 @@ public class SimpleChatClient extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(SimpleChatClient.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
-    
-    
+
 
     @Override
-	public void stop() throws Exception {
-		// TODO Auto-generated method stub
-    	EventBus.getDefault().unregister(this);
-		super.stop();
-	}
+    public void stop() throws Exception {
+        EventBus.getDefault().unregister(this);
+        SimpleClient client = SimpleClient.getClient();
+        if (client != null) {
+            client.closeConnection();
+        }
+        super.stop();
+    }
 
 
     @Subscribe
