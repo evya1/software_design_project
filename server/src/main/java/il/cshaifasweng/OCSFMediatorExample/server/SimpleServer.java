@@ -19,6 +19,7 @@ public class SimpleServer extends AbstractServer {
     private static final String SHOW_ALL_MOVIES_REQUEST = "show all movies";
     private static final String CHANGE_SCREENING_TIMES_REQUEST = "change screening times of the movie";
     private static final String UPDATE_MOVIES_LIST_REQUEST = "update movies list";
+    private static final String GET_TIMESLOT_BY_MOVIEID_REQUEST = "get movie slot by movie ID";
 
     private final Map<String, RequestHandler> handlers = new HashMap<>();
 
@@ -32,6 +33,7 @@ public class SimpleServer extends AbstractServer {
         handlers.put(SHOW_ALL_MOVIES_REQUEST, new ShowAllMoviesHandler());
         handlers.put(CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
         handlers.put(UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
+        handlers.put(GET_TIMESLOT_BY_MOVIEID_REQUEST, new GetTimeSlotByMovieID());
     }
 
     @Override
@@ -50,8 +52,8 @@ public class SimpleServer extends AbstractServer {
                 handler = handlers.get(CHANGE_SCREENING_TIMES_REQUEST);
             } else if (request.equals(UPDATE_MOVIES_LIST_REQUEST)) {
                 handler = handlers.get(UPDATE_MOVIES_LIST_REQUEST);
-            } else {
-
+            } else if (request.startsWith(GET_TIMESLOT_BY_MOVIEID_REQUEST)) {
+                handler = handlers.get(GET_TIMESLOT_BY_MOVIEID_REQUEST);
             }
 
             if (handler != null) {

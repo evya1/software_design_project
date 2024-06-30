@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
+import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
@@ -20,7 +20,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 
 public class CatalogController {
     private static List<Movie> movies;
@@ -51,6 +50,7 @@ public class CatalogController {
     private void loadMovies() {
         // Ensure movies list is initialized and populated
         if (movies != null && !movies.isEmpty()) {
+            System.out.println("This is the number of movies given " + movies.size());
             ObservableList<String> movieNames = FXCollections.observableArrayList();
             for (Movie movie : movies) {
                 movieNames.add(movie.getMovieName());
@@ -69,44 +69,56 @@ public class CatalogController {
     public void handleBackButtonAction(ActionEvent event) {
         try {
             Stage stage = (Stage) backButton.getScene().getWindow();
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../primary.fxml")));
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
+            SimpleClient.moveScene("primary.fxml",stage);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @FXML
     public void handleUpdateButtonAction(ActionEvent event) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("update.fxml"));
-//            Parent root = loader.load();
-//
-//            UpdateController updateController = loader.getController();
-//            updateController.setMovies(movies);
-//
-//            Stage stage = (Stage) updateButton.getScene().getWindow();
-//            Scene scene = new Scene(root);
-//            stage.setScene(scene);
-//            stage.show();
-//        } catch (IOException e) {
-//            showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
-//        }
-    }
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     public void chosenMovie(MouseEvent mouseEvent) {
+        if (mouseEvent.getClickCount() == 2) {
+            String movieName = movieListView.getSelectionModel().getSelectedItem();
+            if (movieName != null) {
+                for (Movie movie : movies) {
+                    if (movie.getMovieName().equals(movieName)) {
+                        try {
+                            MovieController.setMovie(movie);
 
+                            // Load the FXML file from the correct path
+                            URL fxmlLocation = getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/movieCatalog/Movie.fxml");
+                            if (fxmlLocation == null) {
+                                System.out.println("FXML file not found at the specified path.");
+                                return;
+                            }
+
+
+
+                            FXMLLoader loader = new FXMLLoader(fxmlLocation);
+                            Parent root = loader.load();
+
+                            // Create a new stage for the movie details
+                            Stage newStage = new Stage();
+                            Scene scene = new Scene(root);
+                            newStage.setScene(scene);
+                            newStage.show();
+                            return;
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } else {
+                System.out.println("No movie selected.");
+            }
+        }
     }
+
 
     public void chooseTypeAction(ActionEvent actionEvent) {
     }
