@@ -44,8 +44,17 @@ public class ServerLoginController {
     @FXML
     void connectToServer(ActionEvent event) {
         if (specificIpRadioBtn.isSelected()) {
-            SimpleClient.setIpAddress(ipTextField.getText());
-            SimpleClient.setClientPort(Integer.parseInt(portTextField.getText()));
+            if (ipTextField.getText().isEmpty() || portTextField.getText().isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, "Field Empty Error", "Please Enter IP Address and Port Number");
+                return;
+            }
+            try {
+                SimpleClient.setIpAddress(ipTextField.getText());
+                SimpleClient.setClientPort(Integer.parseInt(portTextField.getText()));
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Parse failed","Please enter a valid IP address and port");
+                return;
+            }
         } else {
             SimpleClient.setIpAddress("localhost");
         }
@@ -63,10 +72,12 @@ public class ServerLoginController {
         } catch (ConnectException e) {
             // Show an alert if the connection is refused
             showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");
+
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             // Handle other IO exceptions
             showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
+
         }
     }
 
@@ -89,6 +100,6 @@ public class ServerLoginController {
             portTextField.setText("");
             ipTextField.setText("");
         }
-        
+
     }
 }
