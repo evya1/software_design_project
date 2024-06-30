@@ -51,7 +51,7 @@ public class SimpleServer extends AbstractServer {
             } else if (request.equals(UPDATE_MOVIES_LIST_REQUEST)) {
                 handler = handlers.get(UPDATE_MOVIES_LIST_REQUEST);
             } else {
-                // Handle unknown requests here if needed
+
             }
 
             if (handler != null) {

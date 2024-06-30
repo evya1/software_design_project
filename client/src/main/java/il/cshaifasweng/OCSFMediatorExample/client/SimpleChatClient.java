@@ -21,7 +21,6 @@ import org.greenrobot.eventbus.Subscribe;
 public class SimpleChatClient extends Application {
 
     private static Scene scene;
-    private SimpleClient client;
 
     @Override
     public void start(Stage stage) throws IOException {
