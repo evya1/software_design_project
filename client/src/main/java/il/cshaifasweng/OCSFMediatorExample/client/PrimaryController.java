@@ -21,22 +21,21 @@ public class PrimaryController {
     @FXML
     public void catalogController(ActionEvent event) {
         try {
+            SimpleClient.sendMessage("show all movies");
             Stage stage = (Stage) catalogButton.getScene().getWindow();
             //TODO: Change the primary.fxml to the main scene.
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("movieCatalog/movieCatalog.fxml")));
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
-            SimpleClient.sendMessage("show all movies");
 
-        }
-        catch (IOException e){
-            showAlert(Alert.AlertType.ERROR, "IO Error","An unexpected error occurred. Please try again.");
+
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
         }
 
 
     }
-
 
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
@@ -45,6 +44,6 @@ public class PrimaryController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-}
+    }
 }
 
