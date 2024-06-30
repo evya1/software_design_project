@@ -1,98 +1,68 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.*;
-import il.cshaifasweng.OCSFMediatorExample.server.ocsf.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.MessageObject;
+import il.cshaifasweng.OCSFMediatorExample.server.handlers.*;
+import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
+import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
+import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleServer extends AbstractServer {
-	private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
-	private static Session session;
+    private static final ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
 
-	public SimpleServer(int port) {
-		super(port);
+    private static final String EMPTY_MESSAGE_REQUEST = "blank";
+    private static final String SHOW_ALL_MOVIES_REQUEST = "show all movies";
+    private static final String CHANGE_SCREENING_TIMES_REQUEST = "change screening times of the movie";
+    private static final String UPDATE_MOVIES_LIST_REQUEST = "update movies list";
 
-	}
+    private final Map<String, RequestHandler> handlers = new HashMap<>();
 
-	@Override
-	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
-		MessageObject message = (MessageObject) msg;
-		String request = message.getMsg();
-		try {
-			//we got an empty message, so we will send back an error message with the error details.
-			if (request.isBlank()) {
-				message.setMsg("Error! we got an empty message");
-				client.sendToClient(message);
-				System.out.println("Sent empty message");
-			} else if (request.startsWith("show all movies")) {
-				try {
-					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
-					session = sessionFactory.openSession();
-					List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
-					MessageObject answer = new MessageObject("showing all movies", movies);
-					client.sendToClient(answer);
-				} catch (Exception e) {
-					System.err.println("An error occured");
-					e.printStackTrace();
-				} finally {
-					assert session != null;
-					session.close();
-				}
-			} else if (request.startsWith("change screening times of the movie")) {
-				try {
-					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
-					session = sessionFactory.openSession();
-					DataCommunicationDB.setSession(session);
-					// the client should put in the object of the message a new movieSlot such that the fields
-					// take the same fields of the movieSlot we want to change screening times.
-					MovieSlot movieSlot = (MovieSlot) message.getObject();
-					DataCommunicationDB.modifyMovieSlotStartTime(movieSlot.getId(), movieSlot.getStartDateTime());
-					DataCommunicationDB.modifyMovieSlotEndTime(movieSlot.getId(), movieSlot.getEndDateTime());
+    public SimpleServer(int port) {
+        super(port);
+        initializeHandlers();
+    }
 
-					MessageObject answer = new MessageObject("screening times of the movie updated");
-					client.sendToClient(answer);
-				} catch (Exception e) {
-					System.err.println("An error occured");
-					e.printStackTrace();
-				} finally {
-					assert session != null;
-					session.close();
-				}
-			} else if (request.equals("update movies list")) {
-				try {
-					SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
-					session = sessionFactory.openSession();
-					List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
-					MessageObject answer = new MessageObject("all updated movies", movies);
-					client.sendToClient(answer);
-				} catch (Exception e) {
-					System.err.println("An error occured");
-					e.printStackTrace();
-				} finally {
-					assert session != null;
-					session.close();
-				}
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
+    private void initializeHandlers() {
+        handlers.put(EMPTY_MESSAGE_REQUEST, new EmptyMessageHandler());
+        handlers.put(SHOW_ALL_MOVIES_REQUEST, new ShowAllMoviesHandler());
+        handlers.put(CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
+        handlers.put(UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
+    }
 
-	public void sendToAllClients(Message message) {
-		try {
-			for (SubscribedClient SubscribedClient : SubscribersList) {
-				SubscribedClient.getClient().sendToClient(message);
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
+    @Override
+    protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
+        MessageObject message = (MessageObject) msg;
+        String request = message.getMsg();
+
+        try {
+            if (request.isBlank()) {
+                handlers.get(EMPTY_MESSAGE_REQUEST).handle(message, client);
+            } else if (request.startsWith(SHOW_ALL_MOVIES_REQUEST)) {
+                handlers.get(SHOW_ALL_MOVIES_REQUEST).handle(message, client);
+            } else if (request.startsWith(CHANGE_SCREENING_TIMES_REQUEST)) {
+                handlers.get(CHANGE_SCREENING_TIMES_REQUEST).handle(message, client);
+            } else if (request.equals(UPDATE_MOVIES_LIST_REQUEST)) {
+                handlers.get(UPDATE_MOVIES_LIST_REQUEST).handle(message, client);
+            } else {
+                // Handle unknown requests here if needed
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendToAllClients(Message message) {
+        try {
+            for (SubscribedClient SubscribedClient : SubscribersList) {
+                SubscribedClient.getClient().sendToClient(message);
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
 }
-
-
