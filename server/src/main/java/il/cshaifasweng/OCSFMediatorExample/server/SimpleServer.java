@@ -40,17 +40,24 @@ public class SimpleServer extends AbstractServer {
         String request = message.getMsg();
 
         try {
+            RequestHandler handler = null;
+
             if (request.isBlank()) {
-                handlers.get(EMPTY_MESSAGE_REQUEST).handle(message, client);
+                handler = handlers.get(EMPTY_MESSAGE_REQUEST);
             } else if (request.startsWith(SHOW_ALL_MOVIES_REQUEST)) {
-                handlers.get(SHOW_ALL_MOVIES_REQUEST).handle(message, client);
+                handler = handlers.get(SHOW_ALL_MOVIES_REQUEST);
             } else if (request.startsWith(CHANGE_SCREENING_TIMES_REQUEST)) {
-                handlers.get(CHANGE_SCREENING_TIMES_REQUEST).handle(message, client);
+                handler = handlers.get(CHANGE_SCREENING_TIMES_REQUEST);
             } else if (request.equals(UPDATE_MOVIES_LIST_REQUEST)) {
-                handlers.get(UPDATE_MOVIES_LIST_REQUEST).handle(message, client);
+                handler = handlers.get(UPDATE_MOVIES_LIST_REQUEST);
             } else {
                 // Handle unknown requests here if needed
             }
+
+            if (handler != null) {
+                handler.handle(message, client);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
