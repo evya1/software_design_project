@@ -11,10 +11,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javassist.Loader;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Objects;
+
+
 
 public class ServerLoginController {
 
@@ -45,14 +48,14 @@ public class ServerLoginController {
     void connectToServer(ActionEvent event) {
         if (specificIpRadioBtn.isSelected()) {
             if (ipTextField.getText().isEmpty() || portTextField.getText().isEmpty()) {
-                showAlert(Alert.AlertType.ERROR, "Field Empty Error", "Please Enter IP Address and Port Number");
+                SimpleClient.showAlert(Alert.AlertType.ERROR, "Field Empty Error", "Please Enter IP Address and Port Number");
                 return;
             }
             try {
                 SimpleClient.setIpAddress(ipTextField.getText());
                 SimpleClient.setClientPort(Integer.parseInt(portTextField.getText()));
             } catch (NumberFormatException e) {
-                showAlert(Alert.AlertType.ERROR, "Parse failed","Please enter a valid IP address and port");
+                SimpleClient.showAlert(Alert.AlertType.ERROR, "Parse failed","Please enter a valid IP address and port");
                 return;
             }
         } else {
@@ -65,29 +68,20 @@ public class ServerLoginController {
             // Load the primary screen after successfully connecting
             Stage stage = (Stage) connectBtn.getScene().getWindow();
             //TODO: Change the primary.fxml to the main scene.
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("primary.fxml")));
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
+            SimpleClient.moveScene("primary.fxml", stage);
         } catch (ConnectException e) {
             // Show an alert if the connection is refused
-            showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");
+            SimpleClient.showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");
 
         } catch (IOException e) {
             //e.printStackTrace();
             // Handle other IO exceptions
-            showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
+            SimpleClient.showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
 
         }
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+
 
     public Button getConnectBtn() {
         return connectBtn;
