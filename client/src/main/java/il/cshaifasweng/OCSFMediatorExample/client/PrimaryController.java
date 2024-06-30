@@ -14,9 +14,11 @@ import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 public class PrimaryController {
+    @FXML
     private Button catalogButton;
 
-    private void catalogController(ActionEvent event) {
+    @FXML
+    public void catalogController(ActionEvent event) {
         try {
             Stage stage = (Stage) catalogButton.getScene().getWindow();
             //TODO: Change the primary.fxml to the main scene.
