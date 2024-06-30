@@ -22,9 +22,19 @@ public class SimpleChatServer {
         return password;
     }
 
+    /**
+     * Sets the server port from command-line arguments or defaults to 3000.
+     *
+     * Usage: "java -jar Server.jar 3005" to set port 3005.
+     *
+     * @param args Command-line arguments. The first argument can be a port number.
+     */
+    private static void setPort(String[] args) {
+        port = (args.length > 0) ? Integer.parseInt(args[0]) : 3000;
+    }
+
     public static void main(String[] args) throws IOException {
-        port = (args.length > 0) ? Integer.parseInt(args[0]) : 3000;// we want the port to be dynamic,
-                                                                // Example of usage "java -jar Server.jar 3005"
+        setPort(args);
         server = new SimpleServer(port);
         System.out.println("server is listening");
         server.listen();
