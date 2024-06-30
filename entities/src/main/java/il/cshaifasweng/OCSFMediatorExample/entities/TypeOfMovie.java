@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 import java.time.LocalDateTime;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 //If typeOfMovie bool true/false - Currently in theaters.
 //If typeOfMovie bool true/false - Purchasable Link.
 
-public class TypeOfMovie {
+public class TypeOfMovie implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

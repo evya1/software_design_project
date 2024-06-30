@@ -1,10 +1,15 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.CatalogController;
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.MessageObject;
+import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import org.greenrobot.eventbus.EventBus;
 
+import javax.xml.catalog.Catalog;
 import java.io.IOException;
+import java.util.List;
 
 public class SimpleClient extends AbstractClient {
 
@@ -41,17 +46,20 @@ public class SimpleClient extends AbstractClient {
 
     @Override
     protected void handleMessageFromServer(Object msg) {
-        Message message = (Message) msg;
-        String messageString = message.getMessage();
-        if (messageString.equals("update submitters IDs")) {
-            EventBus.getDefault().post(new UpdateMessageEvent(message));
-        } else if (messageString.equals("client added successfully")) {
-            EventBus.getDefault().post(new NewSubscriberEvent(message));
-        } else if (messageString.equals("Error! we got an empty message")) {
-            EventBus.getDefault().post(new ErrorEvent(message));
-        } else {
-            EventBus.getDefault().post(new MessageEvent(message));
+        MessageObject message = (MessageObject) msg;
+        String messageString = message.getMsg();
+        if (messageString.equals("show all movies")) {
+            List<Movie> movies = (List<Movie>)message.getObject();
+            CatalogController.movies = movies;
         }
     }
+    public static void sendMessage(String messageContent) {
 
+        MessageObject message = new MessageObject(messageContent);
+        try {
+            client.sendToServer(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
