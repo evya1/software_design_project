@@ -50,7 +50,7 @@ public class SimpleClient extends AbstractClient {
         String messageString = message.getMsg();
         if (messageString.equals("show all movies")) {
             List<Movie> movies = (List<Movie>)message.getObject();
-            CatalogController.movies = movies;
+            EventBus.getDefault().post(movies);
         }
     }
     public static void sendMessage(String messageContent) {

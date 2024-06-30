@@ -14,12 +14,16 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 public class CatalogController {
-    public static List<Movie> movies;
+    private static List<Movie> movies;
 
     @FXML
     private Button backButton;
@@ -33,9 +37,14 @@ public class CatalogController {
     @FXML
     private ScrollPane scrollPane;
 
+    public static void setMovies(List<Movie> movies) {
+        CatalogController.movies = movies;
+    }
+
     @FXML
     void initialize() {
         // Call loadMovies here to ensure the ListView is populated when the scene is loaded
+        EventBus.getDefault().register(this);
         loadMovies();
     }
 
@@ -50,11 +59,17 @@ public class CatalogController {
         }
     }
 
+    @Subscribe
+    public void onMoviesReceived(List<Movie> movies) {
+        CatalogController.movies = movies;
+        loadMovies();
+    }
+
     @FXML
     public void handleBackButtonAction(ActionEvent event) {
         try {
             Stage stage = (Stage) backButton.getScene().getWindow();
-            Parent root = FXMLLoader.load(getClass().getResource("primary.fxml"));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../primary.fxml")));
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
