@@ -3,6 +3,7 @@ package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -67,8 +68,11 @@ public class CatalogController {
     @Subscribe
     public void onMoviesReceived(GenericEvent<List<Movie>> event) {
         if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof Movie) {
-            CatalogController.movies = event.getData();
-            loadMovies();
+            Platform.runLater(()->{
+                CatalogController.movies = event.getData();
+                loadMovies();
+            });
+
         }
         //EventBus.getDefault().unregister(this);
     }
@@ -76,6 +80,7 @@ public class CatalogController {
     @FXML
     public void handleBackButtonAction(ActionEvent event) {
         try {
+            EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backButton.getScene().getWindow();
             SimpleClient.moveScene("primary.fxml",stage);
         } catch (Exception e) {
@@ -96,11 +101,10 @@ public class CatalogController {
                     if (movie.getMovieName().equals(movieName)) {
                         try {
                             MovieController.setMovie(movie);
-
                             Node node = (Node) mouseEvent.getSource();
                             Stage stage = (Stage) node.getScene().getWindow();
+                            EventBus.getDefault().unregister(this);
                             SimpleClient.moveScene("movieCatalog/Movie.fxml",stage);
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
