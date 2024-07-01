@@ -138,7 +138,17 @@ public class DataCommunicationDB
                 session.flush();
 
                 // Create TypeOfMovie
-                TypeOfMovie typeOfMovie = new TypeOfMovie(random.nextBoolean(), random.nextBoolean(), random.nextBoolean());
+                boolean inTheaterRandom, viewPackageRandom;
+                boolean upcomingRandom = random.nextBoolean();
+                if(upcomingRandom) {
+                    inTheaterRandom = false;
+                    viewPackageRandom = false;
+                }
+                else {
+                    inTheaterRandom = true;
+                    viewPackageRandom =random.nextBoolean();
+                }
+                TypeOfMovie typeOfMovie = new TypeOfMovie(upcomingRandom, inTheaterRandom, viewPackageRandom);
                 session.save(typeOfMovie);
                 session.flush();
 

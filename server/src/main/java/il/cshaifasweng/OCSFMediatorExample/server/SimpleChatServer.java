@@ -35,6 +35,7 @@ public class SimpleChatServer {
 
     public static void main(String[] args) throws IOException {
         setPort(args);
+        System.out.println("The new port is : " + port);
         server = new SimpleServer(port);
         System.out.println("server is listening");
         server.listen();
@@ -48,7 +49,7 @@ public class SimpleChatServer {
             DataCommunicationDB.setSession(session);
             DataCommunicationDB.setPassword(password);
 
-            //DataCommunicationDB.generateMovieList();
+            DataCommunicationDB.generateMovieList();
             DataCommunicationDB.printAllEntities();
 
         } catch (Exception exception) {

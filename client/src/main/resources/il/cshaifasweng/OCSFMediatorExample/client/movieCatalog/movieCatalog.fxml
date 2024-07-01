@@ -17,7 +17,7 @@
                     </content>
                 </ScrollPane>
                 <Button fx:id="backButton" layoutX="14.0" layoutY="343.0" mnemonicParsing="false" onAction="#handleBackButtonAction" text="Back" />
-                <Button fx:id="updateButton" layoutX="498.0" layoutY="343.0" mnemonicParsing="false" onAction="#handleUpdateButtonAction" text="Update" />
+                <Button fx:id="updateButton" disable="true" layoutX="498.0" layoutY="343.0" mnemonicParsing="false" onAction="#handleUpdateButtonAction" opacity="0.0" text="Update" />
             <ComboBox fx:id="chooseTypeComboBox" layoutX="218.0" layoutY="14.0" onAction="#chooseTypeAction" prefWidth="150.0" />
             </children>
         </AnchorPane>

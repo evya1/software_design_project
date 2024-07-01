@@ -158,19 +158,30 @@ public class MovieController {
                     dialog.setHeaderText("Modify the time in this format yyyyMMdd HHmm");
                     dialog.setContentText("New time:");
                     Optional<String> result = dialog.showAndWait();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HHmm");
-                    LocalDateTime newStart = LocalDateTime.parse(result.get(), formatter);
-                    for (MovieSlot slot : movie.getMovieScreeningTime()) {
-                        if (slot.getStartDateTime().equals(newStart)) {
-                            SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Eror", "The time you entered is already there");
+
+                    //Check if the result exists before proceeding.
+                    LocalDateTime newStart = null;
+                    if (result.isPresent()) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HHmm");
+                        newStart = LocalDateTime.parse(result.get(), formatter);
+                        if(newStart.isBefore(LocalDateTime.now()))
+                        {
+                            SimpleClient.showAlert(Alert.AlertType.ERROR,"Unavailable Time","The time entered cannot be before today.");
                             return;
                         }
-                    }
+                        for (MovieSlot slot : movie.getMovieScreeningTime()) {
+                            if (slot.getStartDateTime().equals(newStart)) {
+                                SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Error", "The time you entered is already there");
+                                return;
+                            }
+                        }
+
                     LocalDateTime newEnd = newStart.plusMinutes(movie.getMovieDuration());
                     System.out.println(newEnd);
                     movie.getMovieScreeningTime().get(slotIndex).setStartDateTime(newStart);
                     movie.getMovieScreeningTime().get(slotIndex).setEndDateTime(newEnd);
                     SimpleClient.sendMessage("change screening times of the movie",movie);
+                    }
                 }catch (DateTimeParseException ParseException) {
                     SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Error","Please enter a valid time");
                 }catch (Exception e){

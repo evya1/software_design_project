@@ -53,7 +53,9 @@ public class ServerLoginController {
             }
             try {
                 SimpleClient.setIpAddress(ipTextField.getText());
+                System.out.println("LOG: Server address given " + ipTextField.getText());
                 SimpleClient.setClientPort(Integer.parseInt(portTextField.getText()));
+                System.out.println("LOG: Server port given " + Integer.parseInt(portTextField.getText()));
             } catch (NumberFormatException e) {
                 SimpleClient.showAlert(Alert.AlertType.ERROR, "Parse failed","Please enter a valid IP address and port");
                 return;
