@@ -155,23 +155,21 @@ public class MovieController {
                 try {
                     TextInputDialog dialog = new TextInputDialog(selectedItem.toString());
                     dialog.setTitle("Modify Screening Time");
-                    dialog.setHeaderText("Modify the time");
+                    dialog.setHeaderText("Modify the time in this format yyyyMMdd HHmm");
                     dialog.setContentText("New time:");
                     Optional<String> result = dialog.showAndWait();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HHmm");
-                    String str = selectedItem.format(formatter);
                     LocalDateTime newStart = LocalDateTime.parse(result.get(), formatter);
-
-                    //
-                    // 7ser check if the time is already in there
-                    //
-
-                    LocalDateTime newEnd = newStart.plusHours(newStart.getHour()+ movie.getMovieDuration());
+                    for (MovieSlot slot : movie.getMovieScreeningTime()) {
+                        if (slot.getStartDateTime().equals(newStart)) {
+                            SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Eror", "The time you entered is already there");
+                            return;
+                        }
+                    }
+                    LocalDateTime newEnd = newStart.plusMinutes(movie.getMovieDuration());
+                    System.out.println(newEnd);
                     movie.getMovieScreeningTime().get(slotIndex).setStartDateTime(newStart);
                     movie.getMovieScreeningTime().get(slotIndex).setEndDateTime(newEnd);
-                    for (MovieSlot pr : movie.getMovieScreeningTime()) {
-                        System.out.println(pr.getStartDateTime());
-                    }
                     SimpleClient.sendMessage("change screening times of the movie",movie);
                 }catch (DateTimeParseException ParseException) {
                     SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Error","Please enter a valid time");

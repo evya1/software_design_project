@@ -49,7 +49,6 @@ public class SimpleServer extends AbstractServer {
             } else if (request.startsWith(SHOW_ALL_MOVIES_REQUEST)) {
                 handler = handlers.get(SHOW_ALL_MOVIES_REQUEST);
             } else if (request.startsWith(CHANGE_SCREENING_TIMES_REQUEST)) {
-                System.out.println("roro");
                 handler = handlers.get(CHANGE_SCREENING_TIMES_REQUEST);
             } else if (request.equals(UPDATE_MOVIES_LIST_REQUEST)) {
                 handler = handlers.get(UPDATE_MOVIES_LIST_REQUEST);
@@ -58,7 +57,6 @@ public class SimpleServer extends AbstractServer {
             }
 
             if (handler != null) {
-                System.out.println("yoyo");
                 handler.handle(message, client);
             }
 
