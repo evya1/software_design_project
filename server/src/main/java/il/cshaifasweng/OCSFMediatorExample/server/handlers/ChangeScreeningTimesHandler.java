@@ -8,6 +8,8 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import java.time.LocalDateTime;
+
 public class ChangeScreeningTimesHandler implements RequestHandler {
     private static Session session;
 
@@ -21,10 +23,12 @@ public class ChangeScreeningTimesHandler implements RequestHandler {
             // take the same fields of the movie we want to change screening times
             // apart from the field of the List of the movieSlot to be changed with the new time slots.
             Movie movie = (Movie) message.getObject();
-            for (MovieSlot current : movie.getMovieScreeningTime()) {
-                System.out.println(current.getStartDateTime());
-                DataCommunicationDB.modifyMovieSlotStartTime(current.getId(), current.getStartDateTime());
-                DataCommunicationDB.modifyMovieSlotEndTime(current.getId(), current.getEndDateTime());
+            for (MovieSlot movieSlot : movie.getMovieScreeningTime()) {
+                int movieId = movieSlot.getId();
+                LocalDateTime movieStartTime = movieSlot.getStartDateTime();
+                LocalDateTime movieEndTime = movieSlot.getEndDateTime();
+                DataCommunicationDB.modifyMovieSlotStartTime(movieId, movieStartTime);
+                DataCommunicationDB.modifyMovieSlotEndTime(movieId, movieEndTime);
             }
             MessageObject answer = new MessageObject("screening times of the movie updated");
             client.sendToClient(answer);

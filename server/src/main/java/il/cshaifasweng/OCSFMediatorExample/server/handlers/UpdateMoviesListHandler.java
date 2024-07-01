@@ -6,6 +6,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import java.util.List;
 
@@ -17,8 +18,12 @@ public class UpdateMoviesListHandler implements RequestHandler {
         try {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
-            List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
+
+            String hql = "FROM Movie";
+            Query query = session.createQuery(hql);
+            List<Movie> movies = query.list();
             MessageObject answer = new MessageObject("all updated movies", movies);
+
             client.sendToClient(answer);
         } catch (Exception e) {
             System.err.println("An error occurred");
