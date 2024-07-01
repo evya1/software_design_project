@@ -1,7 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.server.handlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
-import il.cshaifasweng.OCSFMediatorExample.entities.MessageObject;
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
@@ -15,19 +15,22 @@ public class GetTimeSlotByMovieID implements RequestHandler {
     private static Session session;
 
     @Override
-    public void handle(MessageObject message, ConnectionToClient client) {
+    public void handle(Message message, ConnectionToClient client) {
         try {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
 
             //Loading the movie Entity
-            Movie movie = session.get(Movie.class, ((Movie) message.getObject()).getId());
+            Movie movie = session.get(Movie.class, message.getSpecificMovie().getId());
 
             List<MovieSlot> screeningTimes = movie.getMovieScreeningTime();
             screeningTimes.size();
 
-            MessageObject answer = new MessageObject("time slots for specific movie", screeningTimes);
+            Message answer = new Message();
+            answer.setMovieSlots(screeningTimes);
+            answer.setMessage("time slots for specific movie");
+
             client.sendToClient(answer);
             transaction.commit();
         } catch (Exception e) {

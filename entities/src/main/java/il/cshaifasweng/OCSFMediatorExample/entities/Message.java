@@ -2,31 +2,50 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-@Deprecated
+import java.util.List;
+
+
+
 public class Message implements Serializable {
-    int id;
-    LocalDateTime timeStamp;
-    String message;
-    String data;
 
-    public Message(int id, LocalDateTime timeStamp, String message) {
-        this.id = id;
-        this.timeStamp = timeStamp;
-        this.message = message;
+    private int id;
+    private LocalDateTime timeStamp;
+    private String message;
+    private String data;
+
+
+    private Movie specificMovie;
+
+    private List<Movie> movies;
+    private List<MovieSlot> movieSlots;
+
+
+    public Message() {
+        super();
     }
 
-    public Message(int id, String message) {
-        this.id = id;
-        this.timeStamp = LocalDateTime.now();
-        this.message = message;
-        this.data = null;
+    public Movie getSpecificMovie() {
+        return specificMovie;
     }
 
-    public Message(int id, String message,String data) {
-        this.id = id;
-        this.timeStamp = LocalDateTime.now();
-        this.message = message;
-        this.data = data;
+    public void setSpecificMovie(Movie specificMovie) {
+        this.specificMovie = specificMovie;
+    }
+
+    public List<MovieSlot> getMovieSlots() {
+        return movieSlots;
+    }
+
+    public void setMovieSlots(List<MovieSlot> movieSlots) {
+        this.movieSlots = movieSlots;
+    }
+
+    public List<Movie> getMovies() {
+        return movies;
+    }
+
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
     }
 
     public int getId() {

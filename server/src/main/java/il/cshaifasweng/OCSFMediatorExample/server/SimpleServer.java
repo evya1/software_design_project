@@ -1,7 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.MessageObject;
 import il.cshaifasweng.OCSFMediatorExample.server.handlers.HandlerFactory;
 import il.cshaifasweng.OCSFMediatorExample.server.handlers.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
@@ -21,8 +20,8 @@ public class SimpleServer extends AbstractServer {
 
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
-        MessageObject message = (MessageObject) msg;
-        String request = message.getMsg();
+        Message message = (Message) msg;
+        String request = message.getMessage();
 
         try {
             HandlerFactory factory = HandlerFactory.getInstance();

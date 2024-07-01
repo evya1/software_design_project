@@ -1,9 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.CatalogController;
-import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieController;
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
-import il.cshaifasweng.OCSFMediatorExample.entities.MessageObject;
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.MovieSlot;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import jdk.jfr.Event;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
@@ -53,32 +50,26 @@ public class SimpleClient extends AbstractClient {
 
     @Override
     protected void handleMessageFromServer(Object object) {
-        MessageObject message = (MessageObject) object;
-        String messageString = message.getMsg();
+        Message message = (Message) object;
+        String messageString = message.getMessage();
         System.out.println("LOG: new message from Server: " + messageString);
         if (messageString.equals("show all movies")) {
-            List<Movie> movies = (List<Movie>) message.getObject();
+            List<Movie> movies = message.getMovies();
             EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
         } else if (messageString.equals("time slots for specific movie")) {
-            List<MovieSlot> screeningTimes = (List<MovieSlot>) message.getObject();
+            List<MovieSlot> screeningTimes = message.getMovieSlots();
             EventBus.getDefault().post(new GenericEvent<List<MovieSlot>>(screeningTimes));
         }
     }
-    public static void sendMessage(String messageContent) {
-        sendMessage(messageContent, null);
-    }
 
-    public static void sendMessage(String messageContent, Object object) {
-        MessageObject message = new MessageObject(messageContent);
+    public static void sendMessage(Message message) {
         // Add logic to handle the object if it's not null
-        if (object != null) {
-            // Assuming you want to set the object in the message
-            message.setObject(object);
-        }
-        try {
-            client.sendToServer(message);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (message != null) {
+            try {
+                client.sendToServer(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

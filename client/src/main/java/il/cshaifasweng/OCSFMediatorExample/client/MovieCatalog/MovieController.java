@@ -1,7 +1,9 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
 import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.MovieSlot;
 import javafx.application.Platform;
@@ -76,7 +78,10 @@ public class MovieController {
         titleTextField.setEditable(false);
 
         //Send request to get movie slots.
-        SimpleClient.sendMessage("get movie slot by movie ID", movie);
+        Message message = new Message();
+        message.setMessage("get movie slot by movie ID");
+        message.setSpecificMovie(movie);
+        SimpleClient.sendMessage(message);
 
         //register to EventBus
         EventBus.getDefault().register(this);
@@ -131,7 +136,10 @@ public class MovieController {
     void updateScreeningFromDB(ActionEvent event) {
         try {
             screeningTimesListView.getItems().clear();
-            SimpleClient.sendMessage("get movie slot by movie ID", movie);
+            Message message = new Message();
+            message.setMessage("get movie slot by movie ID");
+            message.setSpecificMovie(movie);
+            SimpleClient.sendMessage(message);
 
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -180,7 +188,10 @@ public class MovieController {
                     System.out.println(newEnd);
                     movie.getMovieScreeningTime().get(slotIndex).setStartDateTime(newStart);
                     movie.getMovieScreeningTime().get(slotIndex).setEndDateTime(newEnd);
-                    SimpleClient.sendMessage("change screening times of the movie",movie);
+                    Message message = new Message();
+                    message.setMessage("change screening times of the movie");
+                    message.setSpecificMovie(movie);
+                    SimpleClient.sendMessage(message);
                     }
                 }catch (DateTimeParseException ParseException) {
                     SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Error","Please enter a valid time");
