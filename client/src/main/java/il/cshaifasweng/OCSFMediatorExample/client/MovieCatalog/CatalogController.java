@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
+import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import javafx.collections.FXCollections;
@@ -7,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -43,6 +45,7 @@ public class CatalogController {
     @FXML
     void initialize() {
         // Call loadMovies here to ensure the ListView is populated when the scene is loaded
+        SimpleClient.sendMessage("show all movies");
         EventBus.getDefault().register(this);
         loadMovies();
     }
@@ -60,9 +63,12 @@ public class CatalogController {
     }
 
     @Subscribe
-    public void onMoviesReceived(List<Movie> movies) {
-        CatalogController.movies = movies;
-        loadMovies();
+    public void onMoviesReceived(GenericEvent<List<Movie>> event) {
+        if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof Movie) {
+            CatalogController.movies = event.getData();
+            loadMovies();
+        }
+        //EventBus.getDefault().unregister(this);
     }
 
     @FXML
@@ -89,26 +95,11 @@ public class CatalogController {
                         try {
                             MovieController.setMovie(movie);
 
-                            // Load the FXML file from the correct path
-                            URL fxmlLocation = getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/movieCatalog/Movie.fxml");
-                            if (fxmlLocation == null) {
-                                System.out.println("FXML file not found at the specified path.");
-                                return;
-                            }
+                            Node node = (Node) mouseEvent.getSource();
+                            Stage stage = (Stage) node.getScene().getWindow();
+                            SimpleClient.moveScene("movieCatalog/Movie.fxml",stage);
 
-
-
-                            FXMLLoader loader = new FXMLLoader(fxmlLocation);
-                            Parent root = loader.load();
-
-                            // Create a new stage for the movie details
-                            Stage newStage = new Stage();
-                            Scene scene = new Scene(root);
-                            newStage.setScene(scene);
-                            newStage.show();
-                            return;
-
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }

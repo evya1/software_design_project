@@ -57,12 +57,12 @@ public class SimpleClient extends AbstractClient {
         String messageString = message.getMsg();
         System.out.println("LOG: new message from Server: " + messageString);
         if (messageString.equals("show all movies")) {
-            List<Movie> movies = (List<Movie>)message.getObject();
-            EventBus.getDefault().post(movies);
+            List<Movie> movies = (List<Movie>) message.getObject();
+            EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
         } else if (messageString.equals("time slots for specific movie")) {
-            List<MovieSlot> screeningTimes = (List<MovieSlot>)message.getObject();
+            List<MovieSlot> screeningTimes = (List<MovieSlot>) message.getObject();
             //MovieController.setTheTimeSlots(screeningTimes);
-            EventBus.getDefault().post(screeningTimes);
+            EventBus.getDefault().post(new GenericEvent<List<MovieSlot>>(screeningTimes));
         }
     }
     public static void sendMessage(String messageContent) {

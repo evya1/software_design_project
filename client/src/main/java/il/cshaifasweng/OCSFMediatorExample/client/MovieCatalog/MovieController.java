@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
+import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.MovieSlot;
@@ -10,8 +11,10 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +39,10 @@ public class MovieController {
     @FXML
     private Button backBtn;
 
+    @FXML // fx:id="updateScreeningBtn"
+    private Button updateScreeningBtn; // Value injected by FXMLLoader
+
+
     @FXML
     private TextField castTextField;
 
@@ -51,32 +58,56 @@ public class MovieController {
     @FXML
     private TextField titleTextField;
 
+
     @FXML
     void initialize() {
 
+        castTextField.setEditable(false);
+        descreptionTextField.setEditable(false);
+        producerTextField.setEditable(false);
+        titleTextField.setEditable(false);
+
+        //Send request to get movie slots.
         SimpleClient.sendMessage("get movie slot by movie ID",movie);
+
+        //register to EventBus
         EventBus.getDefault().register(this);
+
         castTextField.setText(movie.getMainCast());
         descreptionTextField.setText(movie.getMovieDescription());
         producerTextField.setText(movie.getProducer());
         titleTextField.setText(movie.getMovieName());
-
-
-
-        // Print MovieSlots
-        ObservableList<MovieSlot> movieSlots = FXCollections.observableArrayList();
-        movie.setMovieScreeningTime(movieSlots);
-        System.out.println(movieSlots.size());
-
     }
+    //if(event.getData() != null && !event.getData().isEmpty() && event.getData().get(0) instanceof Movie) {
+    @Subscribe
+    public void handleScreeningTimes(GenericEvent<List<MovieSlot>> event) {
+            if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof MovieSlot) {
+
+                ObservableList<LocalDateTime> times = FXCollections.observableArrayList();
+                for (MovieSlot slot : event.getData()) {
+                    times.add(slot.getStartDateTime());
+                }
+                screeningTimesListView.setItems(times);
+            }
+            //EventBus.getDefault().unregister(this);
+        }
 
     @FXML
     void backToCatalog(ActionEvent event) {
         try {
             Stage stage = (Stage) backBtn.getScene().getWindow();
-            SimpleClient.moveScene("movieCatalog.fxml",stage);
+            SimpleClient.moveScene("movieCatalog/movieCatalog.fxml",stage);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    void updateScreeningFromDB(ActionEvent event) {
+
+    }
+    @FXML
+    public void openModifyScreening(MouseEvent mouseEvent) {
+
     }
 }

@@ -18,11 +18,22 @@ public class GetTimeSlotByMovieID implements RequestHandler {
         try {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
-            Movie movie = (Movie) message.getObject();
+            session.beginTransaction();
+
+            //Loading the movie Entity
+            Movie movie = session.get(Movie.class, ((Movie) message.getObject()).getId());
+
             List<MovieSlot> screeningTimes = movie.getMovieScreeningTime();
+            screeningTimes.size();
+
             MessageObject answer = new MessageObject("time slots for specific movie", screeningTimes);
             client.sendToClient(answer);
+            session.getTransaction().commit();
+
         } catch (Exception e) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
             System.err.println("An error occurred");
             e.printStackTrace();
         } finally {
