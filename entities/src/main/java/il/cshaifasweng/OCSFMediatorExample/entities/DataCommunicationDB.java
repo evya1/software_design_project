@@ -1,9 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
+
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
-
+import java.io.IOException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -118,16 +120,16 @@ public class DataCommunicationDB
             session.flush();
 
             // Create 10 specific Movies
-            Movie movie1 = new Movie("Inception", "Leonardo DiCaprio", null, "Christopher Nolan", "A mind-bending thriller", 148, new ArrayList<>(), null);
-            Movie movie2 = new Movie("The Matrix", "Keanu Reeves", null, "Lana Wachowski, Lilly Wachowski", "A sci-fi action film", 136, new ArrayList<>(), null);
-            Movie movie3 = new Movie("Interstellar", "Matthew McConaughey", null, "Christopher Nolan", "A journey through space", 169, new ArrayList<>(), null);
-            Movie movie4 = new Movie("The Dark Knight", "Christian Bale", null, "Christopher Nolan", "A superhero film", 152, new ArrayList<>(), null);
-            Movie movie5 = new Movie("Fight Club", "Brad Pitt", null, "David Fincher", "An underground fight club", 139, new ArrayList<>(), null);
-            Movie movie6 = new Movie("Pulp Fiction", "John Travolta", null, "Quentin Tarantino", "A crime film", 154, new ArrayList<>(), null);
-            Movie movie7 = new Movie("Forrest Gump", "Tom Hanks", null, "Robert Zemeckis", "A man's extraordinary life", 142, new ArrayList<>(), null);
-            Movie movie8 = new Movie("The Shawshank Redemption", "Tim Robbins", null, "Frank Darabont", "A story of hope", 142, new ArrayList<>(), null);
-            Movie movie9 = new Movie("Gladiator", "Russell Crowe", null, "Ridley Scott", "A Roman epic", 155, new ArrayList<>(), null);
-            Movie movie10 = new Movie("The Godfather", "Marlon Brando", null, "Francis Ford Coppola", "A crime family saga", 175, new ArrayList<>(), null);
+            Movie movie1 = new Movie("Inception", "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page, Cillian Murphy, Marion Cotillard, Michael Caine", null, "Christopher Nolan", "Inception is a sci-fi thriller where a team of dream thieves led by Leonardo DiCaprio try to plant an idea in a CEO's mind by infiltrating his dreams.", 148, new ArrayList<>(), null);
+            Movie movie2 = new Movie("The Matrix", "Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Hugo Weaving", null, "Lana Wachowski, Lilly Wachowski", "A computer hacker learns the world he lives in is a simulation and joins a rebellion against the machines.", 136, new ArrayList<>(), null);
+            Movie movie3 = new Movie("Interstellar", "Matthew McConaughey, Anne Hathaway, Jessica Chastain, Michael Caine", null, "Christopher Nolan", "A team of astronauts travel through a wormhole in search of a new home for humanity.", 169, new ArrayList<>(), null);
+            Movie movie4 = new Movie("The Dark Knight", "Christian Bale, Heath Ledger, Aaron Eckhart, Maggie Gyllenhaal", null, "Christopher Nolan", "Batman faces a new challenge from the Joker, who descends Gotham City into chaos.", 152, new ArrayList<>(), null);
+            Movie movie5 = new Movie("Fight Club", "Brad Pitt, Edward Norton, Helena Bonham Carter, Meat Loaf", null, "David Fincher", "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much, much more.", 139, new ArrayList<>(), null);
+            Movie movie6 = new Movie("Pulp Fiction", " John Travolta, Samuel L. Jackson, Uma Thurman, Bruce Willis", null, "Quentin Tarantino", "A hit man with a philosophical bent, a boxer on the fix, and their wives weave a darkly comedic tapestry.", 154, new ArrayList<>(), null);
+            Movie movie7 = new Movie("Forrest Gump", "Tom Hanks, Robin Wright, Gary Sinise, Sally Field", null, "Robert Zemeckis", "A simple man with a low IQ but a big heart runs through key events in American history.", 142, new ArrayList<>(), null);
+            Movie movie8 = new Movie("The Shawshank Redemption", "Tim Robbins, Morgan Freeman, Bob Gunton, William Sadler", null, "Frank Darabont", "A wrongly convicted man plans his escape from prison over a long period of time.", 142, new ArrayList<>(), null);
+            Movie movie9 = new Movie("Gladiator", "Russell Crowe, Joaquin Phoenix, Connie Nielsen, Richard Harris", null, "Ridley Scott", "A former Roman general becomes a reluctant gladiator seeking revenge for the murder of his family.", 155, new ArrayList<>(), null);
+            Movie movie10 = new Movie("The Godfather", "Marlon Brando, Al Pacino, James Caan, Robert Duvall", null, "Francis Ford Coppola", "The aging patriarch of a powerful Italian-American crime family tries to maintain control of his empire.", 175, new ArrayList<>(), null);
 
             List<Movie> movies = Arrays.asList(movie1, movie2, movie3, movie4, movie5, movie6, movie7, movie8, movie9, movie10);
 
@@ -167,6 +169,23 @@ public class DataCommunicationDB
                 theater.getMovieTime().addAll(movieSlots);
             }
 
+            // Adding images to the movies
+            movie1.setImage(readImage("MoviePictures/Inception.jpg"));
+            movie2.setImage(readImage("MoviePictures/The_Matrix.jpg"));
+            movie3.setImage(readImage("MoviePictures/Interstellar.jpg"));
+            movie4.setImage(readImage("MoviePictures/The_Dark_Knight.jpg"));
+            movie5.setImage(readImage("MoviePictures/Fight_Club.jpg"));
+            movie6.setImage(readImage("MoviePictures/Pulp_Fiction.jpg"));
+            movie7.setImage(readImage("MoviePictures/Forrest_Gump.jpg"));
+            movie8.setImage(readImage("MoviePictures/Shawshank.jpg"));
+            movie9.setImage(readImage("MoviePictures/Gladiator.jpg"));
+            movie10.setImage(readImage("MoviePictures/Godfather.jpg"));
+
+            for( Movie movie : movies){
+                session.save(movie);
+            }
+            session.flush();
+
             // Create Seats
             List<Seat> seats = new ArrayList<>();
             for (int i = 0; i < theater.getNumOfSeats(); i++) {
@@ -190,6 +209,13 @@ public class DataCommunicationDB
         }
     }
 
+    public static byte[] readImage(String imagePath) throws IOException {
+        InputStream inputStream = DataCommunicationDB.class.getClassLoader().getResourceAsStream(imagePath);
+        if (inputStream == null) {
+            throw new IOException("File not found: " + imagePath);
+        }
+        return inputStream.readAllBytes();
+    }
 
 
     /******************* GETTERS **************************/

@@ -9,13 +9,17 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -44,12 +48,14 @@ public class MovieController {
     @FXML // fx:id="updateScreeningBtn"
     private Button updateScreeningBtn; // Value injected by FXMLLoader
 
+    @FXML // fx:id="movieImageView"
+    private ImageView movieImageView; // Value injected by FXMLLoader
 
     @FXML
     private TextField castTextField;
 
     @FXML
-    private TextField descreptionTextField;
+    private TextArea descriptionTextArea;
 
     @FXML
     private TextField producerTextField;
@@ -65,7 +71,7 @@ public class MovieController {
     void initialize() {
 
         castTextField.setEditable(false);
-        descreptionTextField.setEditable(false);
+        descriptionTextArea.setEditable(false);
         producerTextField.setEditable(false);
         titleTextField.setEditable(false);
 
@@ -76,9 +82,16 @@ public class MovieController {
         EventBus.getDefault().register(this);
 
         castTextField.setText(movie.getMainCast());
-        descreptionTextField.setText(movie.getMovieDescription());
+        descriptionTextArea.setText(movie.getMovieDescription());
         producerTextField.setText(movie.getProducer());
         titleTextField.setText(movie.getMovieName());
+
+        if(movie.getImage() != null){
+            InputStream imageStream = new ByteArrayInputStream(movie.getImage());
+            Image image = new Image(imageStream);
+            movieImageView.setImage(image);
+        }
+
     }
     //if(event.getData() != null && !event.getData().isEmpty() && event.getData().get(0) instanceof Movie) {
     @Subscribe
