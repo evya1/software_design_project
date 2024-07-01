@@ -136,7 +136,7 @@ public class DataCommunicationDB
                 session.flush();
 
                 // Create TypeOfMovie
-                TypeOfMovie typeOfMovie = new TypeOfMovie(false, true, true);
+                TypeOfMovie typeOfMovie = new TypeOfMovie(random.nextBoolean(), random.nextBoolean(), random.nextBoolean());
                 session.save(typeOfMovie);
                 session.flush();
 
