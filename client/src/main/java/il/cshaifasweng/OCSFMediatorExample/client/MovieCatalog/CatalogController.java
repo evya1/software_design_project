@@ -1,15 +1,15 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
+import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Movie;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
@@ -17,9 +17,8 @@ import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 public class CatalogController {
     private static List<Movie> movies;
@@ -34,6 +33,9 @@ public class CatalogController {
     private ListView<String> movieListView;
 
     @FXML
+    private ComboBox<String> chooseTypeComboBox;
+
+    @FXML
     private ScrollPane scrollPane;
 
     public static void setMovies(List<Movie> movies) {
@@ -42,15 +44,18 @@ public class CatalogController {
 
     @FXML
     void initialize() {
+        chooseTypeComboBox.getItems().addAll("All Movies","Upcoming Movies", "In Theater", "Viewing Package");
         // Call loadMovies here to ensure the ListView is populated when the scene is loaded
+        SimpleClient.sendMessage("show all movies");
         EventBus.getDefault().register(this);
+        chooseTypeComboBox.setValue("All Movies");  
         loadMovies();
     }
 
     private void loadMovies() {
         // Ensure movies list is initialized and populated
         if (movies != null && !movies.isEmpty()) {
-            System.out.println("This is the number of movies given " + movies.size());
+            System.out.println("LOG: This is the number of movies given " + movies.size());
             ObservableList<String> movieNames = FXCollections.observableArrayList();
             for (Movie movie : movies) {
                 movieNames.add(movie.getMovieName());
@@ -60,9 +65,12 @@ public class CatalogController {
     }
 
     @Subscribe
-    public void onMoviesReceived(List<Movie> movies) {
-        CatalogController.movies = movies;
-        loadMovies();
+    public void onMoviesReceived(GenericEvent<List<Movie>> event) {
+        if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof Movie) {
+            CatalogController.movies = event.getData();
+            loadMovies();
+        }
+        //EventBus.getDefault().unregister(this);
     }
 
     @FXML
@@ -89,26 +97,11 @@ public class CatalogController {
                         try {
                             MovieController.setMovie(movie);
 
-                            // Load the FXML file from the correct path
-                            URL fxmlLocation = getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/movieCatalog/Movie.fxml");
-                            if (fxmlLocation == null) {
-                                System.out.println("FXML file not found at the specified path.");
-                                return;
-                            }
+                            Node node = (Node) mouseEvent.getSource();
+                            Stage stage = (Stage) node.getScene().getWindow();
+                            SimpleClient.moveScene("movieCatalog/Movie.fxml",stage);
 
-
-
-                            FXMLLoader loader = new FXMLLoader(fxmlLocation);
-                            Parent root = loader.load();
-
-                            // Create a new stage for the movie details
-                            Stage newStage = new Stage();
-                            Scene scene = new Scene(root);
-                            newStage.setScene(scene);
-                            newStage.show();
-                            return;
-
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -121,5 +114,30 @@ public class CatalogController {
 
 
     public void chooseTypeAction(ActionEvent actionEvent) {
+        String selection = chooseTypeComboBox.getValue();
+        movieListView.getItems().clear();
+
+        if (movies != null && !movies.isEmpty()) {
+            ObservableList<String> movieNames = FXCollections.observableArrayList();
+            for (Movie movie : movies) {
+                if(movie.getUpcomingMovies().isPurchasable() && Objects.equals(selection, "Viewing Package"))
+                {
+                    movieNames.add(movie.getMovieName());
+                }
+                else if(movie.getUpcomingMovies().isCurrentlyRunning() && Objects.equals(selection, "In Theater"))
+                {
+                    movieNames.add(movie.getMovieName());
+                }
+                else if(movie.getUpcomingMovies().isUpcoming() && Objects.equals(selection, "Upcoming Movies")){
+                    movieNames.add(movie.getMovieName());
+                }
+                else if(Objects.equals(selection, "All Movies")){
+                    movieNames.add(movie.getMovieName());
+                }
+            }
+            movieListView.setItems(movieNames);
+        }
     }
 }
+
+

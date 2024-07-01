@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 import javax.persistence.*;
+import java.awt.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,12 +15,16 @@ public class Movie implements Serializable {
     private int id;
     private String movieName;
     private String mainCast;
-    private byte[] image;
+    @Lob
+    @Column(name = "image", columnDefinition = "LONGBLOB")
+    private byte[] image; // Store image as byte array
+
     private String producer;
     private String movieDescription;
     private int movieDuration;
     @OneToMany
     private List<MovieSlot> movieScreeningTime; //true to prototype only!
+
     @OneToOne
     private TypeOfMovie upcomingMovies;
 

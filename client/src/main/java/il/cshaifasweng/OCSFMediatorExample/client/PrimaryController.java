@@ -12,7 +12,6 @@ public class PrimaryController {
     @FXML
     public void catalogController(ActionEvent event) {
         try {
-            SimpleClient.sendMessage("show all movies");
             Stage stage = (Stage) catalogButton.getScene().getWindow();
             SimpleClient.moveScene("movieCatalog/movieCatalog.fxml",stage);
         } catch (Exception e) {
@@ -21,8 +20,5 @@ public class PrimaryController {
 
 
     }
-
-
-
 }
 
