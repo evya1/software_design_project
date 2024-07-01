@@ -61,7 +61,6 @@ public class SimpleClient extends AbstractClient {
             EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
         } else if (messageString.equals("time slots for specific movie")) {
             List<MovieSlot> screeningTimes = (List<MovieSlot>) message.getObject();
-            //MovieController.setTheTimeSlots(screeningTimes);
             EventBus.getDefault().post(new GenericEvent<List<MovieSlot>>(screeningTimes));
         }
     }
@@ -82,15 +81,6 @@ public class SimpleClient extends AbstractClient {
             e.printStackTrace();
         }
     }
-/*    public static void sendMessage(String messageContent) {
-
-        MessageObject message = new MessageObject(messageContent);
-        try {
-            client.sendToServer(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     public static void moveScene(String scenePath, Stage stage) {
         try {
