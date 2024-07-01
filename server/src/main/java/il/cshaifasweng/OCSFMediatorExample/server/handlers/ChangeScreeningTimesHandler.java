@@ -22,6 +22,7 @@ public class ChangeScreeningTimesHandler implements RequestHandler {
             // apart from the field of the List of the movieSlot to be changed with the new time slots.
             Movie movie = (Movie) message.getObject();
             for (MovieSlot current : movie.getMovieScreeningTime()) {
+                System.out.println(current.getStartDateTime());
                 DataCommunicationDB.modifyMovieSlotStartTime(current.getId(), current.getStartDateTime());
                 DataCommunicationDB.modifyMovieSlotEndTime(current.getId(), current.getEndDateTime());
             }
