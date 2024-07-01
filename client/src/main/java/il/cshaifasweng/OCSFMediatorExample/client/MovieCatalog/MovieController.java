@@ -17,6 +17,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -83,13 +85,16 @@ public class MovieController {
     public void handleScreeningTimes(GenericEvent<List<MovieSlot>> event) {
             if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof MovieSlot) {
 
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                 ObservableList<LocalDateTime> times = FXCollections.observableArrayList();
                 for (MovieSlot slot : event.getData()) {
-                    times.add(slot.getStartDateTime());
+                    if(!movie.getUpcomingMovies().isUpcoming()){
+                        times.add(slot.getStartDateTime());                    }
                 }
+                // Sort the times
+                Collections.sort(times);
                 screeningTimesListView.setItems(times);
             }
-            //EventBus.getDefault().unregister(this);
         }
 
     @FXML
