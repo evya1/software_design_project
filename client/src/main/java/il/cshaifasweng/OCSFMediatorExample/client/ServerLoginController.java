@@ -70,7 +70,7 @@ public class ServerLoginController {
             // Load the primary screen after successfully connecting
             Stage stage = (Stage) connectBtn.getScene().getWindow();
             //TODO: Change the primary.fxml to the main scene.
-            SimpleClient.moveScene("/il/cshaifasweng/OCSFMediatorExample/client/primary.fxml", stage);
+            SimpleClient.moveScene("primary", stage);
         } catch (ConnectException e) {
             // Show an alert if the connection is refused
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");

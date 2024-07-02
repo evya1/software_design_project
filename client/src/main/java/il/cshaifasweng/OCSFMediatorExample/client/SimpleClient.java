@@ -72,12 +72,13 @@ public class SimpleClient extends AbstractClient {
             }
         }
     }
-
+    private static Parent loadFXML(String fxml) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(SimpleChatClient.class.getResource(fxml + ".fxml"));
+        return fxmlLoader.load();
+    }
     public static void moveScene(String scenePath, Stage stage) {
         try {
-            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(SimpleClient.class.getResource(scenePath)));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(loadFXML(scenePath));
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {

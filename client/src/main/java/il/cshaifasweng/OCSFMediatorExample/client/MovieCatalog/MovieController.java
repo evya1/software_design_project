@@ -126,7 +126,7 @@ public class MovieController {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backBtn.getScene().getWindow();
-            SimpleClient.moveScene("movieCatalog/movieCatalog.fxml", stage);
+            SimpleClient.moveScene("catalogM/movieCatalog", stage);
         } catch (Exception e) {
             e.printStackTrace();
         }

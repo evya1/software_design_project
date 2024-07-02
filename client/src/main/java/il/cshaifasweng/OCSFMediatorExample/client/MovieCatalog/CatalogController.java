@@ -84,7 +84,7 @@ public class CatalogController {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backButton.getScene().getWindow();
-            SimpleClient.moveScene("primary.fxml",stage);
+            SimpleClient.moveScene("primary",stage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,7 +106,7 @@ public class CatalogController {
                             Node node = (Node) mouseEvent.getSource();
                             Stage stage = (Stage) node.getScene().getWindow();
                             EventBus.getDefault().unregister(this);
-                            SimpleClient.moveScene("movieCatalog/Movie.fxml",stage);
+                            SimpleClient.moveScene("catalogM/Movie",stage);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
