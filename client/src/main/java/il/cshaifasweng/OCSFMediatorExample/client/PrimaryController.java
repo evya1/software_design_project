@@ -13,7 +13,7 @@ public class PrimaryController {
     public void catalogController(ActionEvent event) {
         try {
             Stage stage = (Stage) catalogButton.getScene().getWindow();
-            SimpleClient.moveScene("movieCatalog/movieCatalog.fxml",stage);
+            SimpleClient.moveScene("/il/cshaifasweng/OCSFMediatorExample/client/movieCatalog/movieCatalog.fxml",stage);
         } catch (Exception e) {
            e.printStackTrace();
         }
