@@ -75,11 +75,13 @@ public class SimpleClient extends AbstractClient {
 
     public static void moveScene(String scenePath, Stage stage) {
         try {
-            Parent root = FXMLLoader.load(Objects.requireNonNull(SimpleClient.class.getResource(scenePath)));
+            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(SimpleClient.class.getResource(scenePath)));
+            Parent root = loader.load();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
+            e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
         }
     }
