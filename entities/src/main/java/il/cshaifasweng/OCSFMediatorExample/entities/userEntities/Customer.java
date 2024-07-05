@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table (name = "customer")
+@Table(name = "customer")
 public class Customer implements Serializable {
 
     @Id
@@ -15,6 +15,7 @@ public class Customer implements Serializable {
     private String firstName;
     private String lastName;
     private String email;
+    private String personalID;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Payment payment;
@@ -55,4 +56,8 @@ public class Customer implements Serializable {
     public void setPayment(Payment payment) {
         this.payment = payment;
     }
+
+    public String getPersonalID() { return personalID; }
+
+    public void setPersonalID(String personalId) { this.personalID = personalId; }
 }
