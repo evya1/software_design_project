@@ -1,4 +1,4 @@
-package il.cshaifasweng.OCSFMediatorExample.server.handlers;
+package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
 public class RequestTypes {
     public static final String EMPTY_MESSAGE_REQUEST = "blank";

@@ -1,16 +1,18 @@
-package il.cshaifasweng.OCSFMediatorExample.server.handlers;
+package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
+import org.hibernate.Transaction;
 
 import java.util.List;
 
-public class UpdateMoviesListHandler implements RequestHandler {
+public class GetTimeSlotByMovieID implements RequestHandler {
     private static Session session;
 
     @Override
@@ -18,16 +20,24 @@ public class UpdateMoviesListHandler implements RequestHandler {
         try {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
 
-            String hql = "FROM Movie";
-            Query query = session.createQuery(hql);
-            List<Movie> movies = query.list();
+            //Loading the movie Entity
+            Movie movie = session.get(Movie.class, message.getSpecificMovie().getId());
+
+            List<MovieSlot> screeningTimes = movie.getMovieScreeningTime();
+            screeningTimes.size();
+
             Message answer = new Message();
-            answer.setMessage("all updated movies");
-            answer.setMovies(movies);
+            answer.setMovieSlots(screeningTimes);
+            answer.setMessage("time slots for specific movie");
 
             client.sendToClient(answer);
+            transaction.commit();
         } catch (Exception e) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
             System.err.println("An error occurred");
             e.printStackTrace();
         } finally {
