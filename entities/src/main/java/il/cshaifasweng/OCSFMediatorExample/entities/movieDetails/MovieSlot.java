@@ -1,5 +1,7 @@
-package il.cshaifasweng.OCSFMediatorExample.entities;
+package il.cshaifasweng.OCSFMediatorExample.entities.movieDetails;
 
+
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 
 import javax.persistence.*;
 import java.io.Serializable;

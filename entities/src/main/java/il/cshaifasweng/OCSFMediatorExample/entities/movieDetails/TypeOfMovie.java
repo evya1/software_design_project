@@ -1,7 +1,6 @@
-package il.cshaifasweng.OCSFMediatorExample.entities;
+package il.cshaifasweng.OCSFMediatorExample.entities.movieDetails;
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 import java.time.LocalDateTime;
 
 @Entity
