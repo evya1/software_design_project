@@ -1,6 +1,5 @@
-package il.cshaifasweng.OCSFMediatorExample.entities;
+package il.cshaifasweng.OCSFMediatorExample.entities.movieDetails;
 import javax.persistence.*;
-import java.awt.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,10 +21,12 @@ public class Movie implements Serializable {
     private String producer;
     private String movieDescription;
     private int movieDuration;
-    @OneToMany
+
+    //TODO: Modify.
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<MovieSlot> movieScreeningTime; //true to prototype only!
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private TypeOfMovie upcomingMovies;
 
 

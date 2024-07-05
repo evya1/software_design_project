@@ -1,4 +1,6 @@
-package il.cshaifasweng.OCSFMediatorExample.entities;
+package il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -10,9 +12,12 @@ public class Theater {
     private int theaterNum;
     private int numOfSeats;
     private int availableSeats;
+
     @OneToMany
     private List<Seat> seatList;
+
     private int rowLength;
+
     @OneToMany(mappedBy = "theater", fetch = FetchType.LAZY, cascade = CascadeType.ALL) //Movie list
     private List<MovieSlot> movieTime;
 

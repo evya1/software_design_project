@@ -6,6 +6,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
 import java.io.IOException;
+
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Seat;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.TypeOfMovie;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -235,7 +241,6 @@ public class DataCommunicationDB
     public static MovieSlot getMovieSlotByID(int movieSlotID){
         return session.get(MovieSlot.class, movieSlotID);
     }
-
     public static Theater getTheaterByID(int theaterID){
         return session.get(Theater.class, theaterID);
     }
