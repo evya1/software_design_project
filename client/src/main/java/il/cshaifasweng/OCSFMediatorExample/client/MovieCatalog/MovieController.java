@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
+import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
@@ -28,8 +29,9 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class MovieController {
+public class MovieController implements ClientDependent {
     private static Movie movie;
+    private SimpleClient client;
 
     public static void setMovie(Movie movie) {
         MovieController.movie = movie;
@@ -80,7 +82,7 @@ public class MovieController {
         Message message = new Message();
         message.setMessage("get movie slot by movie ID");
         message.setSpecificMovie(movie);
-        SimpleClient.sendMessage(message);
+        client.sendMessage(message);
 
         //register to EventBus
         EventBus.getDefault().register(this);
@@ -125,7 +127,7 @@ public class MovieController {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backBtn.getScene().getWindow();
-            SimpleClient.moveScene("catalogM/movieCatalog", stage);
+            client.moveScene("catalogM/movieCatalog", stage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -138,7 +140,7 @@ public class MovieController {
             Message message = new Message();
             message.setMessage("get movie slot by movie ID");
             message.setSpecificMovie(movie);
-            SimpleClient.sendMessage(message);
+            client.sendMessage(message);
 
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -190,7 +192,7 @@ public class MovieController {
                     Message message = new Message();
                     message.setMessage("change screening times of the movie");
                     message.setSpecificMovie(movie);
-                    SimpleClient.sendMessage(message);
+                    client.sendMessage(message);
                     }
                 }catch (DateTimeParseException ParseException) {
                     SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Error","Please enter a valid time");
@@ -199,5 +201,9 @@ public class MovieController {
                 }
             }
         }
+    }
+
+    public void setClient(SimpleClient client) {
+        this.client = client;
     }
 }

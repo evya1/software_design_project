@@ -4,21 +4,24 @@ import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
-import javafx.fxml.FXMLLoader;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
-
 import java.io.IOException;
 import java.util.List;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.FXMLUtils.loadFXML;
+
+
 public class SimpleClient extends AbstractClient {
 
-    private static SimpleClient client = null;
-    private static String ipAddress = "localhost";
-    private static int port = 3000;
+    private static String ipAddress;
+
+    private static int port;
 
     public static int getClientPort() {
         return port;
@@ -28,15 +31,8 @@ public class SimpleClient extends AbstractClient {
         SimpleClient.port = port;
     }
 
-    private SimpleClient(String host, int port) {
+    public SimpleClient(String host, int port) {
         super(host, port);
-    }
-
-    public static SimpleClient getClient() {
-        if (client == null) {
-            client = new SimpleClient(ipAddress, port);
-        }
-        return client;
     }
 
     public static void setIpAddress(String ip) {
@@ -59,25 +55,26 @@ public class SimpleClient extends AbstractClient {
             List<MovieSlot> screeningTimes = message.getMovieSlots();
             EventBus.getDefault().post(new GenericEvent<List<MovieSlot>>(screeningTimes));
         }
+        else if(messageString.equals("new client")){
+            System.out.println("A new client established\n");
+        }
     }
 
-    public static void sendMessage(Message message) {
+    public void sendMessage(Message message) {
         // Add logic to handle the object if it's not null
         if (message != null) {
             try {
-                client.sendToServer(message);
+                sendToServer(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(SimpleChatClient.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
-    }
-    public static void moveScene(String scenePath, Stage stage) {
+
+    public void moveScene(String scenePath, Stage stage) {
         try {
-            Scene scene = new Scene(loadFXML(scenePath));
+            Parent root = loadFXML(scenePath,this);
+            Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
