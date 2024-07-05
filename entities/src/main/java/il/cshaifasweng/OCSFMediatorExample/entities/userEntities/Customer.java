@@ -17,7 +17,6 @@ public class Customer implements Serializable {
     private String email;
     private String personalID;
 
-
     @OneToOne(cascade = CascadeType.ALL)
     private Payment payment;
 
