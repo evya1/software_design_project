@@ -18,8 +18,7 @@ public class SimpleChatServer {
     private static String promptForDatabasePassword() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please enter your database password: \n");
-        String password = scanner.nextLine();
-        return password;
+        return scanner.nextLine();
     }
 
     /**
@@ -40,6 +39,7 @@ public class SimpleChatServer {
         System.out.println("server is listening");
         server.listen();
 
+
         try {
 
             String password = promptForDatabasePassword();
@@ -49,8 +49,9 @@ public class SimpleChatServer {
             DataCommunicationDB.setSession(session);
             DataCommunicationDB.setPassword(password);
 
-            DataCommunicationDB.generateMovieList();
+           // DataCommunicationDB.generateMovieList();
             DataCommunicationDB.printAllEntities();
+
 
         } catch (Exception exception) {
             System.err.println("An error occured" + exception.getMessage());
@@ -62,5 +63,6 @@ public class SimpleChatServer {
         }
 
     }
+
 
 }

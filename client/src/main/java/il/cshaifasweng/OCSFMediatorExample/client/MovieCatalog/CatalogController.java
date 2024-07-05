@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
+import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
@@ -19,8 +20,9 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 import java.util.Objects;
 
-public class CatalogController {
+public class CatalogController implements ClientDependent {
     private static List<Movie> movies;
+    private SimpleClient client;
 
     @FXML
     private Button backButton;
@@ -45,10 +47,11 @@ public class CatalogController {
     void initialize() {
         chooseTypeComboBox.getItems().addAll("All Movies","Upcoming Movies", "In Theater", "Viewing Package");
         // Call loadMovies here to ensure the ListView is populated when the scene is loaded
-        Message message = new Message();
-        message.setMessage("show all movies");
-
-        SimpleClient.sendMessage(message);
+        if (client != null) {
+            Message message = new Message();
+            message.setMessage("show all movies");
+            client.sendMessage(message);
+        }
 
         EventBus.getDefault().register(this);
         chooseTypeComboBox.setValue("All Movies");  
@@ -74,9 +77,7 @@ public class CatalogController {
                 CatalogController.movies = event.getData();
                 loadMovies();
             });
-
         }
-        //EventBus.getDefault().unregister(this);
     }
 
     @FXML
@@ -84,7 +85,7 @@ public class CatalogController {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backButton.getScene().getWindow();
-            SimpleClient.moveScene("primary",stage);
+            client.moveScene("primary",stage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,7 +107,7 @@ public class CatalogController {
                             Node node = (Node) mouseEvent.getSource();
                             Stage stage = (Stage) node.getScene().getWindow();
                             EventBus.getDefault().unregister(this);
-                            SimpleClient.moveScene("catalogM/Movie",stage);
+                            client.moveScene("catalogM/Movie",stage);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -144,6 +145,11 @@ public class CatalogController {
             movieListView.setItems(movieNames);
         }
     }
+
+    public void setClient(SimpleClient client) {
+        this.client = client;
+    }
+
 }
 
 

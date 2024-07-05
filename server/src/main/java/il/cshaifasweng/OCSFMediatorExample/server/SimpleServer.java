@@ -9,6 +9,7 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SimpleServer extends AbstractServer {
     private static final ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
@@ -22,7 +23,6 @@ public class SimpleServer extends AbstractServer {
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
         Message message = (Message) msg;
         String request = message.getMessage();
-
         try {
             HandlerFactory factory = HandlerFactory.getInstance();
             RequestHandler handler = factory.getHandlerForRequest(request);
@@ -30,10 +30,21 @@ public class SimpleServer extends AbstractServer {
             if (handler != null) {
                 System.out.println("yoyo");
                 handler.handle(message, client);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void clientConnected(ConnectionToClient client) {
+        super.clientConnected(client);  // Call the superclass method if necessary
+        SubscribersList.add(new SubscribedClient(client));
+        System.out.println("Client added. Total clients: " + SubscribersList.size());
+        Message message = new Message();
+        message.setMessage("new client");
+        sendToAllClients(message);
     }
 
     public void sendToAllClients(Message message) {

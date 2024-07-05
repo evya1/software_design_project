@@ -1,5 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.CatalogController;
+import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -15,39 +17,38 @@ import java.time.format.DateTimeFormatter;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import javax.xml.catalog.Catalog;
+
+import static il.cshaifasweng.OCSFMediatorExample.client.FXMLUtils.loadFXML;
+
 /**
  * JavaFX App
  */
 public class SimpleChatClient extends Application {
 
     private static Scene scene;
+    private SimpleClient client;
+
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("ServerLogin"));
+        client = new SimpleClient("localhost",3000);
+        scene = new Scene(loadFXML("ServerLogin", client));
         stage.setScene(scene);
+
+        //Making sure that if the client window is closed, all related processes are terminated.
+        stage.setOnCloseRequest(event -> {
+            Platform.exit();
+            System.exit(0);
+        });
+
         EventBus.getDefault().register(this);
         stage.show();
-
-        //If you want to display a screen after ServerLogin go to:
-        //ServerLoginController.java and change the resource in line 58.
-        //the currently set is primary.fxml
     }
-
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
-    }
-
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(SimpleChatClient.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
-    }
-
 
     @Override
     public void stop() throws Exception {
         EventBus.getDefault().unregister(this);
-        SimpleClient client = SimpleClient.getClient();
         if (client != null) {
             client.closeConnection();
         }
