@@ -1,5 +1,7 @@
-package il.cshaifasweng.OCSFMediatorExample.server.handlers;
+package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
+
+import il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +12,10 @@ public class HandlerFactory {
 
     private HandlerFactory() {
         handlers = new HashMap<>();
+        initializeHandlers();
+    }
+
+    private void initializeHandlers() {
         handlers.put(RequestTypes.EMPTY_MESSAGE_REQUEST, new EmptyMessageHandler());
         handlers.put(RequestTypes.SHOW_ALL_MOVIES_REQUEST, new ShowAllMoviesHandler());
         handlers.put(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
@@ -25,16 +31,14 @@ public class HandlerFactory {
     }
 
     public RequestHandler getHandlerForRequest(String request) {
-        if (request.isBlank()) {
+        if (request.isBlank() || request.startsWith(RequestTypes.EMPTY_MESSAGE_REQUEST)) {
             return handlers.get(RequestTypes.EMPTY_MESSAGE_REQUEST);
-        } else if (request.startsWith(RequestTypes.SHOW_ALL_MOVIES_REQUEST)) {
-            return handlers.get(RequestTypes.SHOW_ALL_MOVIES_REQUEST);
-        } else if (request.startsWith(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST)) {
-            return handlers.get(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST);
-        } else if (request.equals(RequestTypes.UPDATE_MOVIES_LIST_REQUEST)) {
-            return handlers.get(RequestTypes.UPDATE_MOVIES_LIST_REQUEST);
-        } else if (request.startsWith(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST)) {
-            return handlers.get(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST);
+        }
+
+        for (String requestType : handlers.keySet()) {
+            if (request.startsWith(requestType)) {
+                return handlers.get(requestType);
+            }
         }
         return null;
     }
