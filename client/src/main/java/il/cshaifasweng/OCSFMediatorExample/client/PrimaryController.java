@@ -98,15 +98,15 @@ public class PrimaryController implements ClientDependent {
                 for (Movie movie : movies) {
                     FXMLLoader fxmlLoader = new FXMLLoader();
                     fxmlLoader.setLocation(getClass().getResource("catalogM/movieGrid.fxml"));
-                    MovieGridController movieGridController = fxmlLoader.getController();
-                    if (movieGridController != null) movieGridController.setData(movie);
                     AnchorPane anchorPane = fxmlLoader.load();
+                    MovieGridController movieGridController = fxmlLoader.getController();
+                    movieGridController.setData(movie);
                     if (col == 3) {
                         col = 0;
                         row++;
                     }
                     System.out.println(movie.getMovieName());
-                   // moveisListGrid.getChildren().add(anchorPane);
+                    // moveisListGrid.getChildren().add(anchorPane);
                     moveisListGrid.add(anchorPane, col++, row);
                     GridPane.setMargin(anchorPane, new Insets(10));
                 }
