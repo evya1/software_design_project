@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieGridController;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import javafx.application.Platform;
@@ -17,6 +18,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -75,6 +77,7 @@ public class PrimaryController implements ClientDependent {
     @FXML
     void initialize() {
         filterByTypeComboBox.getItems().addAll("All Movies", "Upcoming Movies", "In Theater", "Viewing Package");
+        homeScreenBtn.setDisable(true);
         Message message = new Message();
         message.setMessage("new client");
         client.sendMessage(message);
@@ -91,24 +94,24 @@ public class PrimaryController implements ClientDependent {
         int row = 0;
         try {
             if (movies != null && !movies.isEmpty()) {
-                ObservableList<ImageView> moviesImages = FXCollections.observableArrayList();
+                //ObservableList<ImageView> moviesImages = FXCollections.observableArrayList();
                 for (Movie movie : movies) {
-                    ImageView imageView = new ImageView(new Image(new ByteArrayInputStream(movie.getImage())));
-                    imageView.setFitHeight(50);
-                    imageView.setFitWidth(50);
-                    AnchorPane anchorPane = new AnchorPane(imageView);
-                    //moviesImages.add(imageView);
-
-                    if (col < 3) moveisListGrid.add(imageView,col++,row);
-                    else {
-                        col=0;
+                    FXMLLoader fxmlLoader = new FXMLLoader();
+                    fxmlLoader.setLocation(getClass().getResource("catalogM/movieGrid.fxml"));
+                    MovieGridController movieGridController = fxmlLoader.getController();
+                    if (movieGridController != null) movieGridController.setData(movie);
+                    AnchorPane anchorPane = fxmlLoader.load();
+                    if (col == 3) {
+                        col = 0;
                         row++;
-                        moveisListGrid.add(imageView,col,row);
                     }
-                    GridPane.setMargin(imageView,new Insets(10));
+                    System.out.println(movie.getMovieName());
+                   // moveisListGrid.getChildren().add(anchorPane);
+                    moveisListGrid.add(anchorPane, col++, row);
+                    GridPane.setMargin(anchorPane, new Insets(10));
                 }
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
