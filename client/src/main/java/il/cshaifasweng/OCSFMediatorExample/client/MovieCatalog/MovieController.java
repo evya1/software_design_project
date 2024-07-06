@@ -111,7 +111,7 @@ public class MovieController implements ClientDependent {
                 setTheTimeSlots(event.getData());
                 ObservableList<LocalDateTime> times = FXCollections.observableArrayList();
                 for (MovieSlot slot : event.getData()) {
-                    if (!movie.getUpcomingMovies().isUpcoming()) {
+                    if (!movie.getMovieType().isUpcoming()) {
                         times.add(slot.getStartDateTime());
                     }
                 }

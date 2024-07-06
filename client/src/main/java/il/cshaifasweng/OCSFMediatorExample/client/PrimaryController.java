@@ -57,6 +57,9 @@ public class PrimaryController implements ClientDependent {
     @FXML
     private Button submitComplaintBtn;
 
+    @FXML
+    private VBox movieLayout;
+
     private SimpleClient client;
     private static List<Movie> movies;
 
@@ -99,16 +102,17 @@ public class PrimaryController implements ClientDependent {
                     FXMLLoader fxmlLoader = new FXMLLoader();
                     fxmlLoader.setLocation(getClass().getResource("catalogM/movieGrid.fxml"));
                     AnchorPane anchorPane = fxmlLoader.load();
+                    anchorPane.setPrefSize(200, 300);
                     MovieGridController movieGridController = fxmlLoader.getController();
                     movieGridController.setData(movie);
-                    if (col == 3) {
+                    if (col == 5) {
                         col = 0;
                         row++;
                     }
                     System.out.println(movie.getMovieName());
                     // moveisListGrid.getChildren().add(anchorPane);
                     moveisListGrid.add(anchorPane, col++, row);
-                    GridPane.setMargin(anchorPane, new Insets(10));
+                    GridPane.setMargin(anchorPane, new Insets(10,10,10,10));
                 }
             }
         } catch (Exception e) {

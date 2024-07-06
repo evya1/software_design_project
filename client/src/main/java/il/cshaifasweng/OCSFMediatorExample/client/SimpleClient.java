@@ -76,6 +76,7 @@ public class SimpleClient extends AbstractClient {
             Parent root = loadFXML(scenePath,this);
             Scene scene = new Scene(root);
             stage.setScene(scene);
+            stage.centerOnScreen();
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
