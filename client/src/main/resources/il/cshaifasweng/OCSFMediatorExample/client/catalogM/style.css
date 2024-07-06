@@ -3,3 +3,7 @@
     -fx-background-size: cover;
     -fx-background-position: center center;
 }
+
+.PanelBackground{
+    -fx-background-image: url('black-smooth-textured-paper.jpg');
+}

@@ -13,6 +13,7 @@ public class Movie implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String movieName;
+    private String hebrewMovieName;
     private String mainCast;
     @Lob
     @Column(name = "image", columnDefinition = "LONGBLOB")
@@ -22,18 +23,24 @@ public class Movie implements Serializable {
     private String movieDescription;
     private int movieDuration;
 
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "movie_genre")
+    MovieGenre movieGenre;
+
     //TODO: Modify.
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<MovieSlot> movieScreeningTime; //true to prototype only!
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private TypeOfMovie upcomingMovies;
+    private TypeOfMovie movieType;
 
 
     public Movie(){}
 
     public Movie(String movieName, String mainCast, byte[] image, String producer, String movieDescription,
-                 int movieDuration, List<MovieSlot> movieScreeningTime, TypeOfMovie upcomingMovies) {
+                 int movieDuration, List<MovieSlot> movieScreeningTime, TypeOfMovie upcomingMovies, MovieGenre movieGenre, String hebrewMovieName) {
         this.movieName = movieName;
         this.mainCast = mainCast;
         this.image = image;
@@ -41,7 +48,25 @@ public class Movie implements Serializable {
         this.movieDescription = movieDescription;
         this.movieDuration = movieDuration;
         this.movieScreeningTime = movieScreeningTime;
-        this.upcomingMovies = upcomingMovies;
+        this.movieType = upcomingMovies;
+        this.movieGenre = movieGenre;
+        this.hebrewMovieName = hebrewMovieName;
+    }
+
+    public MovieGenre getMovieGenre() {
+        return movieGenre;
+    }
+
+    public void setMovieGenre(MovieGenre movieGenre) {
+        this.movieGenre = movieGenre;
+    }
+
+    public String getHebrewMovieName() {
+        return hebrewMovieName;
+    }
+
+    public void setHebrewMovieName(String hebrewMovieName) {
+        this.hebrewMovieName = hebrewMovieName;
     }
 
     public int getId() {
@@ -114,11 +139,11 @@ public class Movie implements Serializable {
         this.movieScreeningTime = movieScreeningTime;
     }
 
-    public TypeOfMovie getUpcomingMovies() {
-        return upcomingMovies;
+    public TypeOfMovie getMovieType() {
+        return movieType;
     }
 
-    public void setUpcomingMovies(TypeOfMovie upcomingMovies) {
-        this.upcomingMovies = upcomingMovies;
+    public void setMovieType(TypeOfMovie upcomingMovies) {
+        this.movieType = upcomingMovies;
     }
 }

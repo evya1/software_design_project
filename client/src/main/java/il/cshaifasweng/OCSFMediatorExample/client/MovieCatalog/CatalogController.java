@@ -127,15 +127,15 @@ public class CatalogController implements ClientDependent {
         if (movies != null && !movies.isEmpty()) {
             ObservableList<String> movieNames = FXCollections.observableArrayList();
             for (Movie movie : movies) {
-                if(movie.getUpcomingMovies().isPurchasable() && Objects.equals(selection, "Viewing Package"))
+                if(movie.getMovieType().isPurchasable() && Objects.equals(selection, "Viewing Package"))
                 {
                     movieNames.add(movie.getMovieName());
                 }
-                else if(movie.getUpcomingMovies().isCurrentlyRunning() && Objects.equals(selection, "In Theater"))
+                else if(movie.getMovieType().isCurrentlyRunning() && Objects.equals(selection, "In Theater"))
                 {
                     movieNames.add(movie.getMovieName());
                 }
-                else if(movie.getUpcomingMovies().isUpcoming() && Objects.equals(selection, "Upcoming Movies")){
+                else if(movie.getMovieType().isUpcoming() && Objects.equals(selection, "Upcoming Movies")){
                     movieNames.add(movie.getMovieName());
                 }
                 else if(Objects.equals(selection, "All Movies")){

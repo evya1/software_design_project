@@ -84,6 +84,7 @@ public class ServerLoginController implements ClientDependent {
         try {
             client.openConnection();
             Stage stage = (Stage) connectBtn.getScene().getWindow();
+            stage.setTitle("Cinema 12 Main Screen");
             client.moveScene("primary", stage);
         } catch (ConnectException e) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");
