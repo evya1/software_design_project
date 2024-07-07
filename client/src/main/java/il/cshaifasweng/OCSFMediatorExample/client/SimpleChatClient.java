@@ -33,7 +33,7 @@ public class SimpleChatClient extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         //client = new SimpleClient("localhost",3000);
-        scene = new Scene(loadFXML("ServerLogin", client));
+        scene = new Scene(loadFXML("ServerLogin", client,null));
         stage.setScene(scene);
 
         EventBus.getDefault().register(this);

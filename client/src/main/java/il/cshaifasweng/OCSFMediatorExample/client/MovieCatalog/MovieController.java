@@ -32,6 +32,7 @@ import java.util.Optional;
 public class MovieController implements ClientDependent {
     private static Movie movie;
     private SimpleClient client;
+    private Message localMessage;
 
     public static void setMovie(Movie movie) {
         MovieController.movie = movie;
@@ -127,7 +128,7 @@ public class MovieController implements ClientDependent {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backBtn.getScene().getWindow();
-            client.moveScene("catalogM/movieCatalog", stage);
+            client.moveScene("catalogM/movieCatalog", stage,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -205,5 +206,10 @@ public class MovieController implements ClientDependent {
 
     public void setClient(SimpleClient client) {
         this.client = client;
+    }
+
+    @Override
+    public void setMessage(Message message) {
+        this.localMessage = message;
     }
 }

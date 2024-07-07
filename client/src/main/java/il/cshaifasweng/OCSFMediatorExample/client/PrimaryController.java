@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class PrimaryController implements ClientDependent {
+
+    private Message localMessage;
+
     @FXML
     private Button catalogButton;
     @FXML
@@ -71,7 +74,7 @@ public class PrimaryController implements ClientDependent {
         }
         try {
             Stage stage = (Stage) catalogButton.getScene().getWindow();
-            client.moveScene("catalogM/movieCatalog", stage);
+            client.moveScene("catalogM/movieCatalog", stage,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -161,6 +164,11 @@ public class PrimaryController implements ClientDependent {
 
     public void setClient(SimpleClient client) {
         this.client = client;
+    }
+
+    @Override
+    public void setMessage(Message message) {
+        this.localMessage = message;
     }
 }
 
