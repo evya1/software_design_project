@@ -71,6 +71,12 @@ public class SimpleClient extends AbstractClient {
         }
     }
 
+    public void sendCloseConnectionMessage() {
+        Message closeMessage = new Message();
+        closeMessage.setMessage("closeConnection");
+        sendMessage(closeMessage);
+    }
+
     public void moveScene(String scenePath, Stage stage) {
         try {
             Parent root = loadFXML(scenePath,this);

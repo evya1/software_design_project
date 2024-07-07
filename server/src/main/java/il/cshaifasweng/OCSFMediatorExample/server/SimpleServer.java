@@ -47,6 +47,13 @@ public class SimpleServer extends AbstractServer {
         sendToAllClients(message);
     }
 
+    @Override
+    protected void clientDisconnected(ConnectionToClient client) {
+        // Find the corresponding SubscribedClient and remove it from the list
+        SubscribersList.removeIf(subscribedClient -> subscribedClient.getClient().equals(client));
+        System.out.println("Client removed. Total clients: " + SubscribersList.size());
+    }
+
     public void sendToAllClients(Message message) {
         try {
             for (SubscribedClient SubscribedClient : SubscribersList) {

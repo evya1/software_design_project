@@ -4,12 +4,14 @@
 
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.ConnectException;
+
 
 
 
@@ -83,8 +85,7 @@ public class ServerLoginController implements ClientDependent {
         client = new SimpleClient(ipAddress, port);
         try {
             client.openConnection();
-            Stage stage = (Stage) connectBtn.getScene().getWindow();
-            stage.setTitle("Cinema 12 Main Screen");
+            Stage stage = getStage();
             client.moveScene("primary", stage);
         } catch (ConnectException e) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");
@@ -93,6 +94,27 @@ public class ServerLoginController implements ClientDependent {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "IO Error", "An unexpected error occurred. Please try again.");
             client = null;
         }
+    }
+
+    private Stage getStage() {
+        Stage stage = (Stage) connectBtn.getScene().getWindow();
+        // Making sure that if the client window is closed, all related processes are terminated.
+        stage.setOnCloseRequest(eventExit -> {
+            try {
+                client.sendCloseConnectionMessage(); // Send close connection message
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                client.closeConnection();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Platform.exit();
+            System.exit(0);
+        });
+        stage.setTitle("Cinema 12 Main Screen");
+        return stage;
     }
 
     public Button getConnectBtn() {
