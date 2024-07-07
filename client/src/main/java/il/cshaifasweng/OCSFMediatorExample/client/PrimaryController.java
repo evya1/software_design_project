@@ -118,7 +118,7 @@ public class PrimaryController implements ClientDependent {
                     GridPane.setMargin(anchorPane, new Insets(10,10,10,10));
                     anchorPane.setOnMouseClicked(event -> {
                         if (event.getClickCount() == 2) {
-                            chooseMovie(movie);
+                            chooseMovie(movie,(Stage) anchorPane.getScene().getWindow());
                         }});
                 }
             }
@@ -147,11 +147,11 @@ public class PrimaryController implements ClientDependent {
         }
     }
 
-    public void chooseMovie(Movie movie) {
+    public void chooseMovie(Movie movie,Stage stage) {
         try {
             localMessage = new Message();
             localMessage.setSpecificMovie(movie);
-            client.moveScene("catalogM/Movie",new Stage(),localMessage);
+            client.moveScene("catalogM/Movie",stage,localMessage);
         }catch (Exception e) {
             e.printStackTrace();
         }

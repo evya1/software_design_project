@@ -6,6 +6,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -18,13 +20,13 @@
    <children>
       <BorderPane prefHeight="805.0" prefWidth="1354.0">
          <center>
-            <AnchorPane prefHeight="582.0" prefWidth="1070.0" style="-fx-background-color: #ffff;" styleClass="root" BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="582.0" prefWidth="1053.0" BorderPane.alignment="CENTER">
                <children>
-                  <ScrollPane layoutX="58.0" layoutY="61.0" prefHeight="506.0" prefWidth="1082.0">
+                  <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="58.0" layoutY="61.0" prefHeight="506.0" prefWidth="1073.0" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox fx:id="movieLayout">
+                        <VBox fx:id="movieLayout" prefHeight="478.0" prefWidth="1024.0">
                            <children>
-                              <GridPane fx:id="moveisListGrid" alignment="CENTER" prefHeight="0.0" prefWidth="10.0">
+                              <GridPane fx:id="moveisListGrid" alignment="CENTER" prefHeight="0.0" prefWidth="10.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" />
                                 </columnConstraints>
@@ -36,8 +38,8 @@
                         </VBox>
                      </content>
                   </ScrollPane>
-                  <TextField fx:id="searchTextField" layoutX="58.0" layoutY="19.0" prefHeight="26.0" prefWidth="250.0" promptText="Search" />
-                  <ComboBox fx:id="filterByTypeComboBox" layoutX="349.0" layoutY="20.0" onAction="#chooseType" prefHeight="20.0" prefWidth="150.0" />
+                  <TextField fx:id="searchTextField" layoutX="58.0" layoutY="19.0" prefHeight="26.0" prefWidth="250.0" promptText="Search" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
+                  <ComboBox fx:id="filterByTypeComboBox" layoutX="349.0" layoutY="20.0" onAction="#chooseType" prefHeight="20.0" prefWidth="150.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
                </children>
                <BorderPane.margin>
                   <Insets bottom="10.0" />
@@ -45,17 +47,17 @@
             </AnchorPane>
          </center>
          <left>
-            <AnchorPane prefHeight="431.0" prefWidth="201.0" style="-fx-background-color: #ffff;" styleClass="PanelBackground" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="431.0" prefWidth="201.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="customerPanelBtn" layoutX="43.0" layoutY="127.0" mnemonicParsing="false" onAction="#customerController" prefHeight="26.0" prefWidth="116.0" text="Customer Panel" textFill="#1010ff" />
-                  <Button fx:id="employeePanelBtn" layoutX="43.0" layoutY="198.0" mnemonicParsing="false" onAction="#employeeController" prefHeight="26.0" prefWidth="116.0" text="Employee Panel" textFill="#00a606" />
-                  <Button fx:id="submitComplaintBtn" layoutX="43.0" layoutY="269.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" text="Submit Complaint" textFill="#635300" />
-                  <Button fx:id="homeScreenBtn" layoutX="43.0" layoutY="60.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="116.0" text="Home Screen" textFill="RED" />
+                  <Button fx:id="customerPanelBtn" layoutX="43.0" layoutY="127.0" mnemonicParsing="false" onAction="#customerController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Customer Panel" textFill="#1010ff" />
+                  <Button fx:id="employeePanelBtn" layoutX="43.0" layoutY="198.0" mnemonicParsing="false" onAction="#employeeController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Employee Panel" textFill="#00a606" />
+                  <Button fx:id="submitComplaintBtn" layoutX="43.0" layoutY="269.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Submit Complaint" textFill="#635300" />
+                  <Button fx:id="homeScreenBtn" layoutX="43.0" layoutY="60.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Home Screen" textFill="RED" />
                </children>
             </AnchorPane>
          </left>
          <top>
-            <AnchorPane prefHeight="126.0" prefWidth="1290.0" style="-fx-background-color: #ffff;" styleClass="PanelBackground" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="126.0" prefWidth="1290.0" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER">
                <children>
                   <Button fx:id="catalogButton" layoutX="1209.0" layoutY="100.0" mnemonicParsing="false" onAction="#catalogController" text="Movie Catalog" />
                   <Label layoutX="518.0" layoutY="43.0" prefHeight="56.0" prefWidth="364.0" text="Welcome to Cinema12" textFill="WHITE">
@@ -63,14 +65,19 @@
                         <Font size="36.0" />
                      </font>
                   </Label>
+                  <ImageView fitHeight="127.0" fitWidth="148.0" layoutX="52.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@catalogM/logo.png" />
+                     </image>
+                  </ImageView>
                </children>
             </AnchorPane>
          </top>
          <right>
-            <AnchorPane prefHeight="200.0" prefWidth="100.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER" />
+            <AnchorPane prefHeight="200.0" prefWidth="75.0" BorderPane.alignment="CENTER" />
          </right>
          <bottom>
-            <AnchorPane prefHeight="25.0" prefWidth="200.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER" />
+            <AnchorPane prefHeight="25.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
          </bottom>
       </BorderPane>
    </children>
