@@ -14,11 +14,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="650.0" prefWidth="1400.0" spacing="20.0" stylesheets="@catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PrimaryController">
+<VBox alignment="CENTER" prefHeight="650.0" prefWidth="1400.0" spacing="20.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PrimaryController">
    <children>
       <BorderPane prefHeight="805.0" prefWidth="1354.0">
          <center>
-            <AnchorPane prefHeight="582.0" prefWidth="1070.0" BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="582.0" prefWidth="1070.0" style="-fx-background-color: #ffff;" styleClass="root" BorderPane.alignment="CENTER">
                <children>
                   <ScrollPane layoutX="58.0" layoutY="61.0" prefHeight="506.0" prefWidth="1082.0">
                      <content>
@@ -35,9 +35,6 @@
                            </children>
                         </VBox>
                      </content>
-                     <padding>
-                        <Insets bottom="10.0" />
-                     </padding>
                   </ScrollPane>
                   <TextField fx:id="searchTextField" layoutX="58.0" layoutY="19.0" prefHeight="26.0" prefWidth="250.0" promptText="Search" />
                   <ComboBox fx:id="filterByTypeComboBox" layoutX="349.0" layoutY="20.0" onAction="#chooseType" prefHeight="20.0" prefWidth="150.0" />
@@ -69,6 +66,12 @@
                </children>
             </AnchorPane>
          </top>
+         <right>
+            <AnchorPane prefHeight="200.0" prefWidth="100.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER" />
+         </right>
+         <bottom>
+            <AnchorPane prefHeight="25.0" prefWidth="200.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER" />
+         </bottom>
       </BorderPane>
    </children>
 </VBox>
