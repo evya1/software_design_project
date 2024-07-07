@@ -32,15 +32,9 @@ public class SimpleChatClient extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        client = new SimpleClient("localhost",3000);
+        //client = new SimpleClient("localhost",3000);
         scene = new Scene(loadFXML("ServerLogin", client));
         stage.setScene(scene);
-
-        //Making sure that if the client window is closed, all related processes are terminated.
-        stage.setOnCloseRequest(event -> {
-            Platform.exit();
-            System.exit(0);
-        });
 
         EventBus.getDefault().register(this);
         stage.show();
@@ -50,11 +44,11 @@ public class SimpleChatClient extends Application {
     public void stop() throws Exception {
         EventBus.getDefault().unregister(this);
         if (client != null) {
-            client.closeConnection();
+            client.sendCloseConnectionMessage(); // Send close connection message
+            client.closeConnection(); // Close the connection
         }
         super.stop();
     }
-
 
     @Subscribe
     public void onMessageEvent(MessageEvent message) {
