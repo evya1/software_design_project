@@ -4,6 +4,7 @@
 
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,6 +20,8 @@ import java.net.ConnectException;
 public class ServerLoginController implements ClientDependent {
 
     private SimpleClient client;
+
+    private Message localMessage;
 
     public TextField portTextField;
     @FXML // fx:id="IpSelection"
@@ -86,7 +89,7 @@ public class ServerLoginController implements ClientDependent {
         try {
             client.openConnection();
             Stage stage = getStage();
-            client.moveScene("primary", stage);
+            client.moveScene("primary", stage,null);
         } catch (ConnectException e) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");
             client = null;
@@ -134,5 +137,11 @@ public class ServerLoginController implements ClientDependent {
     @Override
     public void setClient(SimpleClient client) {
         this.client = client;
+    }
+
+    @Override
+    public void setMessage(Message message) {
+        this.localMessage = message;
+
     }
 }

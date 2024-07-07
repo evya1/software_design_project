@@ -77,9 +77,9 @@ public class SimpleClient extends AbstractClient {
         sendMessage(closeMessage);
     }
 
-    public void moveScene(String scenePath, Stage stage) {
+    public void moveScene(String scenePath, Stage stage, Message msg) {
         try {
-            Parent root = loadFXML(scenePath,this);
+            Parent root = loadFXML(scenePath,this,msg);
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.centerOnScreen();

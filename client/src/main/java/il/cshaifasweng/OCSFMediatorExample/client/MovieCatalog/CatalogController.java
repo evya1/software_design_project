@@ -23,6 +23,7 @@ import java.util.Objects;
 public class CatalogController implements ClientDependent {
     private static List<Movie> movies;
     private SimpleClient client;
+    private Message localMessage;
 
     @FXML
     private Button backButton;
@@ -85,7 +86,7 @@ public class CatalogController implements ClientDependent {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backButton.getScene().getWindow();
-            client.moveScene("primary",stage);
+            client.moveScene("primary",stage, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,7 +108,7 @@ public class CatalogController implements ClientDependent {
                             Node node = (Node) mouseEvent.getSource();
                             Stage stage = (Stage) node.getScene().getWindow();
                             EventBus.getDefault().unregister(this);
-                            client.moveScene("catalogM/Movie",stage);
+                            client.moveScene("catalogM/Movie",stage,null);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -148,6 +149,11 @@ public class CatalogController implements ClientDependent {
 
     public void setClient(SimpleClient client) {
         this.client = client;
+    }
+
+    @Override
+    public void setMessage(Message message) {
+        this.localMessage = message;
     }
 
 }

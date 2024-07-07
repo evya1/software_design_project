@@ -1,5 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+
 /*
 ALL GUI CLASSES REQUIRE TO USE THIS INTERFACE.
 
@@ -12,4 +14,5 @@ It injects the Client session instance to provide information to the controller.
  */
 public interface ClientDependent {
     void setClient(SimpleClient client);
+    void setMessage(Message message);
 }
