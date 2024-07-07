@@ -5,6 +5,7 @@ import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -42,6 +43,9 @@ public class MovieController implements ClientDependent {
     @FXML
     private Button backBtn;
 
+    @FXML
+    private TextField genreTextField;
+
     @FXML // fx:id="updateScreeningBtn"
     private Button updateScreeningBtn; // Value injected by FXMLLoader
 
@@ -71,6 +75,7 @@ public class MovieController implements ClientDependent {
         descriptionTextArea.setEditable(false);
         producerTextField.setEditable(false);
         titleTextField.setEditable(false);
+        genreTextField.setEditable(false);
 
         //Send request to get movie slots.
         Message message = new Message();
@@ -84,7 +89,8 @@ public class MovieController implements ClientDependent {
         castTextField.setText(movie.getMainCast());
         descriptionTextArea.setText(movie.getMovieDescription());
         producerTextField.setText(movie.getProducer());
-        titleTextField.setText(movie.getMovieName());
+        titleTextField.setText(movie.getMovieName() + "    -    " + movie.getHebrewMovieName());
+        genreTextField.setText(movie.getMovieGenre().toString());
 
         if (movie.getImage() != null) {
             InputStream imageStream = new ByteArrayInputStream(movie.getImage());
@@ -121,7 +127,7 @@ public class MovieController implements ClientDependent {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backBtn.getScene().getWindow();
-            client.moveScene("catalogM/movieCatalog", stage,null);
+            client.moveScene("primary", stage,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
