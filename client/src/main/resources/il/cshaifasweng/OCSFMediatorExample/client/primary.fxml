@@ -24,7 +24,7 @@
                      <content>
                         <VBox fx:id="movieLayout">
                            <children>
-                              <GridPane fx:id="moveisListGrid" alignment="CENTER" onMouseClicked="#chooseMovie" prefHeight="0.0" prefWidth="10.0">
+                              <GridPane fx:id="moveisListGrid" alignment="CENTER" prefHeight="0.0" prefWidth="10.0">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" />
                                 </columnConstraints>

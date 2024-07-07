@@ -104,7 +104,7 @@ public class CatalogController implements ClientDependent {
                 for (Movie movie : movies) {
                     if (movie.getMovieName().equals(movieName)) {
                         try {
-                            MovieController.setMovie(movie);
+                            //MovieController.setMovie(movie);
                             Node node = (Node) mouseEvent.getSource();
                             Stage stage = (Stage) node.getScene().getWindow();
                             EventBus.getDefault().unregister(this);

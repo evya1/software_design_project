@@ -30,20 +30,13 @@ import java.util.Optional;
 
 
 public class MovieController implements ClientDependent {
-    private static Movie movie;
+    private Movie movie;
     private SimpleClient client;
     private Message localMessage;
 
-    public static void setMovie(Movie movie) {
-        MovieController.movie = movie;
-    }
 
-    public static void setTheTimeSlots(List<MovieSlot> theTimeSlots) {
-        MovieController.movie.setMovieScreeningTime(theTimeSlots);
-    }
-
-    public static String getMovie() {
-        return movie.getMovieName();
+    public void setTheTimeSlots(List<MovieSlot> theTimeSlots) {
+        this.movie.setMovieScreeningTime(theTimeSlots);
     }
 
     @FXML
@@ -211,5 +204,6 @@ public class MovieController implements ClientDependent {
     @Override
     public void setMessage(Message message) {
         this.localMessage = message;
+        this.movie = (Movie) message.getSpecificMovie();
     }
 }

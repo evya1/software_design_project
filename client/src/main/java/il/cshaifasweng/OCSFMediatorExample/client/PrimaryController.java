@@ -116,6 +116,10 @@ public class PrimaryController implements ClientDependent {
                     // moveisListGrid.getChildren().add(anchorPane);
                     moveisListGrid.add(anchorPane, col++, row);
                     GridPane.setMargin(anchorPane, new Insets(10,10,10,10));
+                    anchorPane.setOnMouseClicked(event -> {
+                        if (event.getClickCount() == 2) {
+                            chooseMovie(movie);
+                        }});
                 }
             }
         } catch (Exception e) {
@@ -143,8 +147,14 @@ public class PrimaryController implements ClientDependent {
         }
     }
 
-    public void chooseMovie(MouseEvent event) {
-
+    public void chooseMovie(Movie movie) {
+        try {
+            localMessage = new Message();
+            localMessage.setSpecificMovie(movie);
+            client.moveScene("catalogM/Movie",new Stage(),localMessage);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -168,7 +178,7 @@ public class PrimaryController implements ClientDependent {
 
     @Override
     public void setMessage(Message message) {
-        this.localMessage = message;
+        //this.localMessage = message;
     }
 }
 
