@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -22,24 +21,29 @@
          <center>
             <AnchorPane prefHeight="582.0" prefWidth="1053.0" BorderPane.alignment="CENTER">
                <children>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="58.0" layoutY="61.0" prefHeight="506.0" prefWidth="1073.0" vbarPolicy="ALWAYS">
+                  <ScrollPane fitToHeight="true" fitToWidth="false" layoutX="58.0" layoutY="61.0" prefHeight="506.0" prefWidth="1073.0" vbarPolicy="AS_NEEDED">
                      <content>
-                        <VBox fx:id="movieLayout" prefHeight="478.0" prefWidth="1024.0">
+                        <VBox fx:id="movieLayout" nodeOrientation="LEFT_TO_RIGHT" prefHeight="478.0" prefWidth="1024.0">
                            <children>
-                              <GridPane fx:id="moveisListGrid" alignment="CENTER" prefHeight="0.0" prefWidth="10.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css">
-                                <columnConstraints>
-                                    <ColumnConstraints hgrow="SOMETIMES" />
-                                </columnConstraints>
+                              <GridPane fx:id="moveisListGrid" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="0.0" prefWidth="10.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css">
+                                 <columnConstraints>
+                                    <ColumnConstraints minWidth="200" prefWidth="200" maxWidth="200" />
+                                    <ColumnConstraints minWidth="200" prefWidth="200" maxWidth="200" />
+                                    <ColumnConstraints minWidth="200" prefWidth="200" maxWidth="200" />
+                                    <ColumnConstraints minWidth="200" prefWidth="200" maxWidth="200" />
+                                    <ColumnConstraints minWidth="200" prefWidth="200" maxWidth="200" />
+                                 </columnConstraints>
                                  <rowConstraints>
-                                    <RowConstraints vgrow="SOMETIMES" />
                                  </rowConstraints>
                               </GridPane>
                            </children>
                         </VBox>
                      </content>
                   </ScrollPane>
-                  <TextField fx:id="searchTextField" layoutX="58.0" layoutY="19.0" prefHeight="26.0" prefWidth="250.0" promptText="Search" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
+                  <TextField fx:id="searchTextField" layoutX="58.0" layoutY="19.0" onInputMethodTextChanged="#textChangeSearchField" prefHeight="26.0" prefWidth="250.0" promptText="Search" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
                   <ComboBox fx:id="filterByTypeComboBox" layoutX="349.0" layoutY="20.0" onAction="#chooseType" prefHeight="20.0" prefWidth="150.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
+                  <ComboBox fx:id="filterByGenreComboBox" layoutX="535.0" layoutY="19.0" onAction="#chooseGenre" prefWidth="150.0" promptText="Choose Genre" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
+                  <Button fx:id="clearFiltersBtn" layoutX="1035.0" layoutY="20.0" mnemonicParsing="false" onAction="#clearFilters" prefHeight="25.0" prefWidth="96.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Clear Filters" />
                </children>
                <BorderPane.margin>
                   <Insets bottom="10.0" />
