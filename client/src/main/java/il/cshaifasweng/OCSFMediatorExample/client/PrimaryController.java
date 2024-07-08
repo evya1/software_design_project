@@ -3,32 +3,25 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieGridController;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import javafx.scene.input.MouseEvent;
 
-import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class PrimaryController implements ClientDependent {
 
@@ -46,10 +39,16 @@ public class PrimaryController implements ClientDependent {
     private ComboBox<String> filterByTypeComboBox;
 
     @FXML
+    private ComboBox<MovieGenre> filterByGenreComboBox;
+
+    @FXML
     private GridPane moveisListGrid;
 
     @FXML
     private Button homeScreenBtn;
+
+    @FXML
+    private Button clearFiltersBtn;
 
     @FXML
     private Button searchBtn;
@@ -64,7 +63,8 @@ public class PrimaryController implements ClientDependent {
     private VBox movieLayout;
 
     private SimpleClient client;
-    private static List<Movie> movies;
+    private List<Movie> movies;
+    private List<Movie> filteredMovies;
 
     @FXML
     public void catalogController(ActionEvent event) {
@@ -74,7 +74,7 @@ public class PrimaryController implements ClientDependent {
         }
         try {
             Stage stage = (Stage) catalogButton.getScene().getWindow();
-            client.moveScene("catalogM/movieCatalog", stage,null);
+            client.moveScene("catalogM/movieCatalog", stage, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,6 +83,9 @@ public class PrimaryController implements ClientDependent {
     @FXML
     void initialize() {
         filterByTypeComboBox.getItems().addAll("All Movies", "Upcoming Movies", "In Theater", "Viewing Package");
+        filterByTypeComboBox.setValue("All Movies");
+        filterByGenreComboBox.getItems().addAll(MovieGenre.values());
+
         homeScreenBtn.setDisable(true);
         Message message = new Message();
         message.setMessage("new client");
@@ -90,18 +93,18 @@ public class PrimaryController implements ClientDependent {
         message.setMessage("show all movies");
         client.sendMessage(message);
         EventBus.getDefault().register(this);
-        filterByTypeComboBox.setValue("All Movies");
-        loadMovies();
+
+        // Add listener to searchTextField
+        searchTextField.textProperty().addListener((observable, oldValue, newValue) -> filterMovies());
     }
 
-    private void loadMovies() {
+    private void loadMovies(List<Movie> moviesToDisplay) {
         // Ensure movies list is initialized and populated
         int col = 0;
         int row = 0;
         try {
-            if (movies != null && !movies.isEmpty()) {
-                //ObservableList<ImageView> moviesImages = FXCollections.observableArrayList();
-                for (Movie movie : movies) {
+            if (moviesToDisplay != null && !moviesToDisplay.isEmpty()) {
+                for (Movie movie : moviesToDisplay) {
                     FXMLLoader fxmlLoader = new FXMLLoader();
                     fxmlLoader.setLocation(getClass().getResource("catalogM/movieGrid.fxml"));
                     AnchorPane anchorPane = fxmlLoader.load();
@@ -112,14 +115,13 @@ public class PrimaryController implements ClientDependent {
                         col = 0;
                         row++;
                     }
-                    System.out.println(movie.getMovieName());
-                    // moveisListGrid.getChildren().add(anchorPane);
                     moveisListGrid.add(anchorPane, col++, row);
-                    GridPane.setMargin(anchorPane, new Insets(10,10,10,10));
+                    GridPane.setMargin(anchorPane, new Insets(15, 15, 15, 15));
                     anchorPane.setOnMouseClicked(event -> {
                         if (event.getClickCount() == 2) {
-                            chooseMovie(movie,(Stage) anchorPane.getScene().getWindow());
-                        }});
+                            chooseMovie(movie, (Stage) anchorPane.getScene().getWindow());
+                        }
+                    });
                 }
             }
         } catch (Exception e) {
@@ -131,30 +133,83 @@ public class PrimaryController implements ClientDependent {
     public void onMoviesReceived(GenericEvent<List<Movie>> event) {
         if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof Movie) {
             Platform.runLater(() -> {
-                PrimaryController.movies = event.getData();
-                loadMovies();
+                this.movies = event.getData();
+                loadMovies(movies);
+                filteredMovies = movies;
             });
         }
     }
 
-
-    public void chooseType(ActionEvent event) {
-        String selection = filterByTypeComboBox.getValue();
-
-
-        if (movies != null && !movies.isEmpty()) {
-
-        }
+    @FXML
+    void chooseGenre(ActionEvent event) {
+        filterMovies();
     }
 
-    public void chooseMovie(Movie movie,Stage stage) {
+    @FXML
+    public void chooseType(ActionEvent event) {
+        filterByGenreComboBox.getSelectionModel().clearSelection();
+        filterByGenreComboBox.setPromptText("Choose Genre");
+
+        filterMovies();
+    }
+
+    private void filterMovies() {
+        String typeSelection = filterByTypeComboBox.getValue();
+        MovieGenre genreSelection = filterByGenreComboBox.getValue();
+        String searchText = searchTextField.getText().toLowerCase();
+
+        filteredMovies = new ArrayList<>(movies);
+
+        // Filter by type
+        if (!typeSelection.equals("All Movies")) {
+            filteredMovies.removeIf(movie -> {
+                switch (typeSelection) {
+                    case "Upcoming Movies":
+                        return !movie.getMovieType().isUpcoming();
+                    case "In Theater":
+                        return !movie.getMovieType().isCurrentlyRunning();
+                    case "Viewing Package":
+                        return !movie.getMovieType().isPurchasable();
+                    default:
+                        return false;
+                }
+            });
+        }
+
+        // Filter by genre
+        if (genreSelection != null) {
+            filteredMovies.removeIf(movie -> !movie.getMovieGenre().equals(genreSelection));
+        }
+
+        // Filter by search text
+        if (searchText != null && !searchText.isEmpty()) {
+            filteredMovies.removeIf(movie -> !movie.getMovieName().toLowerCase().contains(searchText));
+        }
+
+        moveisListGrid.getChildren().clear();
+        loadMovies(filteredMovies);
+    }
+
+    public void chooseMovie(Movie movie, Stage stage) {
         try {
             localMessage = new Message();
             localMessage.setSpecificMovie(movie);
-            client.moveScene("catalogM/Movie",stage,localMessage);
-        }catch (Exception e) {
+            client.moveScene("catalogM/Movie", stage, localMessage);
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    @FXML
+    void clearFilters(ActionEvent event) {
+        // Clear all filters
+        filterByTypeComboBox.setValue("All Movies");
+        filterByGenreComboBox.getSelectionModel().clearSelection();
+        searchTextField.clear();
+
+        // Load all movies
+        loadMovies(movies);
     }
 
     @FXML
@@ -172,13 +227,16 @@ public class PrimaryController implements ClientDependent {
 
     }
 
+    @Override
     public void setClient(SimpleClient client) {
         this.client = client;
     }
 
     @Override
     public void setMessage(Message message) {
-        //this.localMessage = message;
+        // this.localMessage = message;
+    }
+
+    public void textChangeSearchField(InputMethodEvent inputMethodEvent) {
     }
 }
-
