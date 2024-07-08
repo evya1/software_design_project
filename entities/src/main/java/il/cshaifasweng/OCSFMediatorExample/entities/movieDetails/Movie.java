@@ -1,14 +1,15 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.movieDetails;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-
 @Entity
-@Table (name = "movie")
+@Table(name = "movie")
 public class Movie implements Serializable {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -17,27 +18,24 @@ public class Movie implements Serializable {
     private String mainCast;
     @Lob
     @Column(name = "image", columnDefinition = "LONGBLOB")
-    private byte[] image; // Store image as byte array
+    private byte[] image;
 
     private String producer;
     private String movieDescription;
     private int movieDuration;
 
-
-
     @Enumerated(EnumType.STRING)
     @Column(name = "movie_genre")
-    MovieGenre movieGenre;
+    private MovieGenre movieGenre;
 
-    //TODO: Modify.
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<MovieSlot> movieScreeningTime; //true to prototype only!
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<MovieSlot> movieScreeningTime;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private TypeOfMovie movieType;
 
-
-    public Movie(){}
+    public Movie() {}
 
     public Movie(String movieName, String mainCast, byte[] image, String producer, String movieDescription,
                  int movieDuration, List<MovieSlot> movieScreeningTime, TypeOfMovie upcomingMovies, MovieGenre movieGenre, String hebrewMovieName) {
@@ -53,24 +51,13 @@ public class Movie implements Serializable {
         this.hebrewMovieName = hebrewMovieName;
     }
 
-    public MovieGenre getMovieGenre() {
-        return movieGenre;
-    }
-
-    public void setMovieGenre(MovieGenre movieGenre) {
-        this.movieGenre = movieGenre;
-    }
-
-    public String getHebrewMovieName() {
-        return hebrewMovieName;
-    }
-
-    public void setHebrewMovieName(String hebrewMovieName) {
-        this.hebrewMovieName = hebrewMovieName;
-    }
-
+    // Getters and Setters
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getMovieName() {
@@ -79,6 +66,14 @@ public class Movie implements Serializable {
 
     public void setMovieName(String movieName) {
         this.movieName = movieName;
+    }
+
+    public String getHebrewMovieName() {
+        return hebrewMovieName;
+    }
+
+    public void setHebrewMovieName(String hebrewMovieName) {
+        this.hebrewMovieName = hebrewMovieName;
     }
 
     public String getMainCast() {
@@ -121,21 +116,19 @@ public class Movie implements Serializable {
         this.movieDuration = movieDuration;
     }
 
-    public List <MovieSlot> getMovieScreeningTime() {
+    public MovieGenre getMovieGenre() {
+        return movieGenre;
+    }
+
+    public void setMovieGenre(MovieGenre movieGenre) {
+        this.movieGenre = movieGenre;
+    }
+
+    public List<MovieSlot> getMovieScreeningTime() {
         return movieScreeningTime;
     }
 
-    public MovieSlot getScreeningTimeByID(int screeningID){
-        for (MovieSlot slot : movieScreeningTime) {
-            if (slot.getId() == screeningID) {
-                return slot;
-            }
-        }
-        System.out.println("Screening ID wasn't found.");
-        return null;
-    }
-
-    public void setMovieScreeningTime(List <MovieSlot> movieScreeningTime) {
+    public void setMovieScreeningTime(List<MovieSlot> movieScreeningTime) {
         this.movieScreeningTime = movieScreeningTime;
     }
 
@@ -143,7 +136,7 @@ public class Movie implements Serializable {
         return movieType;
     }
 
-    public void setMovieType(TypeOfMovie upcomingMovies) {
-        this.movieType = upcomingMovies;
+    public void setMovieType(TypeOfMovie movieType) {
+        this.movieType = movieType;
     }
 }

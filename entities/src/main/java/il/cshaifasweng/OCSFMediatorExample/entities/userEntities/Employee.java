@@ -12,7 +12,7 @@ public class Employee implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Enumerated(EnumType.STRING) // or EnumType.ORDINAL
+    @Enumerated(EnumType.STRING)
     @Column(name = "employee_type")
     private EmployeeType employeeType;
 
@@ -23,13 +23,11 @@ public class Employee implements Serializable {
     private String password;
     private boolean active;
 
-    //TODO: Check how many managers can a branch have
     @OneToOne
     private Branch branchInCharge;
-    // Constructors, getters, and setters
 
-    public Employee() {
-    }
+    // Constructors, getters, and setters
+    public Employee() {}
 
     public Employee(EmployeeType employeeType) {
         this.employeeType = employeeType;
@@ -37,10 +35,6 @@ public class Employee implements Serializable {
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public EmployeeType getEmployeeType() {
@@ -100,14 +94,14 @@ public class Employee implements Serializable {
     }
 
     public Branch getBranchInCharge() {
-        if(employeeType == EmployeeType.THEATER_MANAGER) {
+        if (employeeType == EmployeeType.THEATER_MANAGER) {
             return branchInCharge;
         }
         return null;
     }
 
     public void setBranchInCharge(Branch branchInCharge) {
-        if(employeeType == EmployeeType.THEATER_MANAGER) {
+        if (employeeType == EmployeeType.THEATER_MANAGER) {
             this.branchInCharge = branchInCharge;
         }
     }

@@ -1,5 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities;
+
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,12 +16,17 @@ public class Theater {
     private int numOfSeats;
     private int availableSeats;
 
-    @OneToMany
+    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Seat> seatList;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     private int rowLength;
 
-    @OneToMany(mappedBy = "theater", fetch = FetchType.LAZY, cascade = CascadeType.ALL) //Movie list
+    @OneToMany(mappedBy = "theater", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Fetch(FetchMode.SUBSELECT)
     private List<MovieSlot> movieTime;
 
     public Theater() {}
@@ -31,8 +39,13 @@ public class Theater {
         this.rowLength = rowLength;
     }
 
+    // Getters and Setters
     public int getTheaterNum() {
         return theaterNum;
+    }
+
+    public void setTheaterNum(int theaterNum) {
+        this.theaterNum = theaterNum;
     }
 
     public int getNumOfSeats() {
@@ -43,35 +56,43 @@ public class Theater {
         this.numOfSeats = numOfSeats;
     }
 
-    public List<MovieSlot> getMovieTime() {
-        return movieTime;
-    }
-
-    public void setMovieTime(List<MovieSlot> movieTime) {
-        this.movieTime = movieTime;
+    public int getAvailableSeats() {
+        return availableSeats;
     }
 
     public void setAvailableSeats(int availableSeats) {
         this.availableSeats = availableSeats;
     }
 
-    public int getAvailableSeats() {
-        return availableSeats;
+    public List<Seat> getSeatList() {
+        return seatList;
     }
 
     public void setSeatList(List<Seat> seatList) {
         this.seatList = seatList;
     }
 
-    public List<Seat> getSeatList() {
-        return seatList;
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
+
+    public int getRowLength() {
+        return rowLength;
     }
 
     public void setRowLength(int rowLength) {
         this.rowLength = rowLength;
     }
 
-    public int getRowLength() {
-        return rowLength;
+    public List<MovieSlot> getMovieTime() {
+        return movieTime;
+    }
+
+    public void setMovieTime(List<MovieSlot> movieTime) {
+        this.movieTime = movieTime;
     }
 }

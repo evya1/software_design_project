@@ -5,11 +5,8 @@ import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import javax.persistence.*;
 import java.io.Serializable;
 
-
-//TODO: Need to update this one.
-
 @Entity
-@Table (name = "report")
+@Table(name = "report")
 public class Report implements Serializable {
 
     @Id
@@ -18,4 +15,23 @@ public class Report implements Serializable {
 
     @OneToOne
     private Branch branch;
+
+    // Constructors, getters, and setters
+    public Report() {}
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
 }
