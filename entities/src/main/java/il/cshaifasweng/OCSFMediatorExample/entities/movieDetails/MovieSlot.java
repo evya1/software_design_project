@@ -1,16 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.movieDetails;
 
-
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-//Example for the MovieSlot usage:
-//Movie movie1 = new Movie("Inception", "Leonardo DiCaprio", null, "Christopher Nolan", "A mind-bending thriller", 148, null);
-//MovieSlot movieSlot1 = new MovieSlot(movie1, LocalDateTime.of(2024, 9, 25, 10, 0), LocalDateTime.of(2024, 9, 25, 12, 30));
 
 @Entity
 @Table(name = "movieslot")
@@ -19,7 +14,7 @@ public class MovieSlot implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
@@ -41,8 +36,13 @@ public class MovieSlot implements Serializable {
         this.theater = theater;
     }
 
+    // Getters and Setters
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Movie getMovie() {
@@ -52,6 +52,14 @@ public class MovieSlot implements Serializable {
     public void setMovie(Movie movie) {
         this.movie = movie;
         this.movieTitle = movie.getMovieName();
+    }
+
+    public String getMovieTitle() {
+        return movieTitle;
+    }
+
+    public void setMovieTitle(String movieTitle) {
+        this.movieTitle = movieTitle;
     }
 
     public LocalDateTime getStartDateTime() {
@@ -68,14 +76,6 @@ public class MovieSlot implements Serializable {
 
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
-    }
-
-    public String getMovieTitle() {
-        return movieTitle;
-    }
-
-    public void setMovieTitle(String movieTitle) {
-        this.movieTitle = movieTitle;
     }
 
     public Theater getTheater() {
