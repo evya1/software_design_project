@@ -62,6 +62,9 @@ public class PrimaryController implements ClientDependent {
     @FXML
     private VBox movieLayout;
 
+    @FXML
+    private Button bookletPurchaseBtn;
+
     private SimpleClient client;
     private List<Movie> movies;
     private List<Movie> filteredMovies;
@@ -238,5 +241,22 @@ public class PrimaryController implements ClientDependent {
     }
 
     public void textChangeSearchField(InputMethodEvent inputMethodEvent) {
+    }
+
+    @FXML
+    void purchaseBookletControl(ActionEvent event) {
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) bookletPurchaseBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("New Booklet");
+            message.setSourceFXML("Primary");
+            client.moveScene("purchases/paymentScreen", stage,message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
