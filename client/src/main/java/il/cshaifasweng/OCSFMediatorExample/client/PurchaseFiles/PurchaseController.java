@@ -88,10 +88,15 @@ public class PurchaseController implements ClientDependent {
         EventBus.getDefault().register(this);
 
         privateName.setText("Private Name:");
+        privateNameField.setPromptText("Enter Private Name");
         lastName.setText("Last Name:");
+        surnameNameField.setPromptText("Enter Last Name");
         id.setText("ID:");
+        idNumberField.setPromptText("Enter 9 Digits ID");
         cardNumber.setText("Card Number:");
+        cardNumField.setPromptText("Enter Card Number");
         cvv.setText("CVV:");
+        cvvField.setPromptText("Enter CVV");
 
         confirmPurchaseBtn.setOnAction(event -> confirmBtnControl(event));
         returnBtn.setOnAction(event -> returnBtnControl(event));
