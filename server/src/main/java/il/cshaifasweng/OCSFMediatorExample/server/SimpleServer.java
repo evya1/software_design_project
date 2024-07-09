@@ -28,7 +28,7 @@ public class SimpleServer extends AbstractServer {
             RequestHandler handler = factory.getHandlerForRequest(request);
 
             if (handler != null) {
-                System.out.println("yoyo");
+                System.out.println("LOG: new message received from client " + message.getMessage());
                 handler.handle(message, client);
 
             }

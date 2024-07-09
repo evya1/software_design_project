@@ -11,9 +11,9 @@ public class NewPurchaseHandler implements RequestHandler{
 
     @Override
     public void handle(Message message, ConnectionToClient client) {// CHECKS WITH DB ID - IF EXISTS RETURN ID  (SEARCH BY PERSONAL ID), CREATE NEW CUSTOMER IF NOT EXIST, ADD BOOKLET INSTANCE TO  HIS PURCHASES
-        if (message.getData() == "Booklet") {
+        if (message.getMessage().equals("New Booklet")) {
             try {
-                System.out.println("New purchase request received");
+                System.out.println("New purchase request received, Initializing check-ups with DB");
             } catch (Exception e) {
                 System.err.println("An error occurred");
                 e.printStackTrace();
