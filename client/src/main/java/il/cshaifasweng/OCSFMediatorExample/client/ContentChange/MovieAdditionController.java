@@ -2,18 +2,27 @@ package il.cshaifasweng.OCSFMediatorExample.client.ContentChange;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
+import il.cshaifasweng.OCSFMediatorExample.client.StyleUtil;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.TypeOfMovie;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.beans.value.ChangeListener;
+import javassist.Loader;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.*;
 
 public class MovieAdditionController implements ClientDependent {
 
@@ -22,6 +31,11 @@ public class MovieAdditionController implements ClientDependent {
     private SimpleClient client;
     private Message localMessage;
     private final String NEW_MOVIE_TEXT_REQUEST = "new movie";
+
+
+
+    @FXML
+    private Button browseBtn;
 
     @FXML // fx:id="castTextField"
     private TextField castTextField; // Value injected by FXMLLoader
@@ -65,6 +79,11 @@ public class MovieAdditionController implements ClientDependent {
     @FXML // fx:id="submitMovieBtn"
     private Button submitMovieBtn; // Value injected by FXMLLoader
 
+    private final String errorColor = "red";
+    private final String normalColor = "black";
+    private final String borderDefault = null;
+
+
 
     @FXML
     public void initialize() {
@@ -73,6 +92,12 @@ public class MovieAdditionController implements ClientDependent {
             movieType = new TypeOfMovie();
             movie.setMovieType(movieType);
             chooseGenreComboBox.getItems().addAll(MovieGenre.values());
+            addTextInputListener(descriptionTextArea,borderDefault);
+            addTextInputListener(englishTitleTextField,borderDefault);
+            addTextInputListener(filePathTextField,borderDefault);
+            addTextInputListener(hebrewTitleTextField,borderDefault);
+            addTextInputListener(producerTextField,borderDefault);
+            addTextInputListener(castTextField,borderDefault);
         }
         //Loading an existing movie.
         else{
@@ -103,6 +128,8 @@ public class MovieAdditionController implements ClientDependent {
     }
 
 
+
+
     @FXML
     void checkComingSoon(ActionEvent event) {
         if(soonCheckBox.isSelected()) {
@@ -122,6 +149,7 @@ public class MovieAdditionController implements ClientDependent {
             packageCheckBox.setDisable(false);
             movie.getMovieType().setUpcoming(false);
         }
+        setCheckBoxesColor(normalColor);
     }
 
     @FXML
@@ -132,6 +160,7 @@ public class MovieAdditionController implements ClientDependent {
         else {
             movie.getMovieType().setCurrentlyRunning(false);
         }
+        setCheckBoxesColor(normalColor);
     }
 
     @FXML
@@ -142,6 +171,7 @@ public class MovieAdditionController implements ClientDependent {
         else{
             movie.getMovieType().setPurchasable(false);
         }
+        setCheckBoxesColor(normalColor);
     }
 
     @FXML
@@ -153,6 +183,7 @@ public class MovieAdditionController implements ClientDependent {
     void chooseGenre(ActionEvent event) {
         MovieGenre genreSelection = chooseGenreComboBox.getValue();
         movie.setMovieGenre(genreSelection);
+        changeControlBorderColor(chooseGenreComboBox,borderDefault);
     }
 
     @FXML
@@ -185,38 +216,128 @@ public class MovieAdditionController implements ClientDependent {
 
 
     @FXML
-    void submitMovie(ActionEvent event) {
+    void submitMovie(ActionEvent event) throws IOException {
+        resetFieldsColor();
 
-        //Checking empty fields.
-        boolean description = descriptionTextArea.getText().isEmpty();
-        boolean hebrewTitle = hebrewTitleTextField.getText().isEmpty();
-        boolean englishTitle = englishTitleTextField.getText().isEmpty();
-        boolean cast = castTextField.getText().isEmpty();
-        boolean producer = producerTextField.getText().isEmpty();
-        boolean imagePath = filePathTextField.getText().isEmpty();
-        boolean genre = chooseGenreComboBox.getValue() != null;
-        boolean soon = soonCheckBox.isSelected();
-        boolean inTheater = inTheatersCheckBox.isSelected();
-        boolean viewingPackage = packageCheckBox.isSelected();
-        boolean selection = soon || inTheater || viewingPackage;
-
-        //Checking that all the fields are populated.
-        if(description || hebrewTitle || englishTitle || cast || producer || genre || !selection){
-
-            //If it's a movie loaded then the image path should not be populated.
-            //If its not a new movie then require image path.
-            if(!localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST) && imagePath)
-            {
-                SimpleClient.showAlert(Alert.AlertType.INFORMATION,"Empty fields","There are one or more empty fields, please populate them before continuing");
+        //Checking if the requested is a New movie and checking the fields accordingly.
+       if(localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)) {
+            if(!checkFields()){
+                copyMovieDetails(true);
+                Message message = new Message();
+                message.setMessage("Content Change");
+                message.setData("New Movie");
+                message.setSpecificMovie(movie);
+                client.sendMessage(message);
+                System.out.println("Movie ID: " + movie.getId() +
+                        ", Name: " + movie.getMovieName() + "Hebrew: " + movie.getHebrewMovieName() +
+                        ", Main Cast: " + movie.getMainCast() +
+                        ", Producer: " + movie.getProducer() +
+                        ", Description: " + movie.getMovieDescription() +
+                        ", Duration: " + movie.getMovieDuration());
             }
-        }
-        else{
+           //If its a new movie setup the fields.
+       }
+       else{
+           copyMovieDetails(false);
+           Message message = new Message();
+           message.setMessage("Content Change");
+           message.setData("Update Movie");
+           message.setSpecificMovie(movie);
+           client.sendMessage(message);
+       }
+    }
 
-            if(localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)){
-                //TODO: Complete the section
+    private void copyMovieDetails(boolean newMovie) throws IOException {
+        movie.setHebrewMovieName(hebrewTitleTextField.getText());
+        movie.setMovieName(englishTitleTextField.getText());
+        movie.setMovieDescription(descriptionTextArea.getText());
+        movie.setMainCast(castTextField.getText());
+        movie.setProducer(producerTextField.getText());
+        movie.setMovieGenre(chooseGenreComboBox.getValue());
+        movie.getMovieType().setUpcoming(soonCheckBox.isSelected());
+        movie.getMovieType().setCurrentlyRunning(inTheatersCheckBox.isSelected());
+        movie.getMovieType().setPurchasable(packageCheckBox.isSelected());
+        try {
+            if(newMovie){
+                movie.setImage(Files.readAllBytes(Paths.get(filePathTextField.getText())));
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+
+
+    //Checking the fields and setting them accordingly.
+    private boolean checkFields(){
+        boolean flag = false;
+        if(hebrewTitleTextField.getText().isEmpty()){
+            changeControlBorderColor(hebrewTitleTextField,errorColor);
+            flag = true;
+        }
+        if(englishTitleTextField.getText().isEmpty()){
+            changeControlBorderColor(englishTitleTextField,errorColor);
+            flag = true;
+        }
+        if(producerTextField.getText().isEmpty()){
+            changeControlBorderColor(producerTextField,errorColor);
+            flag = true;
+        }
+        if(castTextField.getText().isEmpty()){
+            changeControlBorderColor(castTextField,errorColor);
+            flag = true;
+        }
+        if(filePathTextField.getText().isEmpty() && localMessage.getMessage().equals("new movie"))
+        {
+            changeControlBorderColor(filePathTextField,errorColor);
+            flag = true;
+        }
+        if(chooseGenreComboBox.getValue() == null){
+            changeControlBorderColor(chooseGenreComboBox,errorColor);
+            flag = true;
+        }
+        if(!inTheatersCheckBox.isSelected() && !packageCheckBox.isSelected() && !soonCheckBox.isSelected()){
+            setCheckBoxesColor(errorColor);
+            flag = true;
+        }
+        return flag;
+    }
+
+
+
+    private void setCheckBoxesColor(String color){
+        changeControlTextColor(soonCheckBox,color);
+        changeControlTextColor(inTheatersCheckBox,color);
+        changeControlTextColor(packageCheckBox,color);
+    }
+
+    //Resets the fields color to be null - the transparent border by default.
+    private void resetFieldsColor(){
+        changeControlBorderColor(descriptionTextArea,borderDefault);
+        changeControlBorderColor(hebrewTitleTextField,borderDefault);
+        changeControlBorderColor(englishTitleTextField,borderDefault);
+        changeControlBorderColor(castTextField,borderDefault);
+        changeControlBorderColor(producerTextField,borderDefault);
+        changeControlBorderColor(chooseGenreComboBox,borderDefault);
+        changeControlTextColor(soonCheckBox,normalColor);
+        changeControlTextColor(inTheatersCheckBox,normalColor);
+        changeControlTextColor(packageCheckBox,normalColor);
+    }
+
+    @FXML
+    public void browseLocation(ActionEvent actionEvent) {
+        changeControlBorderColor(filePathTextField,borderDefault);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Image File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+        );
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            filePathTextField.setText(file.getAbsolutePath());
+        }
+    }
+
 
     @Override
     public void setClient(SimpleClient client) {
@@ -227,4 +348,6 @@ public class MovieAdditionController implements ClientDependent {
     public void setMessage(Message message) {
         this.localMessage = message;
     }
+
+
 }

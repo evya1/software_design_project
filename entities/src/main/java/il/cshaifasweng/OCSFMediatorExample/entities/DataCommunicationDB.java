@@ -550,6 +550,71 @@ public class DataCommunicationDB
 
 
     /*************** Movie ENTITY SETTERS********************/
+    private static void copyMovieDetails(Movie destination, Movie source){
+        destination.setMovieGenre(source.getMovieGenre());
+        destination.setMovieName(source.getMovieName());
+        destination.setMovieDescription(source.getMovieDescription());
+        destination.setImage(source.getImage());
+        destination.setHebrewMovieName(source.getHebrewMovieName());
+        destination.setMovieType(source.getMovieType());
+        destination.setProducer(source.getProducer());
+        destination.setMainCast(source.getMainCast());
+        destination.setMovieScreeningTime(source.getMovieScreeningTime());
+        destination.setMovieDuration(source.getMovieDuration());
+    }
+
+    public static void createNewMovie(Movie movieToAdd) {
+        try {
+            session.beginTransaction();
+
+            Movie movie = new Movie();
+            copyMovieDetails(movie, movieToAdd);
+
+            session.save(movie);
+            session.getTransaction().commit();
+            System.out.println("Movie was created successfully. Movie ID is " + movie.getId());
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
+    public static void updateMovieDetails(Movie source){
+        try {
+            session.beginTransaction();
+
+            Movie movie = getMovieByID(source.getId());
+            if (movie == null) {
+                System.out.println("Movie with ID " + source.getId() + " not found.");
+                return;
+            }
+            System.out.println(movie.getId() + " This is the movie retrieved");
+            movie.setMovieGenre(source.getMovieGenre());
+            movie.setMovieName(source.getMovieName());
+            movie.setMovieDescription(source.getMovieDescription());
+            movie.setImage(source.getImage());
+            movie.setHebrewMovieName(source.getHebrewMovieName());
+            movie.setMovieType(source.getMovieType());
+            movie.setProducer(source.getProducer());
+            movie.setMainCast(source.getMainCast());
+            movie.setMovieScreeningTime(source.getMovieScreeningTime());
+            movie.setMovieDuration(source.getMovieDuration());
+            // Save the updated movie back to the database
+            session.update(movie);
+            session.flush();
+            session.getTransaction().commit();
+            System.out.println("Movie was updated successfully. Movie ID is " + movie.getId());
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
 
     //Generic method that accepts lambda function to modify a specific field in Movie entity.
     public static void updateMovieField(int movieId, Consumer<Movie> updater) {
