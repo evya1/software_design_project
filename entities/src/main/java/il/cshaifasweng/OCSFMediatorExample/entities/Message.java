@@ -2,6 +2,8 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,6 +17,37 @@ public class Message implements Serializable {
     private LocalDateTime timeStamp;
     private String message;
     private String data;
+    private Customer customer;
+    private Purchase purchase;
+
+    public Purchase getPurchase() {
+        return purchase;
+    }
+
+    public void setPurchase(Purchase purchase) {
+        this.purchase = purchase;
+    }
+
+
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+
+    public String getSourceFXML() {
+        return sourceFXML;
+    }
+
+    public void setSourceFXML(String sourceFXML) {
+        this.sourceFXML = sourceFXML;
+    }
+
+    private String sourceFXML;
 
 
     private Movie specificMovie;

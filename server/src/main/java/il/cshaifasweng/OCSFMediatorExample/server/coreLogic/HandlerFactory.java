@@ -21,6 +21,7 @@ public class HandlerFactory {
         handlers.put(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
         handlers.put(RequestTypes.UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
         handlers.put(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST, new GetTimeSlotByMovieID());
+        handlers.put(RequestTypes.GET_PURCHASE_REQUEST, new NewPurchaseHandler());
     }
 
     public static synchronized HandlerFactory getInstance() {
