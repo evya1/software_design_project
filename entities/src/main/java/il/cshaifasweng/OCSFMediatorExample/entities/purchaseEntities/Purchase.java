@@ -19,7 +19,7 @@ public class Purchase implements Serializable {
     private PurchaseType purchaseType;
     private LocalDateTime dateOfPurchase;
     private String customerPID;
-    private double amount;
+    private double price;
 
     @OneToOne
     private Booklet purchasedBooklet;
@@ -63,20 +63,26 @@ public class Purchase implements Serializable {
 
     public void setCustomerPID(String customerPID) {this.customerPID = customerPID;}
 
-    public double getAmount() {return amount;}
+    public double getPrice() {return price;}
 
-    public void setAmount(double amount) {this.amount = amount;}
+    private void setPrice(double price) {
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative.");
+        }
+        this.price = price;
+    }
 
-    public void setAmountByItem(PurchaseType purchasedItem){
-        switch(purchasedItem){
+    public void setPriceByItem(PurchaseType purchasedItem) {
+        this.purchaseType = purchasedItem;
+        switch (purchasedItem) {
             case BOOKLET:
-                this.setAmount(127.5);
+                this.setPrice(PriceConstants.BOOKLET_PRICE);
                 break;
             case MOVIE_LINK:
-                this.setAmount(27.5);
+                this.setPrice(PriceConstants.MOVIE_LINK_PRICE);
                 break;
             case MOVIE_TICKET:
-                this.setAmount(29.5);
+                this.setPrice(PriceConstants.MOVIE_TICKET_PRICE);
                 break;
         }
     }
