@@ -15,6 +15,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.TypeOfMovie;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
@@ -66,6 +67,7 @@ public class DataCommunicationDB
         configuration.addAnnotatedClass(Purchase.class);
         configuration.addAnnotatedClass(Payment.class);
         configuration.addAnnotatedClass(Customer.class);
+        configuration.addAnnotatedClass(Booklet.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
