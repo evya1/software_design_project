@@ -25,12 +25,17 @@ import java.util.List;
 
 public class PrimaryController implements ClientDependent {
 
+
+
     private Message localMessage;
 
     @FXML
     private Button catalogButton;
     @FXML
     private Button customerPanelBtn;
+
+    @FXML
+    private Button submitNewMovieBtn;
 
     @FXML
     private Button employeePanelBtn;
@@ -255,6 +260,23 @@ public class PrimaryController implements ClientDependent {
             message.setMessage("New Booklet");
             message.setSourceFXML("Primary");
             client.moveScene("purchases/paymentScreen", stage,message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void newMovieAction(ActionEvent actionEvent) {
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) submitNewMovieBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("new movie");
+            //message.setSpecificMovie(movies.getFirst());
+            message.setSourceFXML("Primary");
+            client.moveScene("catalogM/addNewMovie", stage ,message);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -19,19 +19,19 @@
             <TextField fx:id="castTextField" layoutX="226.0" layoutY="62.0" prefHeight="28.0" prefWidth="465.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
             <TextField fx:id="englishTitleTextField" layoutX="227.0" layoutY="24.0" prefHeight="28.0" prefWidth="173.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
             <TextField fx:id="producerTextField" layoutX="226.0" layoutY="99.0" prefHeight="25.0" prefWidth="211.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <TextArea fx:id="descriptionTextArea" layoutX="145.0" layoutY="157.0" prefHeight="204.0" prefWidth="379.0" stylesheets="@styleColor.css" wrapText="true" />
-            <Button fx:id="previewImageButton" layoutX="788.0" layoutY="376.0" mnemonicParsing="false" onAction="#previewImage" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Preview Image" />
+            <TextArea fx:id="descriptionTextArea" layoutX="145.0" layoutY="157.0" prefHeight="204.0" prefWidth="379.0" promptText="Write the movie description" stylesheets="@styleColor.css" wrapText="true" />
+            <Button fx:id="previewImageButton" layoutX="781.0" layoutY="374.0" mnemonicParsing="false" onAction="#previewImage" prefHeight="26.0" prefWidth="123.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Preview Image" />
             <Label layoutX="144.0" layoutY="29.0" style="-fx-font-weight: bold;" text="English Title" />
             <Label layoutX="145.0" layoutY="67.0" style="-fx-font-weight: bold;" text="Main Cast" />
             <Label layoutX="148.0" layoutY="104.0" style="-fx-font-weight: bold;" text="Producer" />
             <Label layoutX="146.0" layoutY="138.0" style="-fx-font-weight: bold;" text="Description" />
-            <ImageView fx:id="movieImageView" fitHeight="349.0" fitWidth="228.0" layoutX="729.0" layoutY="22.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="movieImageView" fitHeight="349.0" fitWidth="228.0" layoutX="729.0" layoutY="20.0" pickOnBounds="true">
                <image>
-                  <Image url="@../../../../../../../../../entities/src/main/resources/MoviePictures/Godfather.jpg" />
+                  <Image url="@BlankImage.jpg" />
                </image></ImageView>
             <Label layoutX="468.0" layoutY="104.0" prefHeight="17.0" prefWidth="49.0" style="-fx-font-weight: bold;" text="Genre" />
             <ComboBox fx:id="chooseGenreComboBox" layoutX="541.0" layoutY="99.0" onAction="#chooseGenre" prefWidth="150.0" promptText="Choose Genre" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <TextField fx:id="filePathTextField" layoutX="264.0" layoutY="374.0" prefHeight="25.0" prefWidth="421.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+            <TextField fx:id="filePathTextField" layoutX="264.0" layoutY="374.0" prefHeight="26.0" prefWidth="355.0" promptText="Set the path to the file or use the browse option" styleClass="rounded-corners" stylesheets="@styleColor.css" />
             <Label layoutX="145.0" layoutY="378.0" style="-fx-font-weight: bold;" text="Movie Picture Path" />
             <CheckBox fx:id="soonCheckBox" layoutX="550.0" layoutY="188.0" mnemonicParsing="false" onAction="#checkComingSoon" text="Coming Soon" />
             <CheckBox fx:id="inTheatersCheckBox" layoutX="550.0" layoutY="224.0" mnemonicParsing="false" onAction="#checkInTheaters" text="In Theaters" />
@@ -39,6 +39,7 @@
             <Label layoutX="550.0" layoutY="157.0" style="-fx-font-weight: bold;" text="Movie Viewing Options" />
             <Label layoutX="420.0" layoutY="29.0" style="-fx-font-weight: bold;" text="Hebrew Title" />
             <TextField fx:id="hebrewTitleTextField" layoutX="506.0" layoutY="24.0" prefHeight="28.0" prefWidth="185.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+            <Button fx:id="browseBtn" layoutX="627.0" layoutY="374.0" mnemonicParsing="false" onAction="#browseLocation" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Browse" />
          </children>
       </AnchorPane>
    </center>
