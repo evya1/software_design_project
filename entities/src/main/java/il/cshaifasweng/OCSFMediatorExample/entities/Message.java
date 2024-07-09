@@ -2,6 +2,8 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 
@@ -19,42 +21,32 @@ public class Message implements Serializable {
     private String data;
     private Customer customer;
     private Purchase purchase;
-
-    public Purchase getPurchase() {
-        return purchase;
-    }
-
-    public void setPurchase(Purchase purchase) {
-        this.purchase = purchase;
-    }
-
-
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-
-    public String getSourceFXML() {
-        return sourceFXML;
-    }
-
-    public void setSourceFXML(String sourceFXML) {
-        this.sourceFXML = sourceFXML;
-    }
-
     private String sourceFXML;
-
-
     private Movie specificMovie;
-
     private List<Movie> movies;
     private List<MovieSlot> movieSlots;
+    private Booklet booklet;
+    private MovieLink movieLink;
 
+    public MovieLink getMovieLink() {return movieLink;}
+
+    public void setMovieLink(MovieLink movieLink) {this.movieLink = movieLink;}
+
+    public void setBooklet(Booklet booklet) {this.booklet = booklet;}
+
+    public Booklet getBooklet() {return booklet;}
+
+    public Purchase getPurchase() {return purchase;}
+
+    public void setPurchase(Purchase purchase) {this.purchase = purchase;}
+
+    public Customer getCustomer() {return customer;}
+
+    public void setCustomer(Customer customer) {this.customer = customer;}
+
+    public String getSourceFXML() {return sourceFXML;}
+
+    public void setSourceFXML(String sourceFXML) {this.sourceFXML = sourceFXML;}
 
     public Message() {
         super();

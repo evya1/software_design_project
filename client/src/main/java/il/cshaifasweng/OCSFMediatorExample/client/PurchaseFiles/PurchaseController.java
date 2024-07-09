@@ -4,6 +4,7 @@ import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
@@ -137,6 +138,12 @@ public class PurchaseController implements ClientDependent {
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
 
+        if(message.getMessage().equals("New Booklet")){
+            Booklet booklet = new Booklet();
+            booklet.setNumOfEntries(20);
+            message.setBooklet(booklet);
+        }
+        //System.out.println("checking " + message.getMessage()); //to see what kind of purchase
         if(errorFlag[0] == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");
             client.sendMessage(message);
@@ -168,7 +175,7 @@ public class PurchaseController implements ClientDependent {
             idNumberField.setPromptText("Enter ID Number");
             errorFlag[0] = 1;
         }
-        else if(idNumberField.getText().length() != 10){
+        else if(idNumberField.getText().length() != 9){
             changeControlBorderColor(idNumberField, "red");
             errorFlag[0] = 1;
         }

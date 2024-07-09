@@ -1,5 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -11,6 +13,9 @@ public class Booklet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int numOfEntries = 20;
+
+    @ManyToOne
+    private Customer customer;
 
 
     public void useEntry(){
@@ -28,4 +33,8 @@ public class Booklet implements Serializable {
     public int getId() {
         return id;
     }
+
+    public Customer getCustomer() {return customer;}
+
+    public void setCustomer(Customer customer) {this.customer = customer;}
 }

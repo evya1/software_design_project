@@ -1,9 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.userEntities;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "customer")
@@ -19,7 +21,6 @@ public class Customer implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL)
     private Payment payment;
-
 
     public int getId() {
         return id;
