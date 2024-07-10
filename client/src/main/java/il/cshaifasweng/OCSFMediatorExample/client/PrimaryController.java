@@ -26,7 +26,6 @@ import java.util.List;
 public class PrimaryController implements ClientDependent {
 
 
-
     private Message localMessage;
 
     @FXML
@@ -74,19 +73,7 @@ public class PrimaryController implements ClientDependent {
     private List<Movie> movies;
     private List<Movie> filteredMovies;
 
-    @FXML
-    public void catalogController(ActionEvent event) {
-        if (client == null) {
-            System.err.println("Client is not initialized!\n");
-            return;
-        }
-        try {
-            Stage stage = (Stage) catalogButton.getScene().getWindow();
-            client.moveScene("catalogM/movieCatalog", stage, null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 
     @FXML
     void initialize() {
@@ -107,6 +94,8 @@ public class PrimaryController implements ClientDependent {
     }
 
     private void loadMovies(List<Movie> moviesToDisplay) {
+
+        moveisListGrid.getChildren().clear();
         // Ensure movies list is initialized and populated
         int col = 0;
         int row = 0;
@@ -194,7 +183,7 @@ public class PrimaryController implements ClientDependent {
             filteredMovies.removeIf(movie -> !movie.getMovieName().toLowerCase().contains(searchText));
         }
 
-        moveisListGrid.getChildren().clear();
+
         loadMovies(filteredMovies);
     }
 
@@ -273,8 +262,8 @@ public class PrimaryController implements ClientDependent {
         try {
             Stage stage = (Stage) submitNewMovieBtn.getScene().getWindow();
             Message message = new Message();
-            message.setMessage("new movie");
-            //message.setSpecificMovie(movies.getFirst());
+            message.setMessage("snew movie");
+            message.setSpecificMovie(movies.get(2));
             message.setSourceFXML("Primary");
             client.moveScene("catalogM/addNewMovie", stage ,message);
         } catch (Exception e) {

@@ -8,6 +8,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
+
 public class BookletPopupController {
     private Stage stage;
     private SimpleClient client;
@@ -43,6 +45,6 @@ public class BookletPopupController {
     @FXML
     void okayBtnControl(ActionEvent event) {
         Stage stage = (Stage) okayBtn.getScene().getWindow();
-        client.moveScene("Primary.FXML", stage, null);
+        client.moveScene(PRIMARY_SCREEN, stage, null);
     }
 }

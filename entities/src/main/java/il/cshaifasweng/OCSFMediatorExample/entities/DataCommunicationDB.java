@@ -550,17 +550,16 @@ public class DataCommunicationDB
 
 
     /*************** Movie ENTITY SETTERS********************/
-    private static void copyMovieDetails(Movie destination, Movie source){
-        destination.setMovieGenre(source.getMovieGenre());
-        destination.setMovieName(source.getMovieName());
-        destination.setMovieDescription(source.getMovieDescription());
-        destination.setImage(source.getImage());
-        destination.setHebrewMovieName(source.getHebrewMovieName());
-        destination.setMovieType(source.getMovieType());
-        destination.setProducer(source.getProducer());
-        destination.setMainCast(source.getMainCast());
-        destination.setMovieScreeningTime(source.getMovieScreeningTime());
-        destination.setMovieDuration(source.getMovieDuration());
+    private static void copyMovieDetails(Movie target, Movie source) {
+        target.setMovieName(source.getMovieName());
+        target.setHebrewMovieName(source.getHebrewMovieName());
+        target.setMainCast(source.getMainCast());
+        target.setImage(source.getImage());
+        target.setProducer(source.getProducer());
+        target.setMovieDescription(source.getMovieDescription());
+        target.setMovieDuration(source.getMovieDuration());
+        target.setMovieGenre(source.getMovieGenre());
+        target.setMovieType(source.getMovieType());
     }
 
     public static void createNewMovie(Movie movieToAdd) {
@@ -582,34 +581,35 @@ public class DataCommunicationDB
         }
     }
 
-    public static void updateMovieDetails(Movie source){
+    public static void updateMovieDetails(Movie source) {
+        Transaction transaction = null;
         try {
-            session.beginTransaction();
-
-            Movie movie = getMovieByID(source.getId());
-            if (movie == null) {
-                System.out.println("Movie with ID " + source.getId() + " not found.");
-                return;
+            if (session == null) {
+                throw new IllegalStateException("Session has not been initialized.");
             }
-            System.out.println(movie.getId() + " This is the movie retrieved");
-            movie.setMovieGenre(source.getMovieGenre());
-            movie.setMovieName(source.getMovieName());
-            movie.setMovieDescription(source.getMovieDescription());
-            movie.setImage(source.getImage());
-            movie.setHebrewMovieName(source.getHebrewMovieName());
-            movie.setMovieType(source.getMovieType());
-            movie.setProducer(source.getProducer());
-            movie.setMainCast(source.getMainCast());
-            movie.setMovieScreeningTime(source.getMovieScreeningTime());
-            movie.setMovieDuration(source.getMovieDuration());
-            // Save the updated movie back to the database
-            session.update(movie);
-            session.flush();
-            session.getTransaction().commit();
+
+            transaction = session.beginTransaction();
+            Movie movie = getMovieByID(source.getId());
+
+            if (movie == null) {
+                System.out.println("LOG: Movie with ID " + source.getId() + " not found.");
+                return;
+            } else {
+                System.out.println("LOG: Movie with ID " + source.getId() + " was found.");
+            }
+
+            // Copy details from source to the managed entity
+            copyMovieDetails(movie, source);
+
+            // Merge the source movie with the managed movie
+            session.merge(movie);
+
+            // Commit the transaction to save the changes
+            transaction.commit();
             System.out.println("Movie was updated successfully. Movie ID is " + movie.getId());
         } catch (Exception exception) {
-            if (session != null) {
-                session.getTransaction().rollback();
+            if (transaction != null) {
+                transaction.rollback();
             }
             System.err.println("An error occurred, changes have been rolled back.");
             exception.printStackTrace();

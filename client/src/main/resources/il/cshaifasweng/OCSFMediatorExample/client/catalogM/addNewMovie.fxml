@@ -64,6 +64,7 @@
          <children>
             <Button fx:id="homeScreenBtn" layoutX="45.0" layoutY="61.0" mnemonicParsing="false" onAction="#backToHomeScreen" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Home Screen" />
             <Button fx:id="submitMovieBtn" layoutX="45.0" layoutY="114.0" mnemonicParsing="false" onAction="#submitMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Submit Movie" />
+            <Button fx:id="newMovieBtn" layoutX="45.0" layoutY="166.0" mnemonicParsing="false" onAction="#createNewMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="New Movie" />
          </children></AnchorPane>
    </left>
    <right>

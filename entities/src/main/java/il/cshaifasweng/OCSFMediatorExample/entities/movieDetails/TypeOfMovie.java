@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table (name = "upcomingmovies")
+@Table (name = "type_of_movie")
 
 
 //If typeOfMovie bool true/false - Upcoming , set a release date.
@@ -19,6 +19,7 @@ public class TypeOfMovie implements Serializable {
     private boolean currentlyRunning;
     private boolean purchasable;
     private LocalDateTime releaseDate;
+
     @OneToOne
     private Movie movie;
 

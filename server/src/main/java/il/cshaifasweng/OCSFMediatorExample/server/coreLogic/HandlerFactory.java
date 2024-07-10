@@ -1,6 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
-
+import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
 import il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers.*;
 
 import java.util.HashMap;
@@ -9,15 +9,17 @@ import java.util.Map;
 public class HandlerFactory {
     private static HandlerFactory instance;
     private final Map<String, RequestHandler> handlers;
+    private SimpleServer server;
 
-    private HandlerFactory() {
+    private HandlerFactory(SimpleServer server) {
+        this.server = server;
         handlers = new HashMap<>();
         initializeHandlers();
     }
 
     private void initializeHandlers() {
         handlers.put(RequestTypes.EMPTY_MESSAGE_REQUEST, new EmptyMessageHandler());
-        handlers.put(RequestTypes.SHOW_ALL_MOVIES_REQUEST, new ShowAllMoviesHandler());
+        handlers.put(RequestTypes.SHOW_ALL_MOVIES_REQUEST, new ShowAllMoviesHandler(server));
         handlers.put(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
         handlers.put(RequestTypes.UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
         handlers.put(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST, new GetTimeSlotByMovieID());
@@ -25,9 +27,9 @@ public class HandlerFactory {
         handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler());
     }
 
-    public static synchronized HandlerFactory getInstance() {
+    public static synchronized HandlerFactory getInstance(SimpleServer server) {
         if (instance == null) {
-            instance = new HandlerFactory();
+            instance = new HandlerFactory(server);
         }
         return instance;
     }

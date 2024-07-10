@@ -11,6 +11,7 @@ import org.hibernate.SessionFactory;
 import java.io.IOException;
 
 public class ContentChangeHandler implements RequestHandler {
+
     @Override
     public void handle(Message message, ConnectionToClient client) throws IOException {
 
@@ -19,26 +20,27 @@ public class ContentChangeHandler implements RequestHandler {
         DataCommunicationDB.setSession(session);
 
         try {
-            //ALL REQUESTS ARE TO BE WITHIN THE TRY  --   START HERE
+            // All requests are to be within the try block -- START HERE
             Message answer = new Message();
+            answer.setMessage("Content Change");
 
-            //Checking if the request is to create a new movie.
-            if(message.getData().equals("New Movie")){
+            // Checking if the request is to create a new movie.
+            if ("New Movie".equals(message.getData())) {
                 Movie movie = message.getSpecificMovie();
                 DataCommunicationDB.createNewMovie(movie);
                 System.out.println("New movie was created successfully");
-                answer.setMessage("New Movie was Created");
+                answer.setData("New Movie");
                 client.sendToClient(answer);
             }
 
-            if(message.getData().equals("Update Movie")){
+            if ("Update Movie".equals(message.getData())) {
                 Movie movie = message.getSpecificMovie();
                 DataCommunicationDB.updateMovieDetails(movie);
                 System.out.println("Movie was updated successfully");
-                answer.setMessage("Movie was Updated");
+                answer.setData("Movie Updated");
                 client.sendToClient(answer);
             }
-            //ALL REQUESTS ARE TO BE WITHIN THE TRY -- END HERE
+            // All requests are to be within the try block -- END HERE
         } catch (Exception e) {
             System.err.println("An error occurred");
             e.printStackTrace();
@@ -47,7 +49,5 @@ public class ContentChangeHandler implements RequestHandler {
                 session.close();
             }
         }
-
-
     }
 }

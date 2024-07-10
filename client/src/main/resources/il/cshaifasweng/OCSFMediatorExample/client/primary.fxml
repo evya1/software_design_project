@@ -67,7 +67,6 @@
          <top>
             <AnchorPane prefHeight="126.0" prefWidth="1290.0" stylesheets="@catalogM/style.css" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="catalogButton" layoutX="1209.0" layoutY="100.0" mnemonicParsing="false" onAction="#catalogController" text="Movie Catalog" />
                   <Label layoutX="518.0" layoutY="43.0" prefHeight="56.0" prefWidth="364.0" text="Welcome to Cinema12" textFill="WHITE">
                      <font>
                         <Font size="36.0" />

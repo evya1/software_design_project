@@ -9,28 +9,26 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class SimpleServer extends AbstractServer {
     private static final ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
+    private final HandlerFactory handlerFactory;
 
     public SimpleServer(int port) {
         super(port);
+        this.handlerFactory = HandlerFactory.getInstance(this);
     }
-
 
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
         Message message = (Message) msg;
         String request = message.getMessage();
         try {
-            HandlerFactory factory = HandlerFactory.getInstance();
-            RequestHandler handler = factory.getHandlerForRequest(request);
+            RequestHandler handler = handlerFactory.getHandlerForRequest(request);
 
             if (handler != null) {
                 System.out.println("LOG: new message received from client " + message.getMessage());
                 handler.handle(message, client);
-
             }
         } catch (IOException e) {
             e.printStackTrace();
