@@ -13,8 +13,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.ConnectException;
 
-
-
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
 
 
 public class ServerLoginController implements ClientDependent {
@@ -89,7 +88,7 @@ public class ServerLoginController implements ClientDependent {
         try {
             client.openConnection();
             Stage stage = getStage();
-            client.moveScene("primary", stage,null);
+            client.moveScene(PRIMARY_SCREEN, stage,null);
         } catch (ConnectException e) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Connection Error", "Could not connect to the server. Please check the IP address or Port and try again.");
             client = null;

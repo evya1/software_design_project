@@ -5,7 +5,6 @@ import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -28,6 +27,9 @@ import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
 
 public class MovieController implements ClientDependent {
@@ -79,7 +81,7 @@ public class MovieController implements ClientDependent {
 
         //Send request to get movie slots.
         Message message = new Message();
-        message.setMessage("get movie slot by movie ID");
+        message.setMessage(GET_MOVIE_SLOT_BY_MOVIE_ID);
         message.setSpecificMovie(movie);
         client.sendMessage(message);
 
@@ -127,7 +129,7 @@ public class MovieController implements ClientDependent {
         try {
             EventBus.getDefault().unregister(this);
             Stage stage = (Stage) backBtn.getScene().getWindow();
-            client.moveScene("primary", stage,null);
+            client.moveScene(PRIMARY_SCREEN, stage,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -138,7 +140,7 @@ public class MovieController implements ClientDependent {
         try {
             screeningTimesListView.getItems().clear();
             Message message = new Message();
-            message.setMessage("get movie slot by movie ID");
+            message.setMessage(GET_MOVIE_SLOT_BY_MOVIE_ID);
             message.setSpecificMovie(movie);
             client.sendMessage(message);
 
@@ -190,7 +192,7 @@ public class MovieController implements ClientDependent {
                     movie.getMovieScreeningTime().get(slotIndex).setStartDateTime(newStart);
                     movie.getMovieScreeningTime().get(slotIndex).setEndDateTime(newEnd);
                     Message message = new Message();
-                    message.setMessage("change screening times of the movie");
+                    message.setMessage(CHANGE_SCREEN_TIME);
                     message.setSpecificMovie(movie);
                     client.sendMessage(message);
                     }

@@ -1,8 +1,9 @@
 package il.cshaifasweng.OCSFMediatorExample.client.ContentChange;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
-import il.cshaifasweng.OCSFMediatorExample.client.StyleUtil;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
@@ -15,24 +16,26 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.beans.value.ChangeListener;
-import javassist.Loader;
+
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.*;
 
+
 public class MovieAdditionController implements ClientDependent {
+
+    private static final String clientNotInit = "Client is not initialized!\n";
+    private static final Logger logger = LoggerFactory.getLogger(MovieAdditionController.class);
 
     private Movie movie;
     private TypeOfMovie movieType;
     private SimpleClient client;
     private Message localMessage;
-    private final String NEW_MOVIE_TEXT_REQUEST = "new movie";
-
-
 
     @FXML
     private Button browseBtn;
@@ -79,6 +82,9 @@ public class MovieAdditionController implements ClientDependent {
     @FXML // fx:id="submitMovieBtn"
     private Button submitMovieBtn; // Value injected by FXMLLoader
 
+    @FXML
+    private Button newMovieBtn;
+
     private final String errorColor = "red";
     private final String normalColor = "black";
     private final String borderDefault = null;
@@ -87,11 +93,12 @@ public class MovieAdditionController implements ClientDependent {
 
     @FXML
     public void initialize() {
+        chooseGenreComboBox.getItems().addAll(MovieGenre.values());
+
         if(localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)) {
             movie = new Movie();
             movieType = new TypeOfMovie();
             movie.setMovieType(movieType);
-            chooseGenreComboBox.getItems().addAll(MovieGenre.values());
             addTextInputListener(descriptionTextArea,borderDefault);
             addTextInputListener(englishTitleTextField,borderDefault);
             addTextInputListener(filePathTextField,borderDefault);
@@ -101,6 +108,7 @@ public class MovieAdditionController implements ClientDependent {
         }
         //Loading an existing movie.
         else{
+            submitMovieBtn.setText("Update Movie");
             movie = localMessage.getSpecificMovie();
 
             //Setting up checkboxes according to the movie given
@@ -126,9 +134,6 @@ public class MovieAdditionController implements ClientDependent {
             }
         }
     }
-
-
-
 
     @FXML
     void checkComingSoon(ActionEvent event) {
@@ -176,7 +181,17 @@ public class MovieAdditionController implements ClientDependent {
 
     @FXML
     void backToHomeScreen(ActionEvent event) {
-
+        if (client == null) {
+            logger.error(clientNotInit);
+            return;
+        }
+        try {
+            Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
+            logger.info("Moving scene");
+            client.moveScene(PRIMARY_SCREEN, stage ,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -213,7 +228,6 @@ public class MovieAdditionController implements ClientDependent {
             }
         }
     }
-
 
     @FXML
     void submitMovie(ActionEvent event) throws IOException {
@@ -258,14 +272,14 @@ public class MovieAdditionController implements ClientDependent {
         movie.getMovieType().setCurrentlyRunning(inTheatersCheckBox.isSelected());
         movie.getMovieType().setPurchasable(packageCheckBox.isSelected());
         try {
-            if(newMovie){
+            //If it's a new movie or if there was a new image loaded for the movie during edit.
+            if(newMovie || !filePathTextField.getText().isEmpty()){
                 movie.setImage(Files.readAllBytes(Paths.get(filePathTextField.getText())));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     //Checking the fields and setting them accordingly.
     private boolean checkFields(){
@@ -302,8 +316,6 @@ public class MovieAdditionController implements ClientDependent {
         return flag;
     }
 
-
-
     private void setCheckBoxesColor(String color){
         changeControlTextColor(soonCheckBox,color);
         changeControlTextColor(inTheatersCheckBox,color);
@@ -338,6 +350,23 @@ public class MovieAdditionController implements ClientDependent {
         }
     }
 
+    @FXML
+    void createNewMovie(ActionEvent event) {
+        if (client == null) {
+            logger.error(clientNotInit);
+            return;
+        }
+        try {
+            Stage stage = (Stage) newMovieBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage(NEW_MOVIE_TEXT_REQUEST);
+            logger.info("Moving scene");
+            client.moveScene(ADD_EDIT_MOVIE, stage ,message);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void setClient(SimpleClient client) {

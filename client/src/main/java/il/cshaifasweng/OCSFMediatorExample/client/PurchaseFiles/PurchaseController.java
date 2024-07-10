@@ -10,9 +10,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Control;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
@@ -20,7 +18,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.hibernate.event.spi.FlushEntityEvent;
+
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
 
 
 public class PurchaseController implements ClientDependent {
@@ -138,7 +138,7 @@ public class PurchaseController implements ClientDependent {
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
 
-        if(message.getMessage().equals("New Booklet")){
+        if(message.getMessage().equals(NEW_BOOKLET)){
             Booklet booklet = new Booklet();
             booklet.setNumOfEntries(20);
             message.setBooklet(booklet);
@@ -210,19 +210,6 @@ public class PurchaseController implements ClientDependent {
         changeControlBorderColor(privateNameField, "null");
         changeControlBorderColor(cvvField, "null");
     }
-
-    public void changeControlBorderColor(Control control, String borderColor) {
-        control.setStyle(String.format("-fx-border-color: %s;", borderColor));
-    }
-
-    public void changeControlTextColor(Control control, String borderColor) {
-        control.setStyle(String.format("-fx-prompt-text-fill: %s;", borderColor));
-    }
-
-    public void changeControlPromptTextColor(Control control, String borderColor) {
-        control.setStyle(String.format("-fx-text-fill: %s;", borderColor));
-    }
-
 }
 
 

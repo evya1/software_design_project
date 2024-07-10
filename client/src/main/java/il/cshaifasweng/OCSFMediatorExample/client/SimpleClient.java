@@ -5,11 +5,9 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
-import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
@@ -49,9 +47,11 @@ public class SimpleClient extends AbstractClient {
         Message message = (Message) object;
         String messageString = message.getMessage();
         System.out.println("LOG: new message from Server: " + messageString);
+
         if (messageString.equals("show all movies")) {
             List<Movie> movies = message.getMovies();
             EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
+
         } else if (messageString.equals("time slots for specific movie")) {
             List<MovieSlot> screeningTimes = message.getMovieSlots();
             EventBus.getDefault().post(new GenericEvent<List<MovieSlot>>(screeningTimes));
@@ -62,6 +62,12 @@ public class SimpleClient extends AbstractClient {
         else if(messageString.equals("new purchase established")){
             Purchase purchase = message.getPurchase();
             EventBus.getDefault().post(new GenericEvent<Purchase>(purchase));
+        }
+        else if(messageString.equals("Content Change")){
+
+            Message updateRequest = new Message();
+            updateRequest.setMessage("show all movies");
+            sendMessage(updateRequest);
         }
     }
 

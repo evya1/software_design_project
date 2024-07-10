@@ -8,11 +8,17 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
 
 import java.util.List;
 
 public class ShowAllMoviesHandler implements RequestHandler {
     private static Session session;
+    private SimpleServer server;
+
+    public ShowAllMoviesHandler(SimpleServer server) {
+        this.server = server;
+    }
 
     @Override
     public void handle(Message message, ConnectionToClient client) {
@@ -28,7 +34,7 @@ public class ShowAllMoviesHandler implements RequestHandler {
             Message answer = new Message();
             answer.setMessage("show all movies");
             answer.setMovies(movies);
-            client.sendToClient(answer);
+            server.sendToAllClients(answer);
 
         } catch (Exception e) {
             System.err.println("An error occurred");

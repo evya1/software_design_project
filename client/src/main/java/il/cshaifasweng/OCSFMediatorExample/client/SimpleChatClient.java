@@ -1,11 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.CatalogController;
-import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieController;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -17,9 +13,8 @@ import java.time.format.DateTimeFormatter;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import javax.xml.catalog.Catalog;
-
 import static il.cshaifasweng.OCSFMediatorExample.client.FXMLUtils.loadFXML;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
 /**
  * JavaFX App
@@ -33,7 +28,7 @@ public class SimpleChatClient extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         //client = new SimpleClient("localhost",3000);
-        scene = new Scene(loadFXML("ServerLogin", client,null));
+        scene = new Scene(loadFXML(CLIENT_CONFIG, client,null));
         stage.setScene(scene);
 
         EventBus.getDefault().register(this);
