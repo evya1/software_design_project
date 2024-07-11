@@ -13,6 +13,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.util.List;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FXMLUtils.loadFXML;
 
 
@@ -48,7 +49,7 @@ public class SimpleClient extends AbstractClient {
         String messageString = message.getMessage();
         System.out.println("LOG: new message from Server: " + messageString);
 
-        if (messageString.equals("show all movies")) {
+        if (messageString.equals(SHOW_ALL_MOVIES)) {
             List<Movie> movies = message.getMovies();
             EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
 

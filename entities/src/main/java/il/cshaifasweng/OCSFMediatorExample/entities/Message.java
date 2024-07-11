@@ -15,18 +15,44 @@ import java.util.List;
 
 public class Message implements Serializable {
 
+    //Generic Attributes
     private int id;
+
+    //Request time.
     private LocalDateTime timeStamp;
+
+    //Will be used for the main request to navigate the handler in the Server.
     private String message;
+
+    //Will be used for sub request once inside the handler.
     private String data;
+
+    private String sourceFXML;
+
+    //Specific Attributes.
+
+    //Purchase related messages.
     private Customer customer;
     private Purchase purchase;
-    private String sourceFXML;
+    private Booklet booklet;
+
+
+    //Movie Related messages
     private Movie specificMovie;
     private List<Movie> movies;
     private List<MovieSlot> movieSlots;
-    private Booklet booklet;
     private MovieLink movieLink;
+    private int movieID;
+    private int branchID;
+
+
+    public int getBranchID() {
+        return branchID;
+    }
+
+    public void setBranchID(int branchID) {
+        this.branchID = branchID;
+    }
 
     public MovieLink getMovieLink() {return movieLink;}
 
@@ -106,5 +132,13 @@ public class Message implements Serializable {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public int getMovieID() {
+        return movieID;
+    }
+
+    public void setMovieID(int movieID) {
+        this.movieID = movieID;
     }
 }

@@ -762,6 +762,63 @@ public class DataCommunicationDB
         updateMovieSlotField(slotId, movieSlot -> movieSlot.setEndDateTime(endTime));
     }
 
+    public static List<MovieSlot> getMovieSlotsByBranch(int branchId) {
+        Transaction transaction = null;
+        List<MovieSlot> movieSlots = null;
+        try {
+            transaction = session.beginTransaction();
+            movieSlots = session.createQuery(
+                            "FROM MovieSlot ms WHERE ms.branch.id = :branchId", MovieSlot.class)
+                    .setParameter("branchId", branchId)
+                    .getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+        return movieSlots;
+    }
+
+    public static List<Movie> getMoviesByBranch(int branchId) {
+        Transaction transaction = null;
+        List<Movie> movies = null;
+        try {
+            transaction = session.beginTransaction();
+            movies = session.createQuery(
+                            "SELECT DISTINCT ms.movie FROM MovieSlot ms WHERE ms.branch.id = :branchId", Movie.class)
+                    .setParameter("branchId", branchId)
+                    .getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+        return movies;
+    }
+
+    public static void deleteMovieById(int movieId) {
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            Movie movie = session.get(Movie.class, movieId);
+            if (movie != null) {
+                session.delete(movie);
+                System.out.println("Movie with ID " + movieId + " was deleted successfully.");
+            } else {
+                System.out.println("Movie with ID " + movieId + " not found.");
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
 
     public static void main( String[] args ) {
 
