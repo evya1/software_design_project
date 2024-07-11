@@ -49,7 +49,7 @@ public class SimpleChatServer {
             DataCommunicationDB.setSession(session);
             DataCommunicationDB.setPassword(password);
 
-            //DataCommunicationDB.generateMovieList();
+           //DataCommunicationDB.generateMovieList();
             DataCommunicationDB.printAllEntities();
 
 
