@@ -13,5 +13,6 @@ public class RequestTypes {
     public static final String DELETE_MOVIE_BY_MOVIE_ID = "delete movie by movie ID";
     public static final String NEW_MOVIE_REQUEST = "New Movie";
     public static final String UPDATE_MOVIE_REQUEST = "Update Movie";
+
 }
 
