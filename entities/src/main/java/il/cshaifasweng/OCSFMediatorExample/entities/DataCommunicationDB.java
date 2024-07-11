@@ -15,9 +15,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.TypeOfMovie;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
@@ -28,6 +26,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 import org.hibernate.service.ServiceRegistry;
 
 import java.util.ArrayList;
@@ -68,6 +67,8 @@ public class DataCommunicationDB
         configuration.addAnnotatedClass(Payment.class);
         configuration.addAnnotatedClass(Customer.class);
         configuration.addAnnotatedClass(Booklet.class);
+        configuration.addAnnotatedClass(MovieLink.class);
+        configuration.addAnnotatedClass(MovieTicket.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
@@ -718,6 +719,13 @@ public class DataCommunicationDB
     //Update release date field by typeID
     public static void modifyTypeOfMovieReleaseDate(int typeId, LocalDateTime releaseDate) {
         updateTypeOfMovieField(typeId, typeOfMovie -> typeOfMovie.setReleaseDate(releaseDate));
+    }
+
+    // Method to get Customer by personal ID
+    public static Customer getCustomerByPersonalID(Session session, String personalID) {
+        Query<Customer> query = session.createQuery("FROM Customer WHERE personalID = :personalID", Customer.class);
+        query.setParameter("personalID", personalID);
+        return query.uniqueResult();
     }
 
 

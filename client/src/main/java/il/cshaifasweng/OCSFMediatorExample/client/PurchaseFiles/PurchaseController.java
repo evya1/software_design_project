@@ -133,16 +133,12 @@ public class PurchaseController implements ClientDependent {
         Payment payment = new Payment();
         payment.setCardNumber(cardNumField.getText());
         payment.setCvv(cvvField.getText());
+        payment.setCustomer(customer);
         customer.setPayment(payment);
 
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
 
-        if(message.getMessage().equals(NEW_BOOKLET)){
-            Booklet booklet = new Booklet();
-            booklet.setNumOfEntries(20);
-            message.setBooklet(booklet);
-        }
         //System.out.println("checking " + message.getMessage()); //to see what kind of purchase
         if(errorFlag[0] == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");

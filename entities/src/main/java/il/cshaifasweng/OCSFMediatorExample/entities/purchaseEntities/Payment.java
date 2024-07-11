@@ -19,6 +19,7 @@ public class Payment implements Serializable {
     private LocalDate expiryDate;
     private String cvv;
 
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Customer customer;
 
@@ -48,7 +49,9 @@ public class Payment implements Serializable {
         this.cvv = cvv;
     }
 
-    public int getPaymentID() {
-        return paymentID;
-    }
+    public int getPaymentID() {return paymentID;}
+
+    public Customer getCustomer() {return customer;}
+
+    public void setCustomer(Customer customer) {this.customer = customer;}
 }
