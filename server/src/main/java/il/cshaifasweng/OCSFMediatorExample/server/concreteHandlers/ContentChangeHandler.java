@@ -10,6 +10,8 @@ import org.hibernate.SessionFactory;
 
 import java.io.IOException;
 
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
+
 public class ContentChangeHandler implements RequestHandler {
 
     @Override
@@ -23,22 +25,30 @@ public class ContentChangeHandler implements RequestHandler {
             // All requests are to be within the try block -- START HERE
             Message answer = new Message();
             answer.setMessage("Content Change");
+            Movie movie;
 
-            // Checking if the request is to create a new movie.
-            if ("New Movie".equals(message.getData())) {
-                Movie movie = message.getSpecificMovie();
-                DataCommunicationDB.createNewMovie(movie);
-                System.out.println("New movie was created successfully");
-                answer.setData("New Movie");
-                client.sendToClient(answer);
-            }
+            switch(message.getData()){
+                case NEW_MOVIE_REQUEST:
+                    movie = message.getSpecificMovie();
+                    DataCommunicationDB.createNewMovie(movie);
+                    System.out.println("New movie was created successfully");
+                    answer.setData("New Movie");
+                    client.sendToClient(answer);
+                    break;
+                case UPDATE_MOVIE_REQUEST:
+                    movie = message.getSpecificMovie();
+                    DataCommunicationDB.updateMovieDetails(movie);
+                    System.out.println("Movie was updated successfully");
+                    answer.setData("Movie Updated");
+                    client.sendToClient(answer);
+                    break;
+                case DELETE_MOVIE_BY_MOVIE_ID:
+                    DataCommunicationDB.deleteMovieById(message.getMovieID());
+                    System.out.println("Movie was deleted successfully");
+                    answer.setData("Movie Deleted");
+                    client.sendToClient(answer);
+                default:
 
-            if ("Update Movie".equals(message.getData())) {
-                Movie movie = message.getSpecificMovie();
-                DataCommunicationDB.updateMovieDetails(movie);
-                System.out.println("Movie was updated successfully");
-                answer.setData("Movie Updated");
-                client.sendToClient(answer);
             }
             // All requests are to be within the try block -- END HERE
         } catch (Exception e) {

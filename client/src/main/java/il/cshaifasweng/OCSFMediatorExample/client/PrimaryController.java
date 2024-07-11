@@ -23,10 +23,17 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.ADD_EDIT_MOVIE;
+
 public class PrimaryController implements ClientDependent {
 
 
     private Message localMessage;
+
+
+    @FXML
+    private ComboBox<?> branchComboBox;
 
     @FXML
     private Button catalogButton;
@@ -85,7 +92,8 @@ public class PrimaryController implements ClientDependent {
         Message message = new Message();
         message.setMessage("new client");
         client.sendMessage(message);
-        message.setMessage("show all movies");
+        message.setMessage(MOVIE_REQUEST);
+        message.setData(SHOW_ALL_MOVIES);
         client.sendMessage(message);
         EventBus.getDefault().register(this);
 
@@ -262,12 +270,18 @@ public class PrimaryController implements ClientDependent {
         try {
             Stage stage = (Stage) submitNewMovieBtn.getScene().getWindow();
             Message message = new Message();
-            message.setMessage("snew movie");
+            message.setMessage("nfew movie");
             message.setSpecificMovie(movies.get(2));
             message.setSourceFXML("Primary");
-            client.moveScene("catalogM/addNewMovie", stage ,message);
+            client.moveScene(ADD_EDIT_MOVIE, stage ,message);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    void chooseBranch(ActionEvent event) {
+
+
     }
 }

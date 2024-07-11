@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.movieDetails;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 
 import javax.persistence.*;
@@ -14,17 +15,23 @@ public class MovieSlot implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "movie_id")
     private Movie movie;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "theater_id")
+    private Theater theater;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     private String movieTitle;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "theater_id")
-    private Theater theater;
+
 
     public MovieSlot() {}
 
@@ -37,6 +44,14 @@ public class MovieSlot implements Serializable {
     }
 
     // Getters and Setters
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
+
     public int getId() {
         return id;
     }

@@ -8,6 +8,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.TypeOfMovie;
+import il.cshaifasweng.OCSFMediatorExample.client.Utility.Dialogs;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -85,10 +86,12 @@ public class MovieAdditionController implements ClientDependent {
     @FXML
     private Button newMovieBtn;
 
+    @FXML
+    private Button deleteMovieBtn;
+
     private final String errorColor = "red";
     private final String normalColor = "black";
     private final String borderDefault = null;
-
 
 
     @FXML
@@ -96,6 +99,8 @@ public class MovieAdditionController implements ClientDependent {
         chooseGenreComboBox.getItems().addAll(MovieGenre.values());
 
         if(localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)) {
+            deleteMovieBtn.setVisible(false);
+            deleteMovieBtn.setDisable(true);
             movie = new Movie();
             movieType = new TypeOfMovie();
             movie.setMovieType(movieType);
@@ -108,6 +113,8 @@ public class MovieAdditionController implements ClientDependent {
         }
         //Loading an existing movie.
         else{
+            deleteMovieBtn.setVisible(true);
+            deleteMovieBtn.setDisable(false);
             submitMovieBtn.setText("Update Movie");
             movie = localMessage.getSpecificMovie();
 
@@ -238,7 +245,7 @@ public class MovieAdditionController implements ClientDependent {
             if(!checkFields()){
                 copyMovieDetails(true);
                 Message message = new Message();
-                message.setMessage("Content Change");
+                message.setMessage(CONTENT_CHANGE);
                 message.setData("New Movie");
                 message.setSpecificMovie(movie);
                 client.sendMessage(message);
@@ -254,13 +261,31 @@ public class MovieAdditionController implements ClientDependent {
        else{
            copyMovieDetails(false);
            Message message = new Message();
-           message.setMessage("Content Change");
-           message.setData("Update Movie");
+           message.setMessage(CONTENT_CHANGE);
+           message.setData(UPDATE_MOVIE);
            message.setSpecificMovie(movie);
            client.sendMessage(message);
        }
     }
 
+    @FXML
+    void deleteMovie(ActionEvent event) {
+        Dialogs.yesNoDialog("Are you sure you want to delete this movie?",
+                //Action to perform on YES
+                ()->{
+                    Message message = new Message();
+                    message.setMessage(CONTENT_CHANGE);
+                    message.setData(DELETE_MOVIE);
+                    logger.info("Movie ID: {} Was requested to be deleted.", movie.getId());
+                    message.setMovieID(movie.getId());
+                    client.sendMessage(message);
+                    backToHomeScreen(event);
+                },
+                //Action to perform on NO
+                ()->{
+                    return;
+                });
+    }
     private void copyMovieDetails(boolean newMovie) throws IOException {
         movie.setHebrewMovieName(hebrewTitleTextField.getText());
         movie.setMovieName(englishTitleTextField.getText());

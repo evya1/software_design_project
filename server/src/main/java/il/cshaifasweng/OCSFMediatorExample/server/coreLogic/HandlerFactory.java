@@ -19,7 +19,7 @@ public class HandlerFactory {
 
     private void initializeHandlers() {
         handlers.put(RequestTypes.EMPTY_MESSAGE_REQUEST, new EmptyMessageHandler());
-        handlers.put(RequestTypes.SHOW_ALL_MOVIES_REQUEST, new ShowAllMoviesHandler(server));
+        handlers.put(RequestTypes.MOVIES_REQUEST, new MovieRequestHandler(server));
         handlers.put(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
         handlers.put(RequestTypes.UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
         handlers.put(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST, new GetTimeSlotByMovieID());
