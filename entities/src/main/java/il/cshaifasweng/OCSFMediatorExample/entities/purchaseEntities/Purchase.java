@@ -19,7 +19,7 @@ public class Purchase implements Serializable {
     private PurchaseType purchaseType;
     private LocalDateTime dateOfPurchase;
     private String customerPID;
-    private double price;
+    private double price = 0.0;
 
     @OneToOne
     private Booklet purchasedBooklet;

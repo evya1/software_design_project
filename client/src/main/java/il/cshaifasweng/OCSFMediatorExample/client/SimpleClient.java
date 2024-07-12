@@ -62,7 +62,7 @@ public class SimpleClient extends AbstractClient {
         else if(messageString.equals("new client")){
             System.out.println("A new client established\n");
         }
-        else if(messageString.equals("new purchase established")){
+        else if(messageString.equals("New Purchase")){
             Purchase purchase = message.getPurchase();
             EventBus.getDefault().post(new GenericEvent<Purchase>(purchase));
         }
