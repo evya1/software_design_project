@@ -18,9 +18,9 @@ public class Branch implements Serializable {
     private int id;
     private String branchName;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "chain_id")
-    private Chain chain;
+//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "chain_id")
+//    private Chain chain;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "branch")
     @Fetch(FetchMode.SUBSELECT)
@@ -51,13 +51,13 @@ public class Branch implements Serializable {
         this.branchName = branchName;
     }
 
-    public Chain getChain() {
-        return chain;
-    }
-
-    public void setChain(Chain chain) {
-        this.chain = chain;
-    }
+//    public Chain getChain() {
+//        return chain;
+//    }
+//
+//    public void setChain(Chain chain) {
+//        this.chain = chain;
+//    }
 
     public List<Theater> getTheaterList() {
         return theaterList;
@@ -83,5 +83,10 @@ public class Branch implements Serializable {
         if (branchManager.getEmployeeType() == EmployeeType.THEATER_MANAGER) {
             this.branchManager = branchManager;
         }
+    }
+
+    @Override
+    public String toString(){
+        return branchName;
     }
 }

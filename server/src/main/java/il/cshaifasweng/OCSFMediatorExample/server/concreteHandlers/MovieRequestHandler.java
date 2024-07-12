@@ -28,10 +28,11 @@ public class MovieRequestHandler implements RequestHandler {
         try {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
+            DataCommunicationDB.setSession(session);
             Message answer = new Message();
 
             switch(message.getData()){
-                case SHOW_ALL_MOVIES:
+                case SHOW_ALL_MOVIES: //TODO: Refactor this case.
                     String hql = "FROM Movie";
                     Query query = session.createQuery(hql);
                     List<Movie> movies = query.list();
@@ -44,11 +45,12 @@ public class MovieRequestHandler implements RequestHandler {
                     //The server needs to send request to all the clients to update their movie view.
                     server.sendToAllClients(answer);
                     break;
-                case SHOW_MOVIES_BY_BRANCH:
+                case GET_MOVIES_BY_BRANCH_ID:
                     int branchId = message.getBranchID();
+                    answer.setMessage("show all movies");
                     answer.setMovies(getMoviesByBranch(branchId));
                     //Specific client is requesting the movies by Branch ID and a specific reply is being produced.
-                    client.sendToClient(message);
+                    client.sendToClient(answer);
                     break;
             }
 

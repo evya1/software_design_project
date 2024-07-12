@@ -7,9 +7,11 @@ public class ClientRequests {
     public static final String GET_MOVIE_SLOT_BY_MOVIE_ID = "get movie slot by movie ID";
     public static final String CHANGE_SCREEN_TIME = "change screening times of the movie";
     public static final String NEW_BOOKLET = "New Booklet";
-    public static final String DELETE_MOVIE_BY_MOVIE_ID = "delete movie by movie ID";
     public static final String CONTENT_CHANGE = "Content Change";
     public static final String UPDATE_MOVIE = "Update Movie";
     public static final String DELETE_MOVIE = "delete movie by movie ID";
+    public static final String GET_BRANCHES = "Get all branches";
+    public static final String BRANCH_THEATER_INFORMATION = "Branch or Theater information";
+    public static final String GET_MOVIES_BY_BRANCH_ID = "Get movies by branch id";
 
 }

@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieGridController;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
 import javafx.application.Platform;
@@ -33,7 +34,7 @@ public class PrimaryController implements ClientDependent {
 
 
     @FXML
-    private ComboBox<?> branchComboBox;
+    private ComboBox<Branch> branchComboBox;
 
     @FXML
     private Button catalogButton;
@@ -79,6 +80,7 @@ public class PrimaryController implements ClientDependent {
     private SimpleClient client;
     private List<Movie> movies;
     private List<Movie> filteredMovies;
+    private List<Branch> branches;
 
 
 
@@ -94,6 +96,9 @@ public class PrimaryController implements ClientDependent {
         client.sendMessage(message);
         message.setMessage(MOVIE_REQUEST);
         message.setData(SHOW_ALL_MOVIES);
+        client.sendMessage(message);
+        message.setMessage(BRANCH_THEATER_INFORMATION);
+        message.setData(GET_BRANCHES);
         client.sendMessage(message);
         EventBus.getDefault().register(this);
 
@@ -136,11 +141,22 @@ public class PrimaryController implements ClientDependent {
 
     @Subscribe
     public void onMoviesReceived(GenericEvent<List<Movie>> event) {
-        if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof Movie) {
+        if (event.getData() != null && !event.getData().isEmpty() && event.getData().get(0) instanceof Movie) {
             Platform.runLater(() -> {
                 this.movies = event.getData();
                 loadMovies(movies);
                 filteredMovies = movies;
+            });
+        }
+    }
+
+    @Subscribe
+    public void onBranchesReceived(GenericEvent<List<Branch>> event){
+        if(event.getData() != null && !event.getData().isEmpty() && event.getData().get(0) instanceof Branch){
+            Platform.runLater(() -> {
+                this.branches = event.getData();
+                branchComboBox.getItems().clear();  // Clear previous items
+                branchComboBox.getItems().addAll(branches);  // Add Branch objects directly
             });
         }
     }
@@ -212,9 +228,13 @@ public class PrimaryController implements ClientDependent {
         filterByTypeComboBox.setValue("All Movies");
         filterByGenreComboBox.getSelectionModel().clearSelection();
         searchTextField.clear();
+        Message message = new Message();
+        message.setMessage(MOVIE_REQUEST);
+        message.setData(SHOW_ALL_MOVIES);
+        client.sendMessage(message);
 
-        // Load all movies
-        loadMovies(movies);
+//        // Load all movies
+//        loadMovies(movies);
     }
 
     @FXML
@@ -281,7 +301,15 @@ public class PrimaryController implements ClientDependent {
 
     @FXML
     void chooseBranch(ActionEvent event) {
-
+        Branch selectedBranch = branchComboBox.getSelectionModel().getSelectedItem();
+        if (selectedBranch != null) {
+            int branchId = selectedBranch.getId();
+            Message message = new Message();
+            message.setMessage(MOVIE_REQUEST);
+            message.setData(GET_MOVIES_BY_BRANCH_ID);
+            message.setBranchID(selectedBranch.getId());
+            client.sendMessage(message);
+        }
 
     }
 }
