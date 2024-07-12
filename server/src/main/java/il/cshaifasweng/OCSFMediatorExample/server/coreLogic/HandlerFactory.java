@@ -25,6 +25,7 @@ public class HandlerFactory {
         handlers.put(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST, new GetTimeSlotByMovieID());
         handlers.put(RequestTypes.GET_PURCHASE_REQUEST, new NewPurchaseHandler());
         handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler());
+        handlers.put(RequestTypes.BRANCH_THEATER_INFORMATION, new BranchTheaterHandler());
     }
 
     public static synchronized HandlerFactory getInstance(SimpleServer server) {

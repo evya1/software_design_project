@@ -125,13 +125,13 @@ public class DataCommunicationDB
             }
 
             // Print MovieSlots
-            List<MovieSlot> movieSlots = movie.getMovieScreeningTime();
-            for (MovieSlot movieSlot : movieSlots) {
-                System.out.println("\tMovieSlot ID: " + movieSlot.getId() +
-                        ", Start Time: " + movieSlot.getStartDateTime() +
-                        ", End Time: " + movieSlot.getEndDateTime() +
-                        ", Theater ID: " + movieSlot.getTheater().getTheaterNum());
-            }
+//            List<MovieSlot> movieSlots = movie.getMovieScreeningTime();
+//            for (MovieSlot movieSlot : movieSlots) {
+//                System.out.println("\tMovieSlot ID: " + movieSlot.getId() +
+//                        ", Start Time: " + movieSlot.getStartDateTime() +
+//                        ", End Time: " + movieSlot.getEndDateTime() +
+//                        ", Theater ID: " + movieSlot.getTheater().getTheaterNum());
+//            }
         }
 
         // Print all Branches
@@ -183,29 +183,29 @@ public class DataCommunicationDB
         }
 
         // Print all Chains
-        List<Chain> chains = session.createQuery("FROM Chain", Chain.class).list();
-        for (Chain chain : chains) {
-            System.out.println("Chain ID: " + chain.getId());
-
-            // Print Branches in Chain
-            List<Branch> chainBranches = chain.getBranches();
-            if (chainBranches != null) {
-                for (Branch chainBranch : chainBranches) {
-                    System.out.println("\tBranch ID: " + chainBranch.getId() +
-                            ", Branch Name: " + chainBranch.getBranchName());
-                }
-            } else {
-                System.out.println("\tNo Branches in this Chain.");
-            }
-
-            // Print Chain Manager
-            Employee chainManager = chain.getChainManager();
-            if (chainManager != null) {
-                System.out.println("\tChain Manager: " + chainManager.getFirstName() + " " + chainManager.getLastName() +
-                        ", Email: " + chainManager.getEmail() +
-                        ", Username: " + chainManager.getUsername());
-            }
-        }
+//        List<Chain> chains = session.createQuery("FROM Chain", Chain.class).list();
+//        for (Chain chain : chains) {
+//            System.out.println("Chain ID: " + chain.getId());
+//
+//            // Print Branches in Chain
+//            List<Branch> chainBranches = chain.getBranches();
+//            if (chainBranches != null) {
+//                for (Branch chainBranch : chainBranches) {
+//                    System.out.println("\tBranch ID: " + chainBranch.getId() +
+//                            ", Branch Name: " + chainBranch.getBranchName());
+//                }
+//            } else {
+//                System.out.println("\tNo Branches in this Chain.");
+//            }
+//
+//            // Print Chain Manager
+//            Employee chainManager = chain.getChainManager();
+//            if (chainManager != null) {
+//                System.out.println("\tChain Manager: " + chainManager.getFirstName() + " " + chainManager.getLastName() +
+//                        ", Email: " + chainManager.getEmail() +
+//                        ", Username: " + chainManager.getUsername());
+//            }
+//        }
 
         // Print all Reports
         List<Report> reports = session.createQuery("FROM Report", Report.class).list();
@@ -383,10 +383,6 @@ public class DataCommunicationDB
             session.beginTransaction();
             Random random = new Random();
 
-            // Create Chain
-            Chain chain = new Chain();
-            session.save(chain);
-
             // Create 10 specific Movies
             Movie movie1 = new Movie("Inception", "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page, Cillian Murphy, Marion Cotillard, Michael Caine", null, "Christopher Nolan", "Inception is a sci-fi thriller where a team of dream thieves led by Leonardo DiCaprio try to plant an idea in a CEO's mind by infiltrating his dreams.", 148, new ArrayList<>(), null, MovieGenre.DRAMA,"האשליה");
             Movie movie2 = new Movie("The Matrix", "Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Hugo Weaving", null, "Lana Wachowski, Lilly Wachowski", "A computer hacker learns the world he lives in is a simulation and joins a rebellion against the machines.", 136, new ArrayList<>(), null,MovieGenre.COMEDY, "המטריקס");
@@ -398,8 +394,6 @@ public class DataCommunicationDB
             Movie movie8 = new Movie("The Shawshank Redemption", "Tim Robbins, Morgan Freeman, Bob Gunton, William Sadler", null, "Frank Darabont", "A wrongly convicted man plans his escape from prison over a long period of time.", 142, new ArrayList<>(), null,MovieGenre.COMEDY,"חומות של תקווה");
             Movie movie9 = new Movie("Gladiator", "Russell Crowe, Joaquin Phoenix, Connie Nielsen, Richard Harris", null, "Ridley Scott", "A former Roman general becomes a reluctant gladiator seeking revenge for the murder of his family.", 155, new ArrayList<>(), null,MovieGenre.HORROR, "הגלדיאטור");
             Movie movie10 = new Movie("The Godfather", "Marlon Brando, Al Pacino, James Caan, Robert Duvall", null, "Francis Ford Coppola", "The aging patriarch of a powerful Italian-American crime family tries to maintain control of his empire.", 175, new ArrayList<>(), null, MovieGenre.DRAMA,"הסנדק");
-
-            List<Movie> movies = Arrays.asList(movie1, movie2, movie3, movie4, movie5, movie6, movie7, movie8, movie9, movie10);
 
             // Adding images to the movies
             movie1.setImage(readImage("MoviePictures/Inception.jpg"));
@@ -413,55 +407,59 @@ public class DataCommunicationDB
             movie9.setImage(readImage("MoviePictures/Gladiator.jpg"));
             movie10.setImage(readImage("MoviePictures/Godfather.jpg"));
 
+            List<Movie> movies = Arrays.asList(movie1, movie2, movie3, movie4, movie5, movie6, movie7, movie8, movie9, movie10);
+
+            // Save all movies
             for (Movie movie : movies) {
                 session.save(movie);
             }
 
-
-
             // Create 3 Branches
-            List<Branch> branchesList = new ArrayList<>();
-            for (int i = 1; i <= 3; i++) {
+            String[] branchNames = {"Johns Cinema", "General Bay Cinema", "Selection Cinema"};
+            Movie[][] branchMovies = {
+                    {movie1, movie2}, // Johns Cinema
+                    {movie3, movie4}, // General Bay Cinema
+                    {movie5, movie6}  // Selection Cinema
+            };
+
+            for (int i = 0; i < branchNames.length; i++) {
                 Branch branch = new Branch();
-                branch.setBranchName("Branch " + i);
-                branch.setChain(chain);
+                branch.setBranchName(branchNames[i]);
 
                 // Create Branch Manager
                 Employee branchManager = new Employee();
                 branchManager.setEmployeeType(EmployeeType.THEATER_MANAGER);
-                branchManager.setEmail("manager" + i + "@branch.com");
-                branchManager.setFirstName("Manager" + i);
-                branchManager.setLastName("Branch" + i);
-                branchManager.setUsername("manager" + i);
-                branchManager.setPassword("password" + i);
+                branchManager.setEmail("manager" + (i + 1) + "@branch.com");
+                branchManager.setFirstName("Manager" + (i + 1));
+                branchManager.setLastName("Branch " + (i + 1));
+                branchManager.setUsername("manager" + (i + 1));
+                branchManager.setPassword("password" + (i + 1));
                 session.save(branchManager);
 
                 branch.setBranchManager(branchManager);
                 branchManager.setBranchInCharge(branch);
                 session.save(branch);
 
-                branchesList.add(branch);
-                chain.setBranches(branchesList);
-                session.save(chain);
-
-                // Create 2 Theaters for each Branch
+                // Create Theaters for each Branch
                 List<Theater> theaters = new ArrayList<>();
-                for (int j = 1; j <= 2; j++) {
-                    Theater theater = new Theater(100, 100, new ArrayList<>(), new ArrayList<>(), 10);
+                for (int j = 1; j <= 3; j++) {
+                    Theater theater = new Theater(75, 75, new ArrayList<>(), new ArrayList<>(), 10);
                     theater.setBranch(branch);
                     theaters.add(theater);
                     session.save(theater);
 
-                    // Create MovieSlots for each Theater
-                    for (Movie movie : movies) {
+                    // Assign unique movies to each branch
+                    Movie[] moviesForBranch = branchMovies[i];
+                    for (Movie movie : moviesForBranch) {
                         List<MovieSlot> movieSlots = new ArrayList<>();
-                        for (int k = 0; k < 10; k++) {
+                        for (int l = 0; l < 10; l++) {
                             int year = random.nextInt(2) + 2024; // Year between 2024 and 2025
                             int month = random.nextInt(6) + 7; // Month between 7 and 12
                             int day = random.nextInt(28) + 1; // Ensuring valid day of month
 
                             MovieSlot movieSlot = new MovieSlot(movie, LocalDateTime.of(year, month, day, 10, 0),
                                     LocalDateTime.of(year, month, day, 12, 0), theater);
+                            movieSlot.setBranch(branch); // Set the branch for the movie slot
                             movieSlots.add(movieSlot);
                             session.save(movieSlot);
                         }
@@ -469,25 +467,6 @@ public class DataCommunicationDB
                         session.save(movie);
 
                         theater.getMovieTime().addAll(movieSlots);
-                        // Create TypeOfMovie
-                        boolean inTheaterRandom, viewPackageRandom;
-                        boolean upcomingRandom = random.nextBoolean();
-                        if(upcomingRandom) {
-                            inTheaterRandom = false;
-                            viewPackageRandom = false;
-                        }
-                        else {
-                            inTheaterRandom = true;
-                            viewPackageRandom =random.nextBoolean();
-                        }
-                        TypeOfMovie typeOfMovie = new TypeOfMovie(upcomingRandom, inTheaterRandom, viewPackageRandom);
-                        session.save(typeOfMovie);
-                        session.flush();
-
-                        // Associate TypeOfMovie with Movie
-                        movie.setMovieType(typeOfMovie);
-                        session.save(movie);
-                        session.flush();
                     }
 
                     // Create Seats for Theater
@@ -502,6 +481,27 @@ public class DataCommunicationDB
                 }
                 branch.setTheaterList(theaters);
                 session.save(branch);
+            }
+
+            // Assign TypeOfMovie to each movie
+            for (Movie movie : movies) {
+                boolean inTheaterRandom, viewPackageRandom;
+                boolean upcomingRandom = random.nextBoolean();
+                if (upcomingRandom) {
+                    inTheaterRandom = false;
+                    viewPackageRandom = false;
+                } else {
+                    inTheaterRandom = true;
+                    viewPackageRandom = random.nextBoolean();
+                }
+                TypeOfMovie typeOfMovie = new TypeOfMovie(upcomingRandom, inTheaterRandom, viewPackageRandom);
+                session.save(typeOfMovie);
+                session.flush();
+
+                // Associate TypeOfMovie with Movie
+                movie.setMovieType(typeOfMovie);
+                session.save(movie);
+                session.flush();
             }
 
             session.getTransaction().commit();
@@ -548,7 +548,23 @@ public class DataCommunicationDB
         return session.get(Seat.class, seatID);
     }
 
+    public static List<Branch> getBranches() {
+        List<Branch> branches = null;
+        try {
+            session.beginTransaction();
 
+            branches = session.createQuery("FROM Branch", Branch.class).list();
+
+            session.getTransaction().commit();
+        } catch (Exception exception) {
+            if (session != null && session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+        return branches;
+    }
 
     /*************** Movie ENTITY SETTERS********************/
     private static void copyMovieDetails(Movie target, Movie source) {

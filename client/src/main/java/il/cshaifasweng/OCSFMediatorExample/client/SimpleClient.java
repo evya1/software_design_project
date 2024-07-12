@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
@@ -47,6 +48,7 @@ public class SimpleClient extends AbstractClient {
     protected void handleMessageFromServer(Object object) {
         Message message = (Message) object;
         String messageString = message.getMessage();
+        String messageData = message.getData();
         System.out.println("LOG: new message from Server: " + messageString);
 
         if (messageString.equals(SHOW_ALL_MOVIES)) {
@@ -69,6 +71,14 @@ public class SimpleClient extends AbstractClient {
             Message updateRequest = new Message();
             updateRequest.setMessage("show all movies");
             sendMessage(updateRequest);
+        } else if (messageString.equals(BRANCH_THEATER_INFORMATION)) {
+            switch (messageData)
+            {
+                case GET_BRANCHES:
+                    List<Branch> branches = message.getBranches();
+                    EventBus.getDefault().post(new GenericEvent<List<Branch>>(branches));
+            }
+            
         }
     }
 
