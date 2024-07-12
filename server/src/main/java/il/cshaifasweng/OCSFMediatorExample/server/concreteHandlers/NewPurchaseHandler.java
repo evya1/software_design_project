@@ -39,7 +39,8 @@ public class NewPurchaseHandler implements RequestHandler {
                 handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session);
             }
 
-            answer.setData("New Purchase Processed");
+            answer.setData(message.getPurchase().getPurchaseType().toString());
+            answer.setPurchase(message.getPurchase());
             client.sendToClient(answer);
             // All requests are to be within the try block -- END HERE
         } catch (Exception e) {
@@ -59,9 +60,10 @@ public class NewPurchaseHandler implements RequestHandler {
 
             Purchase purchase = new Purchase();
             purchase.setPurchaseType(purchaseType);
-            purchase.setDateOfPurchase(LocalDateTime.now()); // Set the date and time of purchase
+            purchase.setDateOfPurchase(LocalDateTime.now());
+            purchase.setPriceByItem(purchaseType);
 
-            Customer customer = (Customer) message.getCustomer();
+            Customer customer = message.getCustomer();
             Customer existingCustomer = DataCommunicationDB.getCustomerByPersonalID(session, customer.getPersonalID());
 
             if (existingCustomer != null) {
@@ -76,12 +78,13 @@ public class NewPurchaseHandler implements RequestHandler {
                 System.out.println("Customer does not exist. Creating new customer.");
                 purchase.setCustomer(customer);
                 purchase.setCustomerPID(customer.getPersonalID());
+                purchase.setDateOfPurchase(LocalDateTime.now());
                 customer.getPurchases().add(purchase);
                 session.save(customer); // Save customer first to generate ID
                 session.save(purchase); // Then save purchase to link it to customer
                 System.out.println("Successfully created new customer.");
             }
-
+            message.setPurchase(purchase);
             setPurchaseEntity(purchase, purchaseType, session);
             session.update(purchase); // Update the purchase with the correct entity
 

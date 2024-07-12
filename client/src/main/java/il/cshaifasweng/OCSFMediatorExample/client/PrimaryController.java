@@ -276,7 +276,8 @@ public class PrimaryController implements ClientDependent {
             Message message = new Message();
             message.setMessage("New Booklet");
             message.setSourceFXML("Primary");
-            client.moveScene("purchases/paymentScreen", stage,message);
+            EventBus.getDefault().unregister(this);
+            client.moveScene("purchases/paymentScreen", stage, message);
         } catch (Exception e) {
             e.printStackTrace();
         }
