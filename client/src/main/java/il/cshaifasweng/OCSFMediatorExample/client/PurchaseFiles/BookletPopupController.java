@@ -36,7 +36,7 @@ public class BookletPopupController {
 
         EventBus.getDefault().register(this);
         purchaseConfirmedTxt.setText("Purchase Confirmed!");
-        bookletPurchasedTxt.setText("Booklet Purchased Successfuly!");
+        bookletPurchasedTxt.setText("Booklet Purchased Successfully!");
 
         okayBtn.setOnAction(event -> okayBtnControl(event));
 

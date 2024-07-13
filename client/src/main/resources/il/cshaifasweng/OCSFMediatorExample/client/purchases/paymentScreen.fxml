@@ -31,37 +31,37 @@
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </BorderPane.margin>
          <children>
-            <Text fx:id="privateName" layoutX="181.0" layoutY="186.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Private Name:">
+            <Text fx:id="privateName" layoutX="181.0" layoutY="135.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Private Name:">
                <font>
                   <Font size="22.0" />
                </font>
             </Text>
-            <TextField fx:id="privateNameField" layoutX="330.0" layoutY="166.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="lastName" layoutX="184.0" layoutY="252.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Name:">
+            <TextField fx:id="privateNameField" layoutX="330.0" layoutY="115.0" prefHeight="25.0" prefWidth="174.0" />
+            <Text fx:id="lastName" layoutX="184.0" layoutY="193.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Name:">
                <font>
                   <Font size="22.0" />
                </font>
             </Text>
-            <TextField fx:id="surnameNameField" layoutX="331.0" layoutY="234.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="id" layoutX="182.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ID Number:">
+            <TextField fx:id="surnameNameField" layoutX="331.0" layoutY="175.0" prefHeight="25.0" prefWidth="174.0" />
+            <Text fx:id="id" layoutX="182.0" layoutY="253.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ID Number:">
                <font>
                   <Font size="22.0" />
                </font>
             </Text>
-            <TextField fx:id="idNumberField" layoutX="329.0" layoutY="303.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="cardNumber" layoutX="590.0" layoutY="184.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Card Number:">
+            <TextField fx:id="idNumberField" layoutX="329.0" layoutY="235.0" prefHeight="25.0" prefWidth="174.0" />
+            <Text fx:id="cardNumber" layoutX="590.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Card Number:">
                <font>
                   <Font size="22.0" />
                </font>
             </Text>
-            <TextField fx:id="cardNumField" layoutX="737.0" layoutY="166.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="cvv" layoutX="590.0" layoutY="253.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CVV:">
+            <TextField fx:id="cardNumField" layoutX="737.0" layoutY="113.0" prefHeight="25.0" prefWidth="174.0" />
+            <Text fx:id="cvv" layoutX="590.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CVV:">
                <font>
                   <Font size="22.0" />
                </font>
             </Text>
-            <TextField fx:id="cvvField" layoutX="737.0" layoutY="235.0" prefHeight="25.0" prefWidth="174.0" />
-            <Separator layoutX="546.0" layoutY="144.0" orientation="VERTICAL" prefHeight="207.0" prefWidth="0.0" />
+            <TextField fx:id="cvvField" layoutX="737.0" layoutY="178.0" prefHeight="25.0" prefWidth="174.0" />
+            <Separator layoutX="546.0" layoutY="74.0" orientation="VERTICAL" prefHeight="277.0" prefWidth="4.0" />
             <Button fx:id="confirmPurchaseBtn" layoutX="840.0" layoutY="432.0" mnemonicParsing="false" onAction="#confirmBtnControl" prefHeight="53.0" prefWidth="209.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Confirm Purchase" textAlignment="CENTER">
                <font>
                   <Font size="22.0" />
@@ -72,6 +72,18 @@
                   <Font size="22.0" />
                </font>
             </Button>
+            <Text fx:id="email" layoutX="182.0" layoutY="313.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Email:">
+               <font>
+                  <Font size="22.0" />
+               </font>
+            </Text>
+            <TextField fx:id="emailField" layoutX="329.0" layoutY="295.0" prefHeight="25.0" prefWidth="174.0" />
+            <Text fx:id="expireDate" layoutX="590.0" layoutY="257.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Expire Date:">
+               <font>
+                  <Font size="22.0" />
+               </font>
+            </Text>
+            <TextField fx:id="expireField" layoutX="737.0" layoutY="239.0" prefHeight="25.0" prefWidth="174.0" />
          </children>
       </AnchorPane>
    </center>

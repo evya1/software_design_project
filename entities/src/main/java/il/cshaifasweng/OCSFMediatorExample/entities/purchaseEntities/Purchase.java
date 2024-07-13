@@ -24,7 +24,7 @@ public class Purchase implements Serializable {
     @Column(name = "customer_pid", nullable = true)
     private String customerPID;
 
-    private double price;
+    private double price = 0.0;
 
     @OneToOne
     @JoinColumn(name = "booklet_id", nullable = true)

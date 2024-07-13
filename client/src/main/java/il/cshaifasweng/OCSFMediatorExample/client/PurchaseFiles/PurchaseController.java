@@ -10,6 +10,8 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
@@ -19,7 +21,15 @@ import javafx.scene.control.TextField;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.BOOKLET_POP_UP_MESSAGE;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
 
 
@@ -84,6 +94,20 @@ public class PurchaseController implements ClientDependent {
     private TextField surnameNameField;
 
     @FXML
+    private Text email;
+
+    @FXML
+    private TextField emailField;
+
+    @FXML
+    private Text expireDate;
+
+    @FXML
+    private TextField expireField;
+
+    private int flag; //TODO: Change the flag .
+
+    @FXML
     public void initialize() {
 
         EventBus.getDefault().register(this);
@@ -98,6 +122,11 @@ public class PurchaseController implements ClientDependent {
         cardNumField.setPromptText("Enter Card Number");
         cvv.setText("CVV:");
         cvvField.setPromptText("Enter CVV");
+        email.setText("Email:");
+        emailField.setPromptText("Enter Email Address");
+        expireDate.setText("Expire Date:");
+        expireField.setPromptText("Enter Credit Expiration Date (MM/YY)");
+
 
         confirmPurchaseBtn.setOnAction(event -> confirmBtnControl(event));
         returnBtn.setOnAction(event -> returnBtnControl(event));
@@ -107,13 +136,21 @@ public class PurchaseController implements ClientDependent {
     public void handlePurchaseFromServer(GenericEvent<Purchase> event) {
         if (event.getData() != null && event.getData() instanceof Purchase) {
             Platform.runLater(() -> {
-                Purchase purchase = (Purchase) event.getData();
+                //TODO: Add option per type.
+                Purchase purchase = event.getData();
                 System.out.println("Purchase received: " + purchase);
+                loadBookletPopupScreen();
             });
         } else {
             System.out.println("Invalid event data or not a Purchase instance");
         }
+    }
 
+    private void loadBookletPopupScreen() {
+        Stage stage = new Stage();
+        client.moveScene(BOOKLET_POP_UP_MESSAGE,stage ,null);
+        Stage newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
+        client.moveScene(PRIMARY_SCREEN,newStage,null);
     }
 
 
@@ -129,11 +166,13 @@ public class PurchaseController implements ClientDependent {
         customer.setFirstName(privateNameField.getText());
         customer.setLastName(surnameNameField.getText());
         customer.setPersonalID(idNumberField.getText());
+        customer.setEmail(emailField.getText());
 
         Payment payment = new Payment();
         payment.setCardNumber(cardNumField.getText());
         payment.setCvv(cvvField.getText());
         payment.setCustomer(customer);
+        payment.setExpiryDate(convertToDate(expireField.getText()));
         customer.setPayment(payment);
 
         message.setCustomer(customer);
@@ -142,11 +181,13 @@ public class PurchaseController implements ClientDependent {
         //System.out.println("checking " + message.getMessage()); //to see what kind of purchase
         if(errorFlag[0] == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");
+
             client.sendMessage(message);
         }
 
         //wait for server
     }
+
 
     @FXML
     private void returnBtnControl(ActionEvent event) {
@@ -197,6 +238,22 @@ public class PurchaseController implements ClientDependent {
             changeControlBorderColor(cvvField, "red");
             errorFlag[0] = 1;
         }
+        if(emailField.getText().isEmpty()){
+            changeControlBorderColor(emailField, "red");
+            emailField.setPromptText("Enter Email Address");
+            errorFlag[0] = 1;
+        }
+        if(expireField.getText().isEmpty()){
+            changeControlBorderColor(expireField, "red");
+            expireField.setPromptText("Enter Credit Expiration Address");
+            errorFlag[0] = 1;
+        }
+        else if(convertToDate(expireField.getText()) == null){
+            changeControlBorderColor(expireField, "red");
+            expireField.clear();
+            expireField.setPromptText("Enter Expire Date (MM/YY)");
+            errorFlag[0] = 1;
+        }
     }
 
     private void colorAllTextBorders(){
@@ -205,7 +262,22 @@ public class PurchaseController implements ClientDependent {
         changeControlBorderColor(surnameNameField, "null");
         changeControlBorderColor(privateNameField, "null");
         changeControlBorderColor(cvvField, "null");
+        changeControlBorderColor(emailField, "null");
+        changeControlBorderColor(expireField, "null");
     }
+
+    private LocalDate convertToDate(String expiryDateString) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+        try {
+            // Parse the expiry date string to YearMonth and convert it to LocalDate with the first day of the month
+            return YearMonth.parse(expiryDateString, formatter).atDay(1);
+        } catch (DateTimeParseException e) {
+            System.err.println("Invalid expiry date format: " + expiryDateString);
+            return null;
+        }
+    }
+
+
 }
 
 
