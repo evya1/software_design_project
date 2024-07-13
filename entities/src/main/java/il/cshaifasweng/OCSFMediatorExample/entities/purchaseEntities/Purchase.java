@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 
 import javax.persistence.*;
@@ -17,21 +18,33 @@ public class Purchase implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "purchase_type")
     private PurchaseType purchaseType;
+
     private LocalDateTime dateOfPurchase;
+
+    @Column(name = "customer_pid", nullable = true)
     private String customerPID;
+
     private double price = 0.0;
 
     @OneToOne
+    @JoinColumn(name = "booklet_id", nullable = true)
     private Booklet purchasedBooklet;
 
     @OneToOne
+    @JoinColumn(name = "movie_link_id", nullable = true)
     private MovieLink purchasedMovieLink;
 
     @OneToOne
+    @JoinColumn(name = "movie_ticket_id", nullable = true)
     private MovieTicket purchasedMovieTicket;
 
     @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = true)
     private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id", nullable = false)
+    private Branch branch;
 
     public int getId() { return id; }
 
@@ -49,7 +62,7 @@ public class Purchase implements Serializable {
 
     public Booklet getPurchasedBooklet() {return purchasedBooklet;}
 
-    public void setPurchasedBooklet(Booklet puchasedBooklet) {this.purchasedBooklet = puchasedBooklet;}
+    public void setPurchasedBooklet(Booklet purchasedBooklet) {this.purchasedBooklet = purchasedBooklet;}
 
     public MovieLink getPurchasedMovieLink() {return purchasedMovieLink;}
 
@@ -87,5 +100,7 @@ public class Purchase implements Serializable {
         }
     }
 
-}
+    public Branch getBranch() { return branch; }
 
+    public void setBranch(Branch branch) { this.branch = branch; }
+}
