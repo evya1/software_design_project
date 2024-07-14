@@ -49,42 +49,46 @@ public class SimpleClient extends AbstractClient {
     protected void handleMessageFromServer(Object object) {
         Message message = (Message) object;
         String messageString = message.getMessage();
-        String messageData = message.getData();
-        System.out.println("LOG: new message from Server: " + messageString);
+        System.out.println("Message from Server: " + messageString);
+        EventBus.getDefault().post(new MessageEvent(message));
 
-        if (messageString.equals(SHOW_ALL_MOVIES)) {
-            List<Movie> movies = message.getMovies();
-            EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
 
-        } else if (messageString.equals("time slots for specific movie")) {
-            List<MovieSlot> screeningTimes = message.getMovieSlots();
-            EventBus.getDefault().post(new GenericEvent<List<MovieSlot>>(screeningTimes));
-        }
-        else if(messageString.equals("new client")){
-            System.out.println("A new client established\n");
-        }
-        else if(messageString.equals("New Purchase")){
-            Purchase purchase = message.getPurchase();
-            EventBus.getDefault().post(new GenericEvent<Purchase>(purchase));
-        }
-        else if(messageString.equals("New Complaint")){
-            Complaint complaint = message.getComplaint();
-            EventBus.getDefault().post(new GenericEvent<Complaint>(complaint));
-        }
-        else if(messageString.equals("Content Change")){
+//
+//        String messageData = message.getData();
+//        System.out.println("LOG: new message from Server: " + messageString);
+//
+//        if (messageString.equals(SHOW_ALL_MOVIES)) {
+//            List<Movie> movies = message.getMovies();
+//            EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
+//
+//        } else if (messageString.equals("time slots for specific movie")) {
+//            List<MovieSlot> screeningTimes = message.getMovieSlots();
+//            EventBus.getDefault().post(new GenericEvent<List<MovieSlot>>(screeningTimes));
+//        }
+//        else if(messageString.equals("new client")){
+//            System.out.println("A new client established\n");
+//        }
+//        else if(messageString.equals("New Purchase")){
+//            Purchase purchase = message.getPurchase();
+//            EventBus.getDefault().post(new GenericEvent<Purchase>(purchase));
+//        }
+//        else if(messageString.equals("New Complaint")){
+//            Complaint complaint = message.getComplaint();
+//            EventBus.getDefault().post(new GenericEvent<Complaint>(complaint));
+//        }
+//        else if(messageString.equals("Content Change")){
+//
+//            Message updateRequest = new Message();
+//            updateRequest.setMessage("show all movies");
+//            sendMessage(updateRequest);
+//        } else if (messageString.equals(BRANCH_THEATER_INFORMATION)) {
+//            switch (messageData)
+//            {
+//                case GET_BRANCHES:
 
-            Message updateRequest = new Message();
-            updateRequest.setMessage("show all movies");
-            sendMessage(updateRequest);
-        } else if (messageString.equals(BRANCH_THEATER_INFORMATION)) {
-            switch (messageData)
-            {
-                case GET_BRANCHES:
-                    List<Branch> branches = message.getBranches();
-                    EventBus.getDefault().post(new GenericEvent<List<Branch>>(branches));
-            }
-            
-        }
+//            }
+//
+//        }
     }
 
     public void sendMessage(Message message) {

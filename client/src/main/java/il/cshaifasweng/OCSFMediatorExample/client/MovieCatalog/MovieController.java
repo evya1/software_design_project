@@ -1,7 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
-import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
@@ -104,15 +104,16 @@ public class MovieController implements ClientDependent {
 
     //if(event.getData() != null && !event.getData().isEmpty() && event.getData().get(0) instanceof Movie) {
     @Subscribe
-    public void handleScreeningTimes(GenericEvent<List<MovieSlot>> event) {
-        if (event.getData() != null && !event.getData().isEmpty() && event.getData().getFirst() instanceof MovieSlot) {
+    public void handleScreeningTimes(MessageEvent event) {
+        if (event != null) {
+            Message message = event.getMessage();
 
             //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             Platform.runLater(() -> {
 
-                setTheTimeSlots(event.getData());
+                setTheTimeSlots(message.getMovieSlots());
                 ObservableList<LocalDateTime> times = FXCollections.observableArrayList();
-                for (MovieSlot slot : event.getData()) {
+                for (MovieSlot slot : message.getMovieSlots()) {
                     if (!movie.getMovieType().isUpcoming()) {
                         times.add(slot.getStartDateTime());
                     }

@@ -1,7 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.client.ComplaintFiles;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
-import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
+
+import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
@@ -12,6 +13,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -107,10 +109,11 @@ public class ComplaintSubmissionController implements ClientDependent {
     }
 
     @Subscribe
-    public void handleComplaintFromServer(GenericEvent<Complaint> event){
-        if (event.getData() != null) {
+    public void handleComplaintFromServer(MessageEvent event){
+        if (event != null) {
             Platform.runLater(() -> {
-                Complaint complaint = event.getData();
+                Message message = (Message) event.getMessage();
+                Complaint complaint = message.getComplaint();
                 System.out.println("Complaint received: " + complaint);
 
                 loadSubmissionPopupScreen();
@@ -119,6 +122,7 @@ public class ComplaintSubmissionController implements ClientDependent {
         }else {
             System.out.println("Invalid event data or not a Complaint instance");
         }
+        EventBus.getDefault().unregister(this);
     }
 
     @FXML
@@ -147,6 +151,7 @@ public class ComplaintSubmissionController implements ClientDependent {
 
     @FXML
     void returnBtnController(ActionEvent event) {
+        EventBus.getDefault().unregister(this);
         Stage stage = (Stage) returnBtn.getScene().getWindow();
         client.moveScene(localMessage.getSourceFXML(), stage, null);
     }

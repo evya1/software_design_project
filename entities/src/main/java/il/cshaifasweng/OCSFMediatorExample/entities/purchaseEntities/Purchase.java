@@ -43,7 +43,7 @@ public class Purchase implements Serializable {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "branch_id", nullable = false)
+    @JoinColumn(name = "branch_id", nullable = true)
     private Branch branch;
 
     public int getId() { return id; }

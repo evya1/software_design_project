@@ -12,6 +12,7 @@ import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
 
 import java.util.List;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB.getMovieSlotsByBranch;
 import static il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB.getMoviesByBranch;
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
 
@@ -30,6 +31,7 @@ public class MovieRequestHandler implements RequestHandler {
             session = sessionFactory.openSession();
             DataCommunicationDB.setSession(session);
             Message answer = new Message();
+            answer.setMessage(MOVIES_REQUEST);
 
             switch(message.getData()){
                 case SHOW_ALL_MOVIES: //TODO: Refactor this case.
@@ -38,7 +40,7 @@ public class MovieRequestHandler implements RequestHandler {
                     List<Movie> movies = query.list();
                     System.out.println("LOG: Server side - the number of movies is : " + movies.size());
 
-                    answer.setMessage("show all movies");
+                    answer.setData(SHOW_ALL_MOVIES);
                     answer.setMovies(movies);
 
                     //If there was an update to the content a show all movies request is being transmitted to the server.
@@ -47,8 +49,9 @@ public class MovieRequestHandler implements RequestHandler {
                     break;
                 case GET_MOVIES_BY_BRANCH_ID:
                     int branchId = message.getBranchID();
-                    answer.setMessage("show all movies");
+                    answer.setData(GET_MOVIES_BY_BRANCH_ID);
                     answer.setMovies(getMoviesByBranch(branchId));
+                    answer.setMovieSlots(getMovieSlotsByBranch(branchId));
                     //Specific client is requesting the movies by Branch ID and a specific reply is being produced.
                     client.sendToClient(answer);
                     break;

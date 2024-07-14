@@ -31,6 +31,7 @@ public class GetTimeSlotByMovieID implements RequestHandler {
             Message answer = new Message();
             answer.setMovieSlots(screeningTimes);
             answer.setMessage("time slots for specific movie");
+            answer.setData("time slots for specific movie");
 
             client.sendToClient(answer);
             transaction.commit();
