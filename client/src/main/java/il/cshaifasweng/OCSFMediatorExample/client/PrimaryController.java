@@ -11,10 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -23,8 +20,12 @@ import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
@@ -34,53 +35,27 @@ public class PrimaryController implements ClientDependent {
     //region: Attributes
 
     //region: FXML Attributes
-    @FXML
-    private ComboBox<Branch> branchComboBox;
+    @FXML private ComboBox<Branch> branchComboBox;
+    @FXML private ComboBox<String> filterByTypeComboBox;
+    @FXML private ComboBox<MovieGenre> filterByGenreComboBox;
 
-    @FXML
-    private DatePicker datePicker;
+    @FXML private DatePicker datePicker;
 
-    @FXML
-    private Button catalogButton;
+    @FXML private GridPane moveisListGrid;
+    @FXML private VBox movieLayout;
 
-    @FXML
-    private Button customerPanelBtn;
+    @FXML private Button catalogButton;
+    @FXML private Button customerPanelBtn;
+    @FXML private Button submitNewMovieBtn;
+    @FXML private Button employeePanelBtn;
+    @FXML private Button homeScreenBtn;
+    @FXML private Button clearFiltersBtn;
+    @FXML private Button searchBtn;
+    @FXML private Button bookletPurchaseBtn;
+    @FXML private Button submitComplaintBtn;
 
-    @FXML
-    private Button submitNewMovieBtn;
+    @FXML private TextField searchTextField;
 
-    @FXML
-    private Button employeePanelBtn;
-
-    @FXML
-    private ComboBox<String> filterByTypeComboBox;
-
-    @FXML
-    private ComboBox<MovieGenre> filterByGenreComboBox;
-
-    @FXML
-    private GridPane moveisListGrid;
-
-    @FXML
-    private Button homeScreenBtn;
-
-    @FXML
-    private Button clearFiltersBtn;
-
-    @FXML
-    private Button searchBtn;
-
-    @FXML
-    private TextField searchTextField;
-
-    @FXML
-    private Button submitComplaintBtn;
-
-    @FXML
-    private VBox movieLayout;
-
-    @FXML
-    private Button bookletPurchaseBtn;
     //endregion
 
     //region: Additional Attributes
@@ -90,6 +65,7 @@ public class PrimaryController implements ClientDependent {
     private List<Movie> filteredMovies;
     private List<Branch> branches;
     private List<MovieSlot> slots;
+    private Set<LocalDate> datesWithMovies = new HashSet<>();
     //endregion
 
     //endregion
@@ -100,8 +76,7 @@ public class PrimaryController implements ClientDependent {
         datePicker.setEditable(false);
         filterByTypeComboBox.getItems().addAll("All Movies", "Upcoming Movies", "In Theater", "Viewing Package");
         filterByTypeComboBox.setValue("All Movies");
-        filterByGenreComboBox.getItems().addAll(MovieGenre.values());
-
+        filterByGenreComboBox.getItems().addAll(MovieGenre.COMEDY,MovieGenre.ACTION,MovieGenre.HORROR,MovieGenre.DRAMA,MovieGenre.ADVENTURE,MovieGenre.DOCUMENTARY);
         homeScreenBtn.setDisable(true);
         Message message = new Message();
         message.setMessage("new client");
@@ -116,6 +91,27 @@ public class PrimaryController implements ClientDependent {
 
         // Add listener to searchTextField
         searchTextField.textProperty().addListener((observable, oldValue, newValue) -> filterMovies());
+
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (date != null && !empty) {
+                    if (datesWithMovies.contains(date)) {
+                        this.getStyleClass().add("date-with-movie");
+                    } else {
+                        this.getStyleClass().remove("date-with-movie");
+                    }
+                }
+            }
+        });
+
+        datePicker.setOnAction(event -> {
+            LocalDate selectedDate = datePicker.getValue();
+            if (selectedDate != null) {
+                filterMoviesByDate(selectedDate);
+            }
+        });
     }
 
     //Subscriber Method
@@ -147,6 +143,7 @@ public class PrimaryController implements ClientDependent {
                 Platform.runLater(() -> {
                     this.movies = message.getMovies();
                     this.slots = message.getMovieSlots();
+                    updateDatesWithMovies();
                     loadMovies(movies);
                     filteredMovies = movies;
 
@@ -154,7 +151,6 @@ public class PrimaryController implements ClientDependent {
             }
         }
     }
-
 
     //region: Helper Methods
     private void loadMovies(List<Movie> moviesToDisplay) {
@@ -236,6 +232,27 @@ public class PrimaryController implements ClientDependent {
             e.printStackTrace();
         }
     }
+
+    private void filterMoviesByDate(LocalDate selectedDate) {
+        if (selectedDate == null || slots == null) return;
+
+        List<Movie> moviesToDisplay = slots.stream()
+                .filter(slot -> slot.getStartDateTime().toLocalDate().equals(selectedDate))
+                .map(MovieSlot::getMovie)  // Extract the Movie object from each slot
+                .distinct()  // Ensure no duplicate movies are added
+                .collect(Collectors.toList());
+
+        Platform.runLater(() -> loadMovies(moviesToDisplay));
+    }
+
+    private void updateDatesWithMovies() {
+        datesWithMovies.clear();  // Clear the set to remove old dates
+        for (MovieSlot slot : slots) {
+            LocalDate date = slot.getStartDateTime().toLocalDate();
+            datesWithMovies.add(date);  // Add new dates
+        }
+    }
+
     //endregion
 
     //region: GUI Actions
@@ -291,8 +308,14 @@ public class PrimaryController implements ClientDependent {
     void clearFilters(ActionEvent event) {
         // Clear all filters
         filterByTypeComboBox.setValue("All Movies");
+        branchComboBox.getSelectionModel().clearSelection();
+        branchComboBox.setPromptText("Choose Cinema");
         filterByGenreComboBox.getSelectionModel().clearSelection();
+        filterByGenreComboBox.setPromptText("Choose Genre");
+        datePicker.setEditable(false);
+        datePicker.setVisible(false);
         searchTextField.clear();
+
         Message message = new Message();
         message.setMessage(MOVIE_REQUEST);
         message.setData(SHOW_ALL_MOVIES);
