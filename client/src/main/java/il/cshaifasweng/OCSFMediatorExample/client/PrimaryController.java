@@ -5,6 +5,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.AnchorPane;
@@ -25,20 +27,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.ADD_EDIT_MOVIE;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.COMPLAINT_SCREEN;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
 public class PrimaryController implements ClientDependent {
 
+    //region: Attributes
 
-    private Message localMessage;
-
-
+    //region: FXML Attributes
     @FXML
     private ComboBox<Branch> branchComboBox;
 
     @FXML
+    private DatePicker datePicker;
+
+    @FXML
     private Button catalogButton;
+
     @FXML
     private Button customerPanelBtn;
 
@@ -77,16 +81,23 @@ public class PrimaryController implements ClientDependent {
 
     @FXML
     private Button bookletPurchaseBtn;
+    //endregion
 
+    //region: Additional Attributes
+    private Message localMessage;
     private SimpleClient client;
     private List<Movie> movies;
     private List<Movie> filteredMovies;
     private List<Branch> branches;
+    private List<MovieSlot> slots;
+    //endregion
 
-
+    //endregion
 
     @FXML
     void initialize() {
+        datePicker.setVisible(false);
+        datePicker.setEditable(false);
         filterByTypeComboBox.getItems().addAll("All Movies", "Upcoming Movies", "In Theater", "Viewing Package");
         filterByTypeComboBox.setValue("All Movies");
         filterByGenreComboBox.getItems().addAll(MovieGenre.values());
@@ -107,6 +118,45 @@ public class PrimaryController implements ClientDependent {
         searchTextField.textProperty().addListener((observable, oldValue, newValue) -> filterMovies());
     }
 
+    //Subscriber Method
+    @Subscribe
+    public void dataReceived(MessageEvent event) {
+        if (event != null) {
+
+            //Creating a local message to handle the subMessage
+            Message message = event.getMessage();
+
+            //Request to show all the movies.
+            if(message.getData().equals(SHOW_ALL_MOVIES)) {
+                //Movies Received show all
+                Platform.runLater(() -> {
+                    this.movies = message.getMovies();
+                    loadMovies(movies);
+                    filteredMovies = movies;
+                });
+            }
+            //Request to show all the branch names.
+            else if(message.getData().equals(GET_BRANCHES)) {
+                Platform.runLater(() -> {
+                    this.branches = message.getBranches();
+                    branchComboBox.getItems().clear();  // Clear previous items
+                    branchComboBox.getItems().addAll(branches);  // Add Branch objects directly
+                });
+            }
+            else if(message.getData().equals(GET_MOVIES_BY_BRANCH_ID)) {
+                Platform.runLater(() -> {
+                    this.movies = message.getMovies();
+                    this.slots = message.getMovieSlots();
+                    loadMovies(movies);
+                    filteredMovies = movies;
+
+                });
+            }
+        }
+    }
+
+
+    //region: Helper Methods
     private void loadMovies(List<Movie> moviesToDisplay) {
 
         moveisListGrid.getChildren().clear();
@@ -138,41 +188,6 @@ public class PrimaryController implements ClientDependent {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Subscribe
-    public void onMoviesReceived(GenericEvent<List<Movie>> event) {
-        if (event.getData() != null && !event.getData().isEmpty() && event.getData().get(0) instanceof Movie) {
-            Platform.runLater(() -> {
-                this.movies = event.getData();
-                loadMovies(movies);
-                filteredMovies = movies;
-            });
-        }
-    }
-
-    @Subscribe
-    public void onBranchesReceived(GenericEvent<List<Branch>> event){
-        if(event.getData() != null && !event.getData().isEmpty() && event.getData().get(0) instanceof Branch){
-            Platform.runLater(() -> {
-                this.branches = event.getData();
-                branchComboBox.getItems().clear();  // Clear previous items
-                branchComboBox.getItems().addAll(branches);  // Add Branch objects directly
-            });
-        }
-    }
-
-    @FXML
-    void chooseGenre(ActionEvent event) {
-        filterMovies();
-    }
-
-    @FXML
-    public void chooseType(ActionEvent event) {
-        filterByGenreComboBox.getSelectionModel().clearSelection();
-        filterByGenreComboBox.setPromptText("Choose Genre");
-
-        filterMovies();
     }
 
     private void filterMovies() {
@@ -221,64 +236,9 @@ public class PrimaryController implements ClientDependent {
             e.printStackTrace();
         }
     }
+    //endregion
 
-
-    @FXML
-    void clearFilters(ActionEvent event) {
-        // Clear all filters
-        filterByTypeComboBox.setValue("All Movies");
-        filterByGenreComboBox.getSelectionModel().clearSelection();
-        searchTextField.clear();
-        Message message = new Message();
-        message.setMessage(MOVIE_REQUEST);
-        message.setData(SHOW_ALL_MOVIES);
-        client.sendMessage(message);
-
-//        // Load all movies
-//        loadMovies(movies);
-    }
-
-    @FXML
-    void complaintController(ActionEvent event) {
-        if (client == null) {
-            System.err.println("Client is not initialized!\n");
-            return;
-        }
-        try {
-            Stage stage = (Stage) submitComplaintBtn.getScene().getWindow();
-            Message message = new Message();
-            message.setMessage("New Complaint");
-            message.setSourceFXML("Primary");
-            EventBus.getDefault().unregister(this);
-            client.moveScene(COMPLAINT_SCREEN, stage, message);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    void employeeController(ActionEvent event) {
-
-    }
-
-    @FXML
-    void customerController(ActionEvent event) {
-
-    }
-
-    @Override
-    public void setClient(SimpleClient client) {
-        this.client = client;
-    }
-
-    @Override
-    public void setMessage(Message message) {
-        // this.localMessage = message;
-    }
-
-    public void textChangeSearchField(InputMethodEvent inputMethodEvent) {
-    }
-
+    //region: GUI Actions
     @FXML
     void purchaseBookletControl(ActionEvent event) {
         if (client == null) {
@@ -297,6 +257,82 @@ public class PrimaryController implements ClientDependent {
         }
     }
 
+    @FXML
+    void chooseGenre(ActionEvent event) {
+        filterMovies();
+    }
+
+    @FXML
+    public void chooseType(ActionEvent event) {
+        filterByGenreComboBox.getSelectionModel().clearSelection();
+        filterByGenreComboBox.setPromptText("Choose Genre");
+
+        filterMovies();
+    }
+
+    @FXML
+    void chooseBranch(ActionEvent event) {
+        datePicker.setEditable(true);
+        datePicker.setVisible(true);
+        Branch selectedBranch = branchComboBox.getSelectionModel().getSelectedItem();
+        if (selectedBranch != null) {
+            int branchId = selectedBranch.getId();
+            Message message = new Message();
+            message.setMessage(MOVIE_REQUEST);
+            message.setData(GET_MOVIES_BY_BRANCH_ID);
+            message.setBranchID(selectedBranch.getId());
+            client.sendMessage(message);
+            System.out.println("Message Branches sent");
+        }
+
+    }
+
+    @FXML
+    void clearFilters(ActionEvent event) {
+        // Clear all filters
+        filterByTypeComboBox.setValue("All Movies");
+        filterByGenreComboBox.getSelectionModel().clearSelection();
+        searchTextField.clear();
+        Message message = new Message();
+        message.setMessage(MOVIE_REQUEST);
+        message.setData(SHOW_ALL_MOVIES);
+        client.sendMessage(message);
+    }
+
+    @FXML
+    void complaintController(ActionEvent event) {
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) submitComplaintBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("New Complaint");
+            message.setSourceFXML(PRIMARY_SCREEN);
+            EventBus.getDefault().unregister(this);
+            client.moveScene(COMPLAINT_SCREEN, stage, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void employeeController(ActionEvent event) {
+
+    }
+
+    @FXML
+    void customerController(ActionEvent event) {
+
+    }
+
+    @FXML
+    void dateFilterPicker(ActionEvent event) {
+
+    }
+
+    @FXML
     public void newMovieAction(ActionEvent actionEvent) {
         if (client == null) {
             System.err.println("Client is not initialized!\n");
@@ -316,16 +352,19 @@ public class PrimaryController implements ClientDependent {
     }
 
     @FXML
-    void chooseBranch(ActionEvent event) {
-        Branch selectedBranch = branchComboBox.getSelectionModel().getSelectedItem();
-        if (selectedBranch != null) {
-            int branchId = selectedBranch.getId();
-            Message message = new Message();
-            message.setMessage(MOVIE_REQUEST);
-            message.setData(GET_MOVIES_BY_BRANCH_ID);
-            message.setBranchID(selectedBranch.getId());
-            client.sendMessage(message);
-        }
-
+    public void textChangeSearchField(InputMethodEvent inputMethodEvent) {
     }
+    //endregion
+
+    //region: Interface Methods
+    @Override
+    public void setClient(SimpleClient client) {
+        this.client = client;
+    }
+
+    @Override
+    public void setMessage(Message message) {
+        // this.localMessage = message;
+    }
+    //endregion
 }

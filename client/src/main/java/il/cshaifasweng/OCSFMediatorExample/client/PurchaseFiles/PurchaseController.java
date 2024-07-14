@@ -1,7 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client.PurchaseFiles;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
-import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
@@ -129,17 +129,22 @@ public class PurchaseController implements ClientDependent {
     }
 
     @Subscribe
-    public void handlePurchaseFromServer(GenericEvent<Purchase> event) {
-        if (event.getData() != null && event.getData() instanceof Purchase) {
+    public void handlePurchaseFromServer(MessageEvent event) {
+        if (event != null) {
+            Message message = event.getMessage();
+
             Platform.runLater(() -> {
                 //TODO: Add option per type.
-                Purchase purchase = event.getData();
-                System.out.println("Purchase received: " + purchase);
-                switch (purchase.getPurchaseType().toString()) {
-                    case "Booklet":
-                        loadBookletPopupScreen();
+                if (message.getPurchase() != null) {
+                    Purchase purchase = message.getPurchase();
+                    System.out.println("Purchase received: " + purchase);
+                    switch (purchase.getPurchaseType().toString()) {
+                        case "Booklet":
+                            loadBookletPopupScreen();
+                    }
                 }
             });
+
         } else {
             System.out.println("Invalid event data or not a Purchase instance");
         }
