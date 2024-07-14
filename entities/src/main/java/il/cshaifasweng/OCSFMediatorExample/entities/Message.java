@@ -6,7 +6,9 @@ import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -37,7 +39,6 @@ public class Message implements Serializable {
     private Purchase purchase;
     private Booklet booklet;
 
-
     //Movie Related messages
     private Movie specificMovie;
     private List<Movie> movies;
@@ -49,6 +50,11 @@ public class Message implements Serializable {
     private int branchID;
     private List<Branch> branches;
     private Branch branch;
+
+    //Complaint related
+    private Complaint complaint;
+    private String complaintTitle;
+    private PurchaseType purchaseType;
 
 
     public int getBranchID() {
@@ -154,4 +160,16 @@ public class Message implements Serializable {
     public void setBranches(List<Branch> branches) {
         this.branches = branches;
     }
+
+    public Complaint getComplaint() {return complaint;}
+
+    public void setComplaint(Complaint complaint) {this.complaint = complaint;}
+
+    public PurchaseType getPurchaseType() {return purchaseType;}
+
+    public void setPurchaseType(PurchaseType purchaseType) {this.purchaseType = purchaseType;}
+
+    public String getComplaintTitle() {return complaintTitle;}
+
+    public void setComplaintTitle(String complaintTitle) {this.complaintTitle = complaintTitle;}
 }
