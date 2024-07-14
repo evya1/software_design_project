@@ -8,5 +8,6 @@ public class FilePathController {
     public static final String BOOKLET_POP_UP_MESSAGE = "purchases/bookletPopupMessage";
     public static final String PAYMENT_SCREEN = "purchases/paymentScreen";
     public static final String CLIENT_CONFIG = "ServerLogin";
-
+    public static final String COMPLAINT_SCREEN = "complaints/complaintSubmission";
+    public static final String SUBMISSION_POP_UP_MESSAGE = "complaints/complaintSubmissionPopUp";
 }

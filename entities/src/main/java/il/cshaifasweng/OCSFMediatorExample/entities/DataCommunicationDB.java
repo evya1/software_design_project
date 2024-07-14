@@ -19,6 +19,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -69,6 +70,7 @@ public class DataCommunicationDB
         configuration.addAnnotatedClass(Booklet.class);
         configuration.addAnnotatedClass(MovieLink.class);
         configuration.addAnnotatedClass(MovieTicket.class);
+        configuration.addAnnotatedClass(Complaint.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
