@@ -47,8 +47,8 @@
                   <ComboBox fx:id="filterByTypeComboBox" layoutX="320.0" layoutY="19.0" onAction="#chooseType" prefHeight="20.0" prefWidth="150.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
                   <ComboBox fx:id="filterByGenreComboBox" layoutX="491.0" layoutY="19.0" onAction="#chooseGenre" prefWidth="150.0" promptText="Choose Genre" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
                   <Button fx:id="clearFiltersBtn" layoutX="1035.0" layoutY="20.0" mnemonicParsing="false" onAction="#clearFilters" prefHeight="25.0" prefWidth="96.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Clear Filters" />
-                  <ComboBox fx:id="branchComboBox" layoutX="660.0" layoutY="20.0" onAction="#chooseBranch" prefWidth="150.0" promptText="Select Branch" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
-                  <DatePicker fx:id="datePicker" layoutX="835.0" layoutY="19.0" onAction="#dateFilterPicker" stylesheets="@catalogM/styleColor.css" />
+                  <ComboBox fx:id="branchComboBox" layoutX="660.0" layoutY="20.0" onAction="#chooseBranch" prefWidth="150.0" promptText="Choose Cinema" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" />
+                  <DatePicker fx:id="datePicker" layoutX="835.0" layoutY="19.0" onAction="#dateFilterPicker" styleClass="date-with-movie" stylesheets="@catalogM/styleColor.css" />
                </children>
                <BorderPane.margin>
                   <Insets bottom="10.0" />
