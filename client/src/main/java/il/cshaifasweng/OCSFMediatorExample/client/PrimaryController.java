@@ -26,6 +26,7 @@ import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.ADD_EDIT_MOVIE;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.COMPLAINT_SCREEN;
 
 public class PrimaryController implements ClientDependent {
 
@@ -239,7 +240,20 @@ public class PrimaryController implements ClientDependent {
 
     @FXML
     void complaintController(ActionEvent event) {
-
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) submitComplaintBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("New Complaint");
+            message.setSourceFXML("Primary");
+            EventBus.getDefault().unregister(this);
+            client.moveScene(COMPLAINT_SCREEN, stage, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -294,6 +308,7 @@ public class PrimaryController implements ClientDependent {
             message.setMessage("nfew movie");
             message.setSpecificMovie(movies.get(2));
             message.setSourceFXML("Primary");
+            EventBus.getDefault().unregister(this);
             client.moveScene(ADD_EDIT_MOVIE, stage ,message);
         } catch (Exception e) {
             e.printStackTrace();

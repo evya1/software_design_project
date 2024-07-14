@@ -6,6 +6,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -65,6 +66,10 @@ public class SimpleClient extends AbstractClient {
         else if(messageString.equals("New Purchase")){
             Purchase purchase = message.getPurchase();
             EventBus.getDefault().post(new GenericEvent<Purchase>(purchase));
+        }
+        else if(messageString.equals("New Complaint")){
+            Complaint complaint = message.getComplaint();
+            EventBus.getDefault().post(new GenericEvent<Complaint>(complaint));
         }
         else if(messageString.equals("Content Change")){
 

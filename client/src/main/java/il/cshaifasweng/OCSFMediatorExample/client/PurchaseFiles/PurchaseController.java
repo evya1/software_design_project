@@ -4,14 +4,11 @@ import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.GenericEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
@@ -21,7 +18,6 @@ import javafx.scene.control.TextField;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -105,7 +101,7 @@ public class PurchaseController implements ClientDependent {
     @FXML
     private TextField expireField;
 
-    private int flag; //TODO: Change the flag .
+    private int flag;
 
     @FXML
     public void initialize() {
@@ -119,13 +115,13 @@ public class PurchaseController implements ClientDependent {
         id.setText("ID:");
         idNumberField.setPromptText("Enter 9 Digits ID");
         cardNumber.setText("Card Number:");
-        cardNumField.setPromptText("Enter Card Number");
+        cardNumField.setPromptText("Enter 14 Digits Number");
         cvv.setText("CVV:");
         cvvField.setPromptText("Enter CVV");
         email.setText("Email:");
         emailField.setPromptText("Enter Email Address");
         expireDate.setText("Expire Date:");
-        expireField.setPromptText("Enter Credit Expiration Date (MM/YY)");
+        expireField.setPromptText("Enter Date (MM/YY)");
 
 
         confirmPurchaseBtn.setOnAction(event -> confirmBtnControl(event));
@@ -139,7 +135,10 @@ public class PurchaseController implements ClientDependent {
                 //TODO: Add option per type.
                 Purchase purchase = event.getData();
                 System.out.println("Purchase received: " + purchase);
-                loadBookletPopupScreen();
+                switch (purchase.getPurchaseType().toString()) {
+                    case "Booklet":
+                        loadBookletPopupScreen();
+                }
             });
         } else {
             System.out.println("Invalid event data or not a Purchase instance");
@@ -156,9 +155,8 @@ public class PurchaseController implements ClientDependent {
 
     @FXML
     private void confirmBtnControl(ActionEvent event) {
-        int[] errorFlag = new int[1];
-        errorFlag[0] = 0;
-        checkInput(errorFlag);
+
+        flag = checkInput();
 
         Message message = new Message();
         message.setCustomer(new Customer());
@@ -175,11 +173,11 @@ public class PurchaseController implements ClientDependent {
         payment.setExpiryDate(convertToDate(expireField.getText()));
         customer.setPayment(payment);
 
+
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
 
-        //System.out.println("checking " + message.getMessage()); //to see what kind of purchase
-        if(errorFlag[0] == 0) {
+        if(flag == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");
 
             client.sendMessage(message);
@@ -195,65 +193,63 @@ public class PurchaseController implements ClientDependent {
         client.moveScene(localMessage.getSourceFXML(), stage, null);
     }
 
-    private void checkInput(int[] errorFlag){
+    private int checkInput(){
         colorAllTextBorders();
         if(cardNumField.getText().length() < 14){
             changeControlBorderColor(cardNumField, "red");
-            errorFlag[0] = 1;
+            return 1;
         }
         else if(cardNumField.getText().isEmpty()){
             changeControlBorderColor(cardNumField, "red");
-            cardNumField.setPromptText("Enter Card Number");
-            errorFlag[0] = 1;
+            cardNumField.setPromptText("Enter 14 Digits Number");
+            return 1;
         }
 
         if(idNumberField.getText().isEmpty()){
             changeControlBorderColor(idNumberField, "red");
-            idNumberField.setPromptText("Enter ID Number");
-            errorFlag[0] = 1;
+            idNumberField.setPromptText("Enter 9 Digits ID");
+            return 1;
         }
         else if(idNumberField.getText().length() != 9){
             changeControlBorderColor(idNumberField, "red");
-            errorFlag[0] = 1;
+            return 1;
         }
-
         if(surnameNameField.getText().isEmpty()){
             changeControlBorderColor(surnameNameField, "red");
             surnameNameField.setPromptText("Enter Last Name");
-            errorFlag[0] = 1;
+            return 1;
         }
-
         if(privateNameField.getText().isEmpty()){
             changeControlBorderColor(privateNameField, "red");
             privateNameField.setPromptText("Enter Private Name");
-            errorFlag[0] = 1;
+            return 1;
         }
-
         if(cvvField.getText().isEmpty()){
             changeControlBorderColor(cvvField, "red");
             cvvField.setPromptText("Enter CVV");
-            errorFlag[0] = 1;
+            return 1;
         }
         else if(cvvField.getText().length() != 3){
             changeControlBorderColor(cvvField, "red");
-            errorFlag[0] = 1;
+            return 1;
         }
         if(emailField.getText().isEmpty()){
             changeControlBorderColor(emailField, "red");
             emailField.setPromptText("Enter Email Address");
-            errorFlag[0] = 1;
+            return 1;
         }
         if(expireField.getText().isEmpty()){
             changeControlBorderColor(expireField, "red");
-            expireField.setPromptText("Enter Credit Expiration Address");
-            errorFlag[0] = 1;
+            expireField.setPromptText("Enter Date (MM/YY)");
+            return 1;
         }
         else if(convertToDate(expireField.getText()) == null){
             changeControlBorderColor(expireField, "red");
             expireField.clear();
-            expireField.setPromptText("Enter Expire Date (MM/YY)");
-            errorFlag[0] = 1;
+            expireField.setPromptText("Enter Date (MM/YY)");
+            return 1;
         }
+        return 0;
     }
 
     private void colorAllTextBorders(){
@@ -276,7 +272,6 @@ public class PurchaseController implements ClientDependent {
             return null;
         }
     }
-
 
 }
 
