@@ -24,7 +24,7 @@ classDiagram
     String branchName
     Chain chain
     List~Theater~ theaterList
-    Report report
+    List~Report~ reports
     Employee branchManager
   }
   class Chain {
@@ -95,6 +95,7 @@ classDiagram
   class Report {
     int id
     Branch branch
+    Employee employee
   }
   class Customer {
     int id
@@ -102,7 +103,8 @@ classDiagram
     String lastName
     String email
     String personalID
-    Payment payment
+    List~Payment~ payments
+    List~Complaint~ complaints
   }
   class Employee {
     int id
@@ -125,12 +127,21 @@ classDiagram
 
   Chain "1" --o "many" Branch
   Branch "1" --o "many" Theater
+  Branch "1" --o "many" Report
   Theater "1" --o "many" Seat
   MovieGenre "1" --o "many" Movie
   Movie "1" --o "many" MovieSlot
   EmployeeType "1" --o "many" Employee
   Customer "1" --o "many" Complaint
+  Customer "1" --o "many" Payment
   Employee "1" --o "many" Report : writes
+  MovieSlot "1" --o "1" Movie
+  MovieSlot "1" --o "1" Theater
+  TypeOfMovie "1" --o "1" Movie
+  Complaint "1" --o "1" Customer
+  Report "1" --o "1" Branch
+  Report "1" --o "1" Employee
+  Seat "1" --o "1" Theater
 ```
 
 ### Purchase Entities
@@ -151,6 +162,7 @@ classDiagram
   class Booklet {
     int id
     int numOfEntries
+    double price
     Customer customer
     +useEntry()
   }
@@ -176,11 +188,17 @@ classDiagram
     LocalDateTime dateOfPurchase
     String customerPID
     double price
-    +setPriceByItem(PurchaseType purchasedItem)
     Booklet purchasedBooklet
     MovieLink purchasedMovieLink
     MovieTicket purchasedMovieTicket
     Customer customer
+    +setPriceByItem(PurchaseType purchasedItem)
+  }
+  class PriceConstants {
+    <<constant>>
+    +MOVIE_TICKET_PRICE : double
+    +MOVIE_LINK_PRICE : double
+    +BOOKLET_ENTRY_PRICE : double
   }
   class PurchaseType {
     <<enumeration>>
@@ -194,14 +212,21 @@ classDiagram
     String lastName
     String email
     String personalID
-    Payment payment
+    List~Payment~ payments
+    List~Complaint~ complaints
   }
 
   Purchase "1" --o "1" Booklet : purchasedBooklet
   Purchase "1" --o "1" MovieLink : purchasedMovieLink
   Purchase "1" --o "1" MovieTicket : purchasedMovieTicket
-  Purchase "1" --o "many" Payment
   Purchase "1" --o "1" Customer : customer
+  Booklet "1" --o "1" Customer
+  MovieLink "1" --o "1" Movie
+  MovieTicket "1" --o "1" Movie
+  MovieTicket "1" --o "1" Branch
+  Payment "1" --o "1" Customer
+  Customer "1" --o "many" Payment
+  Customer "1" --o "many" Complaint
 ```
 
 ## Class Descriptions
