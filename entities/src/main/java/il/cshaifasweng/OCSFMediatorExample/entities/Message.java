@@ -8,6 +8,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 
 import java.io.Serializable;
@@ -33,6 +34,8 @@ public class Message implements Serializable {
     private String sourceFXML;
 
     //Specific Attributes.
+    private List<Employee> employeeList;
+    private Employee employee;
 
     //Purchase related messages.
     private Customer customer;
@@ -172,4 +175,13 @@ public class Message implements Serializable {
     public String getComplaintTitle() {return complaintTitle;}
 
     public void setComplaintTitle(String complaintTitle) {this.complaintTitle = complaintTitle;}
+
+    public Employee getEmployee() {return employee;}
+
+    public void setEmployee(Employee employee) {this.employee = employee;}
+
+    public List<Employee> getEmployeeList() {return employeeList;}
+
+    public void setEmployeeList(List<Employee> employeeList) {this.employeeList = employeeList;}
+
 }

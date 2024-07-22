@@ -33,6 +33,8 @@ import org.hibernate.service.ServiceRegistry;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
+
 public class DataCommunicationDB
 {
     //Attributes
@@ -414,6 +416,20 @@ public class DataCommunicationDB
             // Save all movies
             for (Movie movie : movies) {
                 session.save(movie);
+            }
+
+            // create employees and save them in the DB
+            Employee e1 = new Employee("emp1","stam","eqwe@gmail.com","7sny",
+                            "12345",false,null,BASE);
+            Employee e2 = new Employee("emp2","service","sherotlko7ot@gmail.com",
+                            "sherot","sL1234",false,null,SERVICE);
+            Employee e3 = new Employee("emp3","content","tochen@gmail.com","co3R",
+                    "waW425",false,null,CONTENT_MANAGER);
+            Employee e4 = new Employee("emp4","CEO","CHM@gmail.com",
+                    "Mnkal","imCEO1",false,null,CHAIN_MANAGER);
+            List<Employee> employees = Arrays.asList(e1, e2, e3, e4);
+            for (Employee employee : employees) {
+                session.save(employee);
             }
 
             // Create 3 Branches

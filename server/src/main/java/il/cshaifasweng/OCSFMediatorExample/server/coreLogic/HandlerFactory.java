@@ -27,6 +27,7 @@ public class HandlerFactory {
         handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler());
         handlers.put(RequestTypes.BRANCH_THEATER_INFORMATION, new BranchTheaterHandler());
         handlers.put(RequestTypes.GET_COMPLAINT_REQUEST, new ComplaintSubmissionHandler());
+        handlers.put(RequestTypes.GET_EMPLOYEES, new EmployeesListHandler());
     }
 
     public static synchronized HandlerFactory getInstance(SimpleServer server) {

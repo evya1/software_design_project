@@ -35,26 +35,42 @@ public class PrimaryController implements ClientDependent {
     //region: Attributes
 
     //region: FXML Attributes
-    @FXML private ComboBox<Branch> branchComboBox;
-    @FXML private ComboBox<String> filterByTypeComboBox;
-    @FXML private ComboBox<MovieGenre> filterByGenreComboBox;
+    @FXML
+    private ComboBox<Branch> branchComboBox;
+    @FXML
+    private ComboBox<String> filterByTypeComboBox;
+    @FXML
+    private ComboBox<MovieGenre> filterByGenreComboBox;
 
-    @FXML private DatePicker datePicker;
+    @FXML
+    private DatePicker datePicker;
 
-    @FXML private GridPane moveisListGrid;
-    @FXML private VBox movieLayout;
+    @FXML
+    private GridPane moveisListGrid;
+    @FXML
+    private VBox movieLayout;
 
-    @FXML private Button catalogButton;
-    @FXML private Button customerPanelBtn;
-    @FXML private Button submitNewMovieBtn;
-    @FXML private Button employeePanelBtn;
-    @FXML private Button homeScreenBtn;
-    @FXML private Button clearFiltersBtn;
-    @FXML private Button searchBtn;
-    @FXML private Button bookletPurchaseBtn;
-    @FXML private Button submitComplaintBtn;
+    @FXML
+    private Button catalogButton;
+    @FXML
+    private Button customerPanelBtn;
+    @FXML
+    private Button submitNewMovieBtn;
+    @FXML
+    private Button employeePanelBtn;
+    @FXML
+    private Button homeScreenBtn;
+    @FXML
+    private Button clearFiltersBtn;
+    @FXML
+    private Button searchBtn;
+    @FXML
+    private Button bookletPurchaseBtn;
+    @FXML
+    private Button submitComplaintBtn;
 
-    @FXML private TextField searchTextField;
+    @FXML
+    private TextField searchTextField;
 
     //endregion
 
@@ -76,7 +92,7 @@ public class PrimaryController implements ClientDependent {
         datePicker.setEditable(false);
         filterByTypeComboBox.getItems().addAll("All Movies", "Upcoming Movies", "In Theater", "Viewing Package");
         filterByTypeComboBox.setValue("All Movies");
-        filterByGenreComboBox.getItems().addAll(MovieGenre.COMEDY,MovieGenre.ACTION,MovieGenre.HORROR,MovieGenre.DRAMA,MovieGenre.ADVENTURE,MovieGenre.DOCUMENTARY);
+        filterByGenreComboBox.getItems().addAll(MovieGenre.COMEDY, MovieGenre.ACTION, MovieGenre.HORROR, MovieGenre.DRAMA, MovieGenre.ADVENTURE, MovieGenre.DOCUMENTARY);
         homeScreenBtn.setDisable(true);
         Message message = new Message();
         message.setMessage("new client");
@@ -123,7 +139,7 @@ public class PrimaryController implements ClientDependent {
             Message message = event.getMessage();
 
             //Request to show all the movies.
-            if(message.getData().equals(SHOW_ALL_MOVIES)) {
+            if (message.getData().equals(SHOW_ALL_MOVIES)) {
                 //Movies Received show all
                 Platform.runLater(() -> {
                     this.movies = message.getMovies();
@@ -132,14 +148,13 @@ public class PrimaryController implements ClientDependent {
                 });
             }
             //Request to show all the branch names.
-            else if(message.getData().equals(GET_BRANCHES)) {
+            else if (message.getData().equals(GET_BRANCHES)) {
                 Platform.runLater(() -> {
                     this.branches = message.getBranches();
                     branchComboBox.getItems().clear();  // Clear previous items
                     branchComboBox.getItems().addAll(branches);  // Add Branch objects directly
                 });
-            }
-            else if(message.getData().equals(GET_MOVIES_BY_BRANCH_ID)) {
+            } else if (message.getData().equals(GET_MOVIES_BY_BRANCH_ID)) {
                 Platform.runLater(() -> {
                     this.movies = message.getMovies();
                     this.slots = message.getMovieSlots();
@@ -342,8 +357,18 @@ public class PrimaryController implements ClientDependent {
 
     @FXML
     void employeeController(ActionEvent event) {
-
+        try {
+        Stage stage = (Stage) employeePanelBtn.getScene().getWindow();
+        Message message = new Message();
+        message.setMessage("employee panel");
+        message.setSourceFXML(PRIMARY_SCREEN);
+        EventBus.getDefault().unregister(this);
+        client.moveScene(EMPLOYEE_SCREEN, stage, message);
+    } catch(Exception e)
+    {
+        e.printStackTrace();
     }
+}
 
     @FXML
     void customerController(ActionEvent event) {
