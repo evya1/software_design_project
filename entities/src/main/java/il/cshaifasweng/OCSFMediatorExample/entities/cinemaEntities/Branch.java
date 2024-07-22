@@ -1,13 +1,13 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,6 +31,9 @@ public class Branch implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Employee branchManager;
+
+    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Employee> employees = new ArrayList<>();
 
     public Branch() {}
 

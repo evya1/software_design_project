@@ -49,7 +49,9 @@ public class SimpleChatServer {
             DataCommunicationDB.setSession(session);
             DataCommunicationDB.setPassword(password);
 
-            //DataCommunicationDB.generateMovieList();
+//            DataCommunicationDB.generateMovieList();
+//            DataCommunicationDB.generateMovieList2();
+//            DataCommunicationDB.createMockData();
             DataCommunicationDB.printAllEntities();
 
 
