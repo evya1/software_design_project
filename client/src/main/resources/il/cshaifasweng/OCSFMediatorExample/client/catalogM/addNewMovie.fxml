@@ -14,7 +14,7 @@
 
 <BorderPane prefHeight="650.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ContentChange.MovieAdditionController">
    <center>
-      <AnchorPane prefHeight="400.0" prefWidth="780.0" style="-fx-background-color: #ffff;">
+      <AnchorPane fx:id="movieToDoChangeOn" prefHeight="400.0" prefWidth="780.0" style="-fx-background-color: #ffff;">
          <children>
             <TextField fx:id="castTextField" layoutX="226.0" layoutY="62.0" prefHeight="28.0" prefWidth="465.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
             <TextField fx:id="englishTitleTextField" layoutX="227.0" layoutY="24.0" prefHeight="28.0" prefWidth="173.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
@@ -56,16 +56,19 @@
                   <Image url="@logo.png" />
                </image>
             </ImageView>
+            <ComboBox fx:id="chooseMovieComboBox" layoutX="625.0" layoutY="150.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#chooseMovie" prefWidth="150.0" promptText="Choose Movie" styleClass="rounded-corners" stylesheets="@styleColor.css" />
          </children>
       </AnchorPane>
    </top>
    <left>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="PanelBackground" stylesheets="@style.css" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="homeScreenBtn" layoutX="45.0" layoutY="61.0" mnemonicParsing="false" onAction="#backToHomeScreen" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Home Screen" />
-            <Button fx:id="submitMovieBtn" layoutX="45.0" layoutY="162.0" mnemonicParsing="false" onAction="#submitMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Submit Movie" />
-            <Button fx:id="newMovieBtn" layoutX="45.0" layoutY="113.0" mnemonicParsing="false" onAction="#createNewMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="New Movie" />
-            <Button fx:id="deleteMovieBtn" layoutX="46.0" layoutY="211.0" mnemonicParsing="false" onAction="#deleteMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Delete Movie" />
+            <Button fx:id="backBtn" layoutX="62.0" layoutY="384.0" mnemonicParsing="false" onAction="#backToHomeScreen" prefHeight="26.0" prefWidth="77.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Return" />
+            <Button fx:id="submitMovieBtn" layoutX="45.0" layoutY="170.0" mnemonicParsing="false" onAction="#submitMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Submit Movie" />
+            <Button fx:id="newMovieBtn" layoutX="45.0" layoutY="110.0" mnemonicParsing="false" onAction="#createNewMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="New Movie" />
+            <Button fx:id="deleteMovieBtn" layoutX="46.0" layoutY="230.0" mnemonicParsing="false" onAction="#deleteMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Delete Movie" />
+            <Button fx:id="backBtn1" layoutX="61.0" layoutY="230.0" mnemonicParsing="false" onAction="#backBtnAction" prefHeight="26.0" prefWidth="77.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Back" />
+            <Button fx:id="ScreeningBtn" layoutX="46.0" layoutY="290.0" mnemonicParsing="false" onAction="#ScreeningTimes" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Screening Times" />
          </children></AnchorPane>
    </left>
    <right>

@@ -1,5 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.client.ContentChange;
 
+import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.scene.layout.AnchorPane;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
@@ -22,6 +28,8 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
@@ -33,6 +41,7 @@ public class MovieAdditionController implements ClientDependent {
     private static final String clientNotInit = "Client is not initialized!\n";
     private static final Logger logger = LoggerFactory.getLogger(MovieAdditionController.class);
 
+    private List<Movie> movies;
     private Movie movie;
     private TypeOfMovie movieType;
     private SimpleClient client;
@@ -60,7 +69,7 @@ public class MovieAdditionController implements ClientDependent {
     private TextField hebrewTitleTextField; // Value injected by FXMLLoader
 
     @FXML // fx:id="homeScreenBtn"
-    private Button homeScreenBtn; // Value injected by FXMLLoader
+    private Button backBtn; // Value injected by FXMLLoader
 
     @FXML // fx:id="inTheatersCheckBox"
     private CheckBox inTheatersCheckBox; // Value injected by FXMLLoader
@@ -89,6 +98,18 @@ public class MovieAdditionController implements ClientDependent {
     @FXML
     private Button deleteMovieBtn;
 
+    @FXML
+    private AnchorPane movieToDoChangeOn;
+
+    @FXML
+    private Button backBtn1;
+
+    @FXML
+    private ComboBox<String> chooseMovieComboBox;
+
+    @FXML
+    private Button ScreeningBtn;
+
     private final String errorColor = "red";
     private final String normalColor = "black";
     private final String borderDefault = null;
@@ -99,6 +120,10 @@ public class MovieAdditionController implements ClientDependent {
         chooseGenreComboBox.getItems().addAll(MovieGenre.values());
 
         if(localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)) {
+            chooseMovieComboBox.setVisible(false);
+            backBtn1.setVisible(true);
+            backBtn1.setDisable(false);
+            movieToDoChangeOn.setVisible(true);
             deleteMovieBtn.setVisible(false);
             deleteMovieBtn.setDisable(true);
             movie = new Movie();
@@ -113,31 +138,87 @@ public class MovieAdditionController implements ClientDependent {
         }
         //Loading an existing movie.
         else{
+            chooseMovieComboBox.setVisible(true);
+            backBtn1.setVisible(false);
+            backBtn1.setDisable(true);
+            movieToDoChangeOn.setVisible(false);
             deleteMovieBtn.setVisible(true);
             deleteMovieBtn.setDisable(false);
             submitMovieBtn.setText("Update Movie");
-            movie = localMessage.getSpecificMovie();
 
-            //Setting up checkboxes according to the movie given
-            packageCheckBox.setSelected(movie.getMovieType().isPurchasable());
-            soonCheckBox.setSelected(movie.getMovieType().isUpcoming());
-            inTheatersCheckBox.setSelected(movie.getMovieType().isCurrentlyRunning());
+        }
+        Message message = new Message();
+        message.setMessage(MOVIE_REQUEST);
+        message.setData(SHOW_ALL_MOVIES);
+        client.sendMessage(message);
+        EventBus.getDefault().register(this);
+    }
 
-            //Setting up text fields.
-            castTextField.setText(movie.getMainCast());
-            producerTextField.setText(movie.getProducer());
-            descriptionTextArea.setText(movie.getMovieDescription());
-            hebrewTitleTextField.setText(movie.getHebrewMovieName());
-            englishTitleTextField.setText(movie.getMovieName());
+    @Subscribe
+    public void dataReceived(MessageEvent event) {
+        if (event != null) {
+            Message message = event.getMessage();
+            if (message.getData().equals(SHOW_ALL_MOVIES)) {
+                Platform.runLater(() -> {
+                    this.movies = message.getMovies();
+                    List<String> moviesNames = new ArrayList<>();
+                    for(Movie movie : movies){
+                        moviesNames.add(movie.getMovieName());
+                    }
+                    chooseMovieComboBox.setItems(FXCollections.observableArrayList(moviesNames));
+                });
+            }
+        }
+    }
 
-            //Populating Combobox
-            chooseGenreComboBox.setValue(movie.getMovieGenre());
+    @FXML
+    void ScreeningTimes(ActionEvent event) {
 
-            //Loading movie image
-            if (movie.getImage() != null) {
-                InputStream imageStream = new ByteArrayInputStream(movie.getImage());
-                Image image = new Image(imageStream);
-                movieImageView.setImage(image);
+    }
+
+    @FXML
+    void backBtnAction(ActionEvent event) {
+        try {
+            Stage stage = (Stage) backBtn1.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("back to change content screen");
+            logger.info("Moving scene");
+            client.moveScene(ADD_EDIT_MOVIE, stage ,message);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void chooseMovie(ActionEvent event) {
+        String movieName = chooseMovieComboBox.getValue();
+        for (Movie mov : movies) {
+            if (mov.getMovieName().equals(movieName)) {
+                movie = mov;
+
+                //Setting up checkboxes according to the movie given
+                packageCheckBox.setSelected(movie.getMovieType().isPurchasable());
+                soonCheckBox.setSelected(movie.getMovieType().isUpcoming());
+                inTheatersCheckBox.setSelected(movie.getMovieType().isCurrentlyRunning());
+
+                //Setting up text fields.
+                castTextField.setText(movie.getMainCast());
+                producerTextField.setText(movie.getProducer());
+                descriptionTextArea.setText(movie.getMovieDescription());
+                hebrewTitleTextField.setText(movie.getHebrewMovieName());
+                englishTitleTextField.setText(movie.getMovieName());
+
+                //Populating Combobox
+                chooseGenreComboBox.setValue(movie.getMovieGenre());
+
+                //Loading movie image
+                if (movie.getImage() != null) {
+                    InputStream imageStream = new ByteArrayInputStream(movie.getImage());
+                    Image image = new Image(imageStream);
+                    movieImageView.setImage(image);
+                }
+                movieToDoChangeOn.setVisible(true);
             }
         }
     }
@@ -193,9 +274,12 @@ public class MovieAdditionController implements ClientDependent {
             return;
         }
         try {
-            Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
+            Stage stage = (Stage) backBtn.getScene().getWindow();
             logger.info("Moving scene");
-            client.moveScene(PRIMARY_SCREEN, stage ,null);
+            Message message = new Message();
+            message.setMessage("nfew movie");
+            message.setSourceFXML(ADD_EDIT_MOVIE);
+            client.moveScene(EMPLOYEE_SCREEN, stage ,message);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -279,7 +363,6 @@ public class MovieAdditionController implements ClientDependent {
                     logger.info("Movie ID: {} Was requested to be deleted.", movie.getId());
                     message.setMovieID(movie.getId());
                     client.sendMessage(message);
-                    backToHomeScreen(event);
                 },
                 //Action to perform on NO
                 ()->{
