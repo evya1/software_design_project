@@ -1,38 +1,23 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Random;
-import java.util.Arrays;
-import java.io.IOException;
-
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Chain;
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Seat;
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.TypeOfMovie;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
-import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
-import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
+import org.hibernate.*;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import org.hibernate.service.ServiceRegistry;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Consumer;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee.createEmployee;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
 
 public class DataCommunicationDB
@@ -86,10 +71,7 @@ public class DataCommunicationDB
         // Print all Theaters
         List<Theater> theaters = session.createQuery("FROM Theater", Theater.class).list();
         for (Theater theater : theaters) {
-            System.out.println("Theater ID: " + theater.getTheaterNum() +
-                    ", Num of Seats: " + theater.getNumOfSeats() +
-                    ", Available Seats: " + theater.getAvailableSeats() +
-                    ", Row Length: " + theater.getRowLength());
+            System.out.println(theater);
 
             // Print Seats
             List<Seat> seats = theater.getSeatList();
@@ -99,7 +81,7 @@ public class DataCommunicationDB
             }
 
             // Print MovieSlots
-            List<MovieSlot> movieSlots = theater.getMovieTime();
+            List<MovieSlot> movieSlots = theater.getSchedule();
             for (MovieSlot movieSlot : movieSlots) {
                 System.out.println("\tMovieSlot ID: " + movieSlot.getId() +
                         ", Movie Title: " + movieSlot.getMovieTitle() +
@@ -170,12 +152,7 @@ public class DataCommunicationDB
         // Print all Employees
         List<Employee> employees = session.createQuery("FROM Employee", Employee.class).list();
         for (Employee employee : employees) {
-            System.out.println("Employee ID: " + employee.getId() +
-                    ", First Name: " + employee.getFirstName() +
-                    ", Last Name: " + employee.getLastName() +
-                    ", Email: " + employee.getEmail() +
-                    ", Username: " + employee.getUsername() +
-                    ", Employee Type: " + employee.getEmployeeType());
+            System.out.println(employee);
 
             // Print Branch In Charge if Theater Manager
             if (employee.getEmployeeType() == EmployeeType.THEATER_MANAGER) {
@@ -335,7 +312,7 @@ public class DataCommunicationDB
                 session.flush();
 
                 // Associate movieSlots with Theater
-                theater.getMovieTime().addAll(movieSlots);
+                theater.getSchedule().addAll(movieSlots);
             }
 
             // Adding images to the movies
@@ -484,7 +461,7 @@ public class DataCommunicationDB
                         movie.setMovieScreeningTime(movieSlots);
                         session.save(movie);
 
-                        theater.getMovieTime().addAll(movieSlots);
+                        theater.getSchedule().addAll(movieSlots);
                     }
 
                     // Create Seats for Theater
@@ -794,12 +771,12 @@ public class DataCommunicationDB
         }
     }
 
-    //Update start time field by slotID
+    // Update start time field by slotID
     public static void modifyMovieSlotStartTime(int slotId, LocalDateTime startTime) {
         updateMovieSlotField(slotId, movieSlot -> movieSlot.setStartDateTime(startTime));
     }
 
-    //Update end time field by slotID
+    // Update end time field by slotID
     public static void modifyMovieSlotEndTime(int slotId, LocalDateTime endTime) {
         updateMovieSlotField(slotId, movieSlot -> movieSlot.setEndDateTime(endTime));
     }
@@ -862,7 +839,102 @@ public class DataCommunicationDB
         }
     }
 
-    public static void main( String[] args ) {
+    public static void createMockData() {
+        SessionFactory sessionFactory = getSessionFactory(password);
+        session = sessionFactory.openSession();
+        session.beginTransaction();
 
+        Chain chain = createChain();
+        Branch branch = createBranch(chain);
+        Theater theater = createTheater(branch);
+        createSeats(theater);
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    private static Chain createChain() {
+        Employee chainManager = createChainManagerJohnDoe();
+        Chain chain = new Chain();
+        chain.setName("MyCinemaChain");
+        chain.setChainManager(chainManager);
+
+        session.save(chainManager);
+        session.save(chain);
+        return chain;
+    }
+
+    private static Branch createBranch(Chain chain) {
+        Employee branchManager = createBranchManagerJaneSmith();
+        Branch branch = new Branch();
+        branch.setBranchName("Main Branch");
+//        branch.setChain(chain);
+        branch.setBranchManager(branchManager);
+        branchManager.setBranchInCharge(branch);
+
+        session.save(branchManager);
+        session.save(branch);
+        return branch;
+    }
+
+    private static Branch createBranchWithManager(String branchName, String managerUsername, String managerEmail, String managerFirstName, String managerLastName) {
+        Employee branchManager = new Employee();
+        branchManager.setEmployeeType(EmployeeType.THEATER_MANAGER);
+        branchManager.setFirstName(managerFirstName);
+        branchManager.setLastName(managerLastName);
+        branchManager.setEmail(managerEmail);
+        branchManager.setUsername(managerUsername);
+        branchManager.setPassword("password");
+        branchManager.setActive(true);
+
+        Branch branch = new Branch();
+        branch.setBranchName(branchName);
+        branch.setBranchManager(branchManager);
+        branchManager.setBranchInCharge(branch);
+
+        return branch;
+    }
+
+    private static Branch createJuliusBranch(Employee branchManager) {
+        Branch branch = new Branch();
+        branch.setBranchName("Julius");
+        branch.setBranchManager(branchManager);
+        branchManager.setBranchInCharge(branch);
+        branch.setTheaterList(new ArrayList<>());
+        return branch;
+    }
+
+    private static Employee createChainManagerJohnDoe() {
+        return Employee.createEmployee(EmployeeType.CHAIN_MANAGER, "John", "Doe", "john.doe@example.com", "johndoe", "password", true, null);
+    }
+
+    private static Employee createBranchManagerJaneSmith() {
+        return Employee.createEmployee(EmployeeType.THEATER_MANAGER, "Jane", "Smith", "jane.smith@example.com", "janesmith", "password", true, null);
+    }
+
+    private static Employee createJoeEmployee() {
+        return Employee.createEmployee(EmployeeType.THEATER_MANAGER, "Shimi", "Tavori", "Something@c.com", "Sodk", "129090m", true, null);
+    }
+
+    private static Theater createTheater(Branch branch) {
+        int numOfSeats = 100;
+        int availableSeats = 100;
+        int rowLength = 10;
+        List<MovieSlot> schedule = new ArrayList<>();
+        List<Seat> seatList = new ArrayList<>();
+
+        Theater theater = new Theater(numOfSeats, availableSeats, schedule, seatList, rowLength);
+        theater.setBranch(branch);
+        session.save(theater);
+        return theater;
+    }
+
+    private static void createSeats(Theater theater) {
+        for (int i = 1; i <= 100; i++) {
+            Seat seat = new Seat(i, false, theater); // Default taken state is false
+            session.save(seat);
+        }
+    }
+
+    public static void main(String[] args) {
     }
 }

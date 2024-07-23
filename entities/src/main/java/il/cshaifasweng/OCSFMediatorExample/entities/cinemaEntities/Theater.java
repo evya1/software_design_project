@@ -27,16 +27,21 @@ public class Theater {
 
     @OneToMany(mappedBy = "theater", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SUBSELECT)
-    private List<MovieSlot> movieTime;
+    private List<MovieSlot> schedule;
 
     public Theater() {}
 
-    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> movieTime, List<Seat> seatList, int rowLength) {
-        this.numOfSeats = numOfSeats;
-        this.availableSeats = availableSeats;
-        this.movieTime = movieTime;
-        this.seatList = seatList;
-        this.rowLength = rowLength;
+    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, List<Seat> seatList, int rowLength) {
+        setNumOfSeats(numOfSeats);
+        setAvailableSeats(availableSeats);
+        setSchedule(schedule);
+        setSeatList(seatList);
+        setRowLength(rowLength);
+    }
+
+    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, List<Seat> seatList, int rowLength, Branch branch) {
+        this(numOfSeats,availableSeats,schedule,seatList,rowLength);
+        setBranch(branch);
     }
 
     // Getters and Setters
@@ -88,11 +93,34 @@ public class Theater {
         this.rowLength = rowLength;
     }
 
-    public List<MovieSlot> getMovieTime() {
-        return movieTime;
+    public List<MovieSlot> getSchedule() {
+        return schedule;
     }
 
-    public void setMovieTime(List<MovieSlot> movieTime) {
-        this.movieTime = movieTime;
+    public void setSchedule(List<MovieSlot> schedule) {
+        this.schedule = schedule;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Theater ID: ").append(theaterNum)
+                .append(", Num of Seats: ").append(numOfSeats)
+                .append(", Available Seats: ").append(availableSeats)
+                .append(", Row Length: ").append(rowLength);
+
+        if (seatList != null) {
+            for (Seat seat : seatList) {
+                sb.append("\n\t").append(seat);
+            }
+        }
+
+        if (schedule != null) {
+            for (MovieSlot movieSlot : schedule) {
+                sb.append("\n\t").append(movieSlot);
+            }
+        }
+
+        return sb.toString();
     }
 }

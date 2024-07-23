@@ -23,26 +23,42 @@ public class Employee implements Serializable {
     private String password;
     private boolean active;
 
+    // Many employees can belong to one branch
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
+
+    // One employee can be in charge of one branch (if they are a manager)
     @OneToOne
+    @JoinColumn(name = "branchInCharge_id", referencedColumnName = "id")
     private Branch branchInCharge;
 
-    // Constructors, getters, and setters
-    public Employee() {}
+    public Employee() {
+    }
 
-    public Employee(String firstName, String lastName, String email, String username, String password, boolean active
-                    , Branch branchInCharge, EmployeeType employeeType) {
+    public Employee(EmployeeType employeeType) {
+        setEmployeeType(employeeType);
+    }
+
+    public Employee(String firstName, String lastName, String email, String username, String password, boolean active, Branch branchInCharge, EmployeeType employeeType) {
+        this(employeeType);
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.username = username;
         this.password = password;
         this.active = active;
-        this.branchInCharge = branchInCharge;
-        this.employeeType = employeeType;
+        // Utilizes setBranchInCharge method to assign both branch and branchInCharge based on employee type.
+        setBranchInCharge(branchInCharge);
     }
 
-    public Employee(EmployeeType employeeType) {
-        this.employeeType = employeeType;
+    public Employee(EmployeeType employeeType, String firstName, String lastName, String email, String username, String password, boolean active, Branch branch) {
+        this(firstName, lastName, email, username, password, active, branch, employeeType);
+    }
+
+    // Factory method to create a new Employee
+    public static Employee createEmployee(EmployeeType employeeType, String firstName, String lastName, String email, String username, String password, boolean active, Branch branch) {
+        return new Employee(employeeType, firstName, lastName, email, username, password, active, branch);
     }
 
     public int getId() {
@@ -55,6 +71,9 @@ public class Employee implements Serializable {
 
     public void setEmployeeType(EmployeeType employeeType) {
         this.employeeType = employeeType;
+        if (employeeType == EmployeeType.THEATER_MANAGER) {
+            this.branch = this.branchInCharge;
+        }
     }
 
     public String getFirstName() {
@@ -105,6 +124,21 @@ public class Employee implements Serializable {
         this.active = active;
     }
 
+    public Branch getBranch() {
+        return branch;
+    }
+
+    private void setBranch(Branch branch) {
+        this.branch = branch;
+    }
+
+    /**
+     * Gets the branch in charge if the employee is a theater manager.
+     * If the employee type is THEATER_MANAGER, this method returns the branch
+     * the employee is in charge of. Otherwise, it returns null.
+     *
+     * @return the branch in charge or null if the employee is not a theater manager
+     */
     public Branch getBranchInCharge() {
         if (employeeType == EmployeeType.THEATER_MANAGER) {
             return branchInCharge;
@@ -112,9 +146,35 @@ public class Employee implements Serializable {
         return null;
     }
 
+    /**
+     * Sets the branch in charge if the employee is a theater manager.
+     * This method ensures that the branchInCharge attribute is set only if the
+     * employee type is THEATER_MANAGER. Additionally, it sets the branch attribute
+     * to the same branch.
+     *
+     * @param branchInCharge the branch to set as the branch in charge
+     */
     public void setBranchInCharge(Branch branchInCharge) {
         if (employeeType == EmployeeType.THEATER_MANAGER) {
             this.branchInCharge = branchInCharge;
+
         }
+        setBranch(branchInCharge);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Employee ID: ").append(id).append(", First Name: ").append(firstName).append(", Last Name: ").append(lastName).append(", Email: ").append(email).append(", Username: ").append(username).append(", Employee Type: ").append(employeeType);
+
+        if (employeeType == EmployeeType.THEATER_MANAGER && branchInCharge != null) {
+            sb.append(", Branch In Charge: ").append(branchInCharge.getBranchName());
+        }
+
+        if (employeeType == EmployeeType.CHAIN_MANAGER) {
+            sb.append(", Chain Manager");
+        }
+
+        return sb.toString();
     }
 }

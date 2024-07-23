@@ -167,7 +167,7 @@ public class TheaterTest {
 
     @Test
     public void testGetMovieTime() {
-        assertEquals(movieSlots, theater.getMovieTime());
+        assertEquals(movieSlots, theater.getSchedule());
 
         printTestInfo("Movie time retrieved successfully");
     }
@@ -175,8 +175,8 @@ public class TheaterTest {
     @Test
     public void testSetMovieTime() {
         List<MovieSlot> newMovieTime = new ArrayList<>();
-        theater.setMovieTime(newMovieTime);
-        assertEquals(newMovieTime, theater.getMovieTime());
+        theater.setSchedule(newMovieTime);
+        assertEquals(newMovieTime, theater.getSchedule());
 
         printTestInfo("Movie time set successfully");
     }
