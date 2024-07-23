@@ -7,8 +7,10 @@ import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,15 +26,18 @@ import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.ADD_EDIT_MOVIE;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
 public class EmployeeController implements ClientDependent {
 
     private static final Logger logger = LoggerFactory.getLogger(MovieAdditionController.class);
 
+    @FXML
+    private ComboBox<String> chooseItemComboBox;
 
     @FXML
     private Button changeContentBtn;
@@ -50,16 +55,13 @@ public class EmployeeController implements ClientDependent {
     private VBox movieLayout;
 
     @FXML
-    private ScrollPane scrollPane;
-
-    @FXML
     private Button showComplaintsBtn;
 
     @FXML
     private Button showReportsBtn;
 
     @FXML
-    private Button submitNewMovieBtn;
+    private Button changePriceBtn;
 
     @FXML
     private Button logINBtn;
@@ -71,76 +73,51 @@ public class EmployeeController implements ClientDependent {
     private Message localMessage;
     private SimpleClient client;
     private List<Employee> employees;
-    private List<Movie> movies;
+    //private List<Movie> movies;
     private Employee employee;
 
 
 
     @FXML
     private void initialize() {
+        List<String> purchaseItems = Arrays.asList("Movie Ticket", "Movie Link", "Booklet");
+        chooseItemComboBox.setItems(FXCollections.observableArrayList(purchaseItems));
+        chooseItemComboBox.setVisible(false);
         showComplaintsBtn.setDisable(true);
         logOUTBtn.setVisible(false);
-        scrollPane.setVisible(false);
         showReportsBtn.setDisable(true);
-        submitNewMovieBtn.setDisable(true);
+        changePriceBtn.setDisable(true);
         changeContentBtn.setDisable(true);
         confirmChangeBtn.setDisable(true);
         Message message = new Message();
-        message.setMessage(MOVIE_REQUEST);
-        message.setData(SHOW_ALL_MOVIES);
-        client.sendMessage(message);
+//        message.setMessage(MOVIE_REQUEST);
+//        message.setData(SHOW_ALL_MOVIES);
+//        client.sendMessage(message);
         message.setMessage(GET_EMPLOYEES);
         message.setData(SHOW_ALL_EMPLOYEES);
         client.sendMessage(message);
         EventBus.getDefault().register(this);
+        checkMsg();
+    }
+
+    private void checkMsg() {
+        if (localMessage.getSourceFXML() == ADD_EDIT_MOVIE) {
+            chooseItemComboBox.setVisible(true);
+            logINBtn.setVisible(false);
+            logOUTBtn.setVisible(true);
+            homeScreenBtn.setDisable(true);
+            changeContentBtn.setDisable(false);
+            changePriceBtn.setDisable(false);
+        }
     }
 
     @Subscribe
     public void dataReceived(MessageEvent event) {
         if (event != null) {
             Message message = event.getMessage();
-            if (message.getData().equals(SHOW_ALL_MOVIES)) {
-                Platform.runLater(() -> {
-                    this.movies = message.getMovies();
-                    loadMovies(movies);
-                });
-            }
             if (message.getData().equals(SHOW_ALL_EMPLOYEES)) {
                 this.employees = message.getEmployeeList();
             }
-        }
-    }
-
-    private void loadMovies(List<Movie> moviesToDisplay) {
-
-        moveisListGrid.getChildren().clear();
-        // Ensure movies list is initialized and populated
-        int col = 0;
-        int row = 0;
-        try {
-            if (moviesToDisplay != null && !moviesToDisplay.isEmpty()) {
-                for (Movie movie : moviesToDisplay) {
-                    FXMLLoader fxmlLoader = new FXMLLoader();
-                    fxmlLoader.setLocation(getClass().getResource("catalogM/movieGrid.fxml"));
-                    AnchorPane anchorPane = fxmlLoader.load();
-                    anchorPane.setPrefSize(200, 300);
-                    MovieGridController movieGridController = fxmlLoader.getController();
-                    movieGridController.setData(movie);
-                    if (col == 5) {
-                        col = 0;
-                        row++;
-                    }
-                    moveisListGrid.add(anchorPane, col++, row);
-                    GridPane.setMargin(anchorPane, new Insets(15, 15, 15, 15));
-                    anchorPane.setOnMouseClicked(event -> {
-                        if (event.getClickCount() == 2) {
-                            chooseMovie(movie, (Stage) anchorPane.getScene().getWindow());
-                        }
-                    });
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -148,6 +125,7 @@ public class EmployeeController implements ClientDependent {
         try {
             localMessage = new Message();
             localMessage.setSpecificMovie(movie);
+            EventBus.getDefault().unregister(this);
             client.moveScene("catalogM/Movie", stage, localMessage);
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,7 +135,16 @@ public class EmployeeController implements ClientDependent {
 
     @FXML
     void changeContent(ActionEvent event) {
-
+        try {
+            Stage stage = (Stage) changePriceBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("nfew movie");
+            message.setSourceFXML(EMPLOYEE_SCREEN);
+            EventBus.getDefault().unregister(this);
+            client.moveScene(ADD_EDIT_MOVIE, stage ,message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -169,22 +156,17 @@ public class EmployeeController implements ClientDependent {
     void homeScreen(ActionEvent event) {
         Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
         EventBus.getDefault().unregister(this);
-        client.moveScene(localMessage.getSourceFXML(), stage, null);
+        client.moveScene(PRIMARY_SCREEN, stage, null);
     }
 
     @FXML
-    void newMovieAction(ActionEvent event) {
-        try {
-            Stage stage = (Stage) submitNewMovieBtn.getScene().getWindow();
-            Message message = new Message();
-            message.setMessage(NEW_MOVIE_TEXT_REQUEST);
-            logger.info("Moving scene");
-            EventBus.getDefault().unregister(this);
-            client.moveScene(ADD_EDIT_MOVIE, stage ,message);
+    void changePriceAction(ActionEvent event) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    }
+
+    @FXML
+    void chooseItem(ActionEvent event) {
+
     }
 
     @FXML
@@ -237,6 +219,7 @@ public class EmployeeController implements ClientDependent {
     private void emp(){
         logINBtn.setVisible(false);
         logOUTBtn.setVisible(true);
+        homeScreenBtn.setDisable(true);
         switch (employee.getEmployeeType()) {
             case BASE:
 
@@ -248,9 +231,9 @@ public class EmployeeController implements ClientDependent {
                 showReportsBtn.setDisable(false);
                 break;
             case CONTENT_MANAGER:
-                scrollPane.setVisible(true);
+                chooseItemComboBox.setVisible(true);
                 changeContentBtn.setDisable(false);
-                submitNewMovieBtn.setDisable(false);
+                changePriceBtn.setDisable(false);
                 break;
             case CHAIN_MANAGER:
                 confirmChangeBtn.setDisable(false);
@@ -263,12 +246,13 @@ public class EmployeeController implements ClientDependent {
 
     @FXML
     void logOut(ActionEvent event) {
+        chooseItemComboBox.setVisible(false);
+        homeScreenBtn.setDisable(false);
         logINBtn.setVisible(true);
         showComplaintsBtn.setDisable(true);
         logOUTBtn.setVisible(false);
-        scrollPane.setVisible(false);
         showReportsBtn.setDisable(true);
-        submitNewMovieBtn.setDisable(true);
+        changePriceBtn.setDisable(true);
         changeContentBtn.setDisable(true);
         confirmChangeBtn.setDisable(true);
     }

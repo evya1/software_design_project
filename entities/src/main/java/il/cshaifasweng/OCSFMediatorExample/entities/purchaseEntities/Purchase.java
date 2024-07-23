@@ -89,13 +89,13 @@ public class Purchase implements Serializable {
         this.purchaseType = purchasedItem;
         switch (purchasedItem) {
             case BOOKLET:
-                this.setPrice(PriceConstants.BOOKLET_PRICE);
+                this.setPrice(PriceConstants.getBookletPrice());
                 break;
             case MOVIE_LINK:
-                this.setPrice(PriceConstants.MOVIE_LINK_PRICE);
+                this.setPrice(PriceConstants.getMovieLinkPrice());
                 break;
             case MOVIE_TICKET:
-                this.setPrice(PriceConstants.MOVIE_TICKET_PRICE);
+                this.setPrice(PriceConstants.getMovieTicketPrice());
                 break;
         }
     }

@@ -242,6 +242,7 @@ public class PrimaryController implements ClientDependent {
         try {
             localMessage = new Message();
             localMessage.setSpecificMovie(movie);
+            localMessage.setSourceFXML(PRIMARY_SCREEN);
             client.moveScene("catalogM/Movie", stage, localMessage);
         } catch (Exception e) {
             e.printStackTrace();
