@@ -58,12 +58,12 @@
          <left>
             <AnchorPane prefHeight="431.0" prefWidth="201.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="customerPanelBtn" layoutX="43.0" layoutY="127.0" mnemonicParsing="false" onAction="#customerController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Customer Panel" textFill="#1010ff" />
-                  <Button fx:id="employeePanelBtn" layoutX="43.0" layoutY="198.0" mnemonicParsing="false" onAction="#employeeController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Employee Panel" textFill="#00a606" />
-                  <Button fx:id="submitComplaintBtn" layoutX="43.0" layoutY="269.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Submit Complaint" textFill="#635300" />
+                  <Button fx:id="customerPanelBtn" layoutX="43.0" layoutY="130.0" mnemonicParsing="false" onAction="#customerController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Customer Panel" textFill="#1010ff" />
+                  <Button fx:id="employeePanelBtn" layoutX="43.0" layoutY="200.0" mnemonicParsing="false" onAction="#employeeController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Employee Panel" textFill="#00a606" />
+                  <Button fx:id="submitComplaintBtn" layoutX="43.0" layoutY="270.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Submit Complaint" textFill="#635300" />
                   <Button fx:id="homeScreenBtn" layoutX="43.0" layoutY="60.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Home Screen" textFill="RED" />
-                  <Button fx:id="bookletPurchaseBtn" layoutX="43.0" layoutY="334.0" mnemonicParsing="false" onAction="#purchaseBookletControl" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Purchase Booklet" textFill="#d0921f" />
-                  <Button fx:id="submitNewMovieBtn" layoutX="43.0" layoutY="388.0" mnemonicParsing="false" onAction="#newMovieAction" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="New Movie (temp)" textFill="#635300" />
+                  <Button fx:id="bookletPurchaseBtn" layoutX="43.0" layoutY="340.0" mnemonicParsing="false" onAction="#purchaseBookletControl" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Purchase Booklet" textFill="#d0921f" />
+                  <Button fx:id="submitNewMovieBtn" layoutX="43.0" layoutY="410.0" mnemonicParsing="false" onAction="#newMovieAction" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="New Movie (temp)" textFill="#635300" />
                </children>
             </AnchorPane>
          </left>

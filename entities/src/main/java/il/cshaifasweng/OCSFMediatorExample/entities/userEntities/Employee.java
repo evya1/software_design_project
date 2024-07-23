@@ -29,6 +29,18 @@ public class Employee implements Serializable {
     // Constructors, getters, and setters
     public Employee() {}
 
+    public Employee(String firstName, String lastName, String email, String username, String password, boolean active
+                    , Branch branchInCharge, EmployeeType employeeType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.active = active;
+        this.branchInCharge = branchInCharge;
+        this.employeeType = employeeType;
+    }
+
     public Employee(EmployeeType employeeType) {
         this.employeeType = employeeType;
     }

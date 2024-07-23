@@ -10,4 +10,5 @@ public class FilePathController {
     public static final String CLIENT_CONFIG = "ServerLogin";
     public static final String COMPLAINT_SCREEN = "complaints/complaintSubmission";
     public static final String SUBMISSION_POP_UP_MESSAGE = "complaints/complaintSubmissionPopUp";
+    public static final String EMPLOYEE_SCREEN = "employeeFX/EmployeePanel";
 }
