@@ -27,9 +27,17 @@ public class GetTimeSlotByMovieID implements RequestHandler {
 
             List<MovieSlot> screeningTimes = movie.getMovieScreeningTime();
             screeningTimes.size();
+            for (MovieSlot movieSlot : screeningTimes) {
+                if (movieSlot.getTheater() != null && movieSlot.getBranch() != null) {
+                movieSlot.getTheater().getTheaterNum();
+                movieSlot.getBranch().getBranchName();
+                }
+            }
+
 
             Message answer = new Message();
             answer.setMovieSlots(screeningTimes);
+            answer.setSpecificMovie(movie);
             answer.setMessage("time slots for specific movie");
             answer.setData("time slots for specific movie");
 

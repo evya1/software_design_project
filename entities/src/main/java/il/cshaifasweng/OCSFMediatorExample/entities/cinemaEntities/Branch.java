@@ -22,7 +22,7 @@ public class Branch implements Serializable {
 //    @JoinColumn(name = "chain_id")
 //    private Chain chain;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "branch")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "branch")
     @Fetch(FetchMode.SUBSELECT)
     private List<Theater> theaterList;
 

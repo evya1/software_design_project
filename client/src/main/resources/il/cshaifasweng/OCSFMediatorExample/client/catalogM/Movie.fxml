@@ -25,7 +25,6 @@
                   <ListView fx:id="screeningTimesListView" fixedCellSize="0.0" onMouseClicked="#openModifyScreening" prefHeight="197.0" prefWidth="193.0" />
                </content>
             </ScrollPane>
-            <Button fx:id="updateScreeningBtn" layoutX="491.0" layoutY="368.0" mnemonicParsing="false" onAction="#updateScreeningFromDB" text="Update Screening" />
             <Label layoutX="121.0" layoutY="23.0" style="-fx-font-weight: bold;" text="Movie Title" />
             <Label layoutX="122.0" layoutY="61.0" style="-fx-font-weight: bold;" text="Main Cast" />
             <Label layoutX="125.0" layoutY="98.0" style="-fx-font-weight: bold;" text="Producer" />

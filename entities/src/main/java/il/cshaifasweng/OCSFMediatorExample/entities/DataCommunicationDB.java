@@ -775,11 +775,19 @@ public class DataCommunicationDB
     public static void modifyMovieSlotStartTime(int slotId, LocalDateTime startTime) {
         updateMovieSlotField(slotId, movieSlot -> movieSlot.setStartDateTime(startTime));
     }
-
     // Update end time field by slotID
     public static void modifyMovieSlotEndTime(int slotId, LocalDateTime endTime) {
         updateMovieSlotField(slotId, movieSlot -> movieSlot.setEndDateTime(endTime));
     }
+    //update branch field by slotID
+    public static void modifyMovieSlotBranch(int slotId,Branch branch) {
+        updateMovieSlotField(slotId, movieSlot -> movieSlot.setBranch(branch));
+    }
+    //update theater field by slotID
+    public static void modifyMovieSlotTheater(int slotId, Theater theater) {
+        updateMovieSlotField(slotId, movieSlot -> movieSlot.setTheater(theater));
+    }
+
 
     public static List<MovieSlot> getMovieSlotsByBranch(int branchId) {
         Transaction transaction = null;
