@@ -136,74 +136,10 @@ public class MovieController implements ClientDependent {
         }
     }
 
-    @FXML
-    void updateScreeningFromDB(ActionEvent event) {
-        try {
-            screeningTimesListView.getItems().clear();
-            Message message = new Message();
-            message.setMessage(GET_MOVIE_SLOT_BY_MOVIE_ID);
-            message.setSpecificMovie(movie);
-            client.sendMessage(message);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
 
     @FXML
     public void openModifyScreening(MouseEvent mouseEvent) {
-        if (mouseEvent.getClickCount() == 2) {
-            LocalDateTime selectedItem = screeningTimesListView.getSelectionModel().getSelectedItem();
-            MovieSlot currentSlot = null;
-            int slotIndex = -1;
-            for (int i = 0; i < movie.getMovieScreeningTime().size(); i++) {
-                if (movie.getMovieScreeningTime().get(i).getStartDateTime() == selectedItem ) {
-                    currentSlot = movie.getMovieScreeningTime().get(i);
-                    slotIndex = i;
-                }
-            }
 
-            if (selectedItem != null && currentSlot != null) {
-                try {
-                    TextInputDialog dialog = new TextInputDialog(selectedItem.toString());
-                    dialog.setTitle("Modify Screening Time");
-                    dialog.setHeaderText("Modify the time in this format yyyyMMdd HHmm");
-                    dialog.setContentText("New time:");
-                    Optional<String> result = dialog.showAndWait();
-
-                    //Check if the result exists before proceeding.
-                    LocalDateTime newStart = null;
-                    if (result.isPresent()) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HHmm");
-                        newStart = LocalDateTime.parse(result.get(), formatter);
-                        if(newStart.isBefore(LocalDateTime.now()))
-                        {
-                            SimpleClient.showAlert(Alert.AlertType.ERROR,"Unavailable Time","The time entered cannot be before today.");
-                            return;
-                        }
-                        for (MovieSlot slot : movie.getMovieScreeningTime()) {
-                            if (slot.getStartDateTime().equals(newStart)) {
-                                SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Error", "The time you entered is already there");
-                                return;
-                            }
-                        }
-
-                    LocalDateTime newEnd = newStart.plusMinutes(movie.getMovieDuration());
-                    System.out.println(newEnd);
-                    movie.getMovieScreeningTime().get(slotIndex).setStartDateTime(newStart);
-                    movie.getMovieScreeningTime().get(slotIndex).setEndDateTime(newEnd);
-                    Message message = new Message();
-                    message.setMessage(CHANGE_SCREEN_TIME);
-                    message.setSpecificMovie(movie);
-                    client.sendMessage(message);
-                    }
-                }catch (DateTimeParseException ParseException) {
-                    SimpleClient.showAlert(Alert.AlertType.ERROR,"Time Error","Please enter a valid time");
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     public void setClient(SimpleClient client) {

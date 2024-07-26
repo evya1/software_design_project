@@ -63,7 +63,6 @@
                   <Button fx:id="submitComplaintBtn" layoutX="43.0" layoutY="270.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Submit Complaint" textFill="#635300" />
                   <Button fx:id="homeScreenBtn" layoutX="43.0" layoutY="60.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Home Screen" textFill="RED" />
                   <Button fx:id="bookletPurchaseBtn" layoutX="43.0" layoutY="340.0" mnemonicParsing="false" onAction="#purchaseBookletControl" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="Purchase Booklet" textFill="#d0921f" />
-                  <Button fx:id="submitNewMovieBtn" layoutX="43.0" layoutY="410.0" mnemonicParsing="false" onAction="#newMovieAction" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@catalogM/styleColor.css" text="New Movie (temp)" textFill="#635300" />
                </children>
             </AnchorPane>
          </left>

@@ -54,8 +54,7 @@ public class PrimaryController implements ClientDependent {
     private Button catalogButton;
     @FXML
     private Button customerPanelBtn;
-    @FXML
-    private Button submitNewMovieBtn;
+
     @FXML
     private Button employeePanelBtn;
     @FXML
@@ -379,25 +378,6 @@ public class PrimaryController implements ClientDependent {
     @FXML
     void dateFilterPicker(ActionEvent event) {
 
-    }
-
-    @FXML
-    public void newMovieAction(ActionEvent actionEvent) {
-        if (client == null) {
-            System.err.println("Client is not initialized!\n");
-            return;
-        }
-        try {
-            Stage stage = (Stage) submitNewMovieBtn.getScene().getWindow();
-            Message message = new Message();
-            message.setMessage("nfew movie");
-            message.setSpecificMovie(movies.get(2));
-            message.setSourceFXML("Primary");
-            EventBus.getDefault().unregister(this);
-            client.moveScene(ADD_EDIT_MOVIE, stage ,message);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @FXML

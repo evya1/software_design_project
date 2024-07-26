@@ -60,6 +60,12 @@ public class Message implements Serializable {
     private PurchaseType purchaseType;
 
 
+    private boolean flag;
+
+    public void setFlag(boolean f) {
+        flag = f;
+    }
+    public boolean getFlag() {return flag;}
     public int getBranchID() {
         return branchID;
     }
