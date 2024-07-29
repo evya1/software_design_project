@@ -58,6 +58,7 @@ public class DataCommunicationDB
         configuration.addAnnotatedClass(MovieLink.class);
         configuration.addAnnotatedClass(MovieTicket.class);
         configuration.addAnnotatedClass(Complaint.class);
+        configuration.addAnnotatedClass(PriceConstants.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())

@@ -29,54 +29,51 @@ public class ChangeScreeningTimesHandler implements RequestHandler {
             // take the same fields of the movie we want to change screening times
             // apart from the field of the List of the movieSlot to be changed with the new time slots.
             Movie movie = message.getSpecificMovie();
-            MovieSlot mv = new MovieSlot();
+            MovieSlot mv = null;
+            Theater theater = null;
 
             int movieSlotId = message.getMovieID();
             for (MovieSlot movieSlot : movie.getMovieScreeningTime()) {
                 int movieId = movieSlot.getId();
                 if (movieSlotId == movieId) {
-                    LocalDateTime movieStartTime = movieSlot.getStartDateTime();
-                    LocalDateTime movieEndTime = movieSlot.getEndDateTime();
-                    Branch branch = movieSlot.getBranch();
+//                    LocalDateTime movieStartTime = movieSlot.getStartDateTime();
+//                    LocalDateTime movieEndTime = movieSlot.getEndDateTime();
+//                    Branch branch = movieSlot.getBranch();
+                    theater = movieSlot.getTheater();
+                    mv = movieSlot;
+//                    DataCommunicationDB.modifyMovieSlotStartTime(movieSlotId, movieStartTime);
+//                    DataCommunicationDB.modifyMovieSlotEndTime(movieSlotId, movieEndTime);
+//                    DataCommunicationDB.modifyMovieSlotTheater(movieSlotId, null);
+//                    DataCommunicationDB.modifyMovieSlotTheater(movieSlotId, theater);
 
-                    Theater theater = movieSlot.getTheater();
-                    System.out.println(theater.getTheaterNum());
-                    DataCommunicationDB.modifyMovieSlotStartTime(movieSlotId, movieStartTime);
-                    DataCommunicationDB.modifyMovieSlotEndTime(movieSlotId, movieEndTime);
-                    if (message.getFlag())
-                        DataCommunicationDB.modifyMovieSlotBranch(movieSlotId, branch);
-                    else {
-                        session.close();
-                        session = sessionFactory.openSession();
-                        DataCommunicationDB.setSession(session);
-                    }
-                    //DataCommunicationDB.modifyMovieSlotTheater(movieSlotId, null);
-                    DataCommunicationDB.modifyMovieSlotTheater(movieSlotId, theater);
-                    for (MovieSlot mvs : movie.getMovieScreeningTime()) {
-                        if (mvs.getId() == movieSlotId) {
-                            System.out.println(mvs.getTheater().getTheaterNum());
-                        }
-                    }
-                    session.close();
-                    session = sessionFactory.openSession();
-                    DataCommunicationDB.setSession(session);
 
-                    session.beginTransaction();
-                    theater.getSchedule().add(movieSlot);
-                    //movieSlot.getTheater().getSchedule().add(movieSlot);
-                    session.update(theater);
-                    session.flush();
-                    session.getTransaction().commit();
                 }
             }
+            session.beginTransaction();
+            MovieSlot movieSl = DataCommunicationDB.getMovieSlotByID(movieSlotId);
+            movieSl.setMovieTitle(mv.getMovieTitle());
+            movieSl.setBranch(mv.getBranch());
+            movieSl.setTheater(mv.getTheater());
+            movieSl.setStartDateTime(mv.getStartDateTime());
+            movieSl.setEndDateTime(mv.getEndDateTime());
+            movieSl.setMovie(mv.getMovie());
+
+            theater.getSchedule().add(mv);
+            Theater thea = DataCommunicationDB.getTheaterByID(movieSl.getTheater().getTheaterNum());
+            thea.setSchedule(theater.getSchedule());
+
+            session.merge(movieSl);
+            //session.merge(thea);
+            session.flush();
+            session.getTransaction().commit();
             Message answer = new Message();
             answer.setMessage("screening times of the movie updated");
             answer.setData(GET_BRANCHES);
             List<Branch> branches = DataCommunicationDB.getBranches();
             for (Branch branch : branches) {
-                for (Theater theater : branch.getTheaterList()){
-                    theater.getTheaterNum();
-                    theater.getSchedule();
+                for (Theater th : branch.getTheaterList()) {
+                    th.getTheaterNum();
+                    th.getSchedule();
                 }
             }
             answer.setBranches(branches);

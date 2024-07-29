@@ -121,8 +121,7 @@ public class EmployeeController implements ClientDependent {
             Message message = event.getMessage();
             if (message.getData().equals(SHOW_ALL_EMPLOYEES)) {
                 this.employees = message.getEmployeeList();
-            }
-            else if(message.getData().equals("prices")) {
+            } else if (message.getData().equals("prices")) {
                 this.prices = message.getPrices();
                 System.out.println(prices.getNewBookletPrice());
                 System.out.println(prices.getNewMovieLinkPrice());
@@ -188,40 +187,52 @@ public class EmployeeController implements ClientDependent {
     @FXML
     void chooseItem(ActionEvent event) {
         String itemToChangePrice = chooseItemComboBox.getValue();
+        chooseItemComboBox.setValue(itemToChangePrice);
+        System.out.println(itemToChangePrice);
         try {
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Change " + itemToChangePrice + " Price");
-            dialog.setHeaderText("New " + itemToChangePrice + " Price");
-            dialog.setContentText("Set New Price: ");
-            Optional<String> result = dialog.showAndWait();
-            Double newPrice = (double) -1.0;
-            if (result.get() != null && result.get() != "");
-                newPrice = Double.parseDouble(result.get());
-
-            switch (itemToChangePrice) {
-                case "Movie Ticket":
-                    prices.setNewMovieTicketPrice(newPrice);
-                    break;
-                case "Movie Link":
-                    prices.setNewMovieLinkPrice(newPrice);
-                    break;
-                case "Booklet":
-                    prices.setNewBookletPrice(newPrice);
-                    break;
-                default:
-                    return;
+            if (itemToChangePrice != null) {
+                TextInputDialog dialog = new TextInputDialog();
+                dialog.setTitle("Change " + itemToChangePrice + " Price");
+                dialog.setHeaderText("New " + itemToChangePrice + " Price");
+                dialog.setContentText("Set New Price: ");
+                Optional<String> result = dialog.showAndWait();
+                Double newPrice = (double) -1.0;
+                if (result.isPresent() && result.get() != "")
+                    newPrice = Double.parseDouble(result.get());
+                switch (itemToChangePrice) {
+                    case "Movie Ticket":
+                        prices.setNewMovieTicketPrice(newPrice);
+                        break;
+                    case "Movie Link":
+                        prices.setNewMovieLinkPrice(newPrice);
+                        break;
+                    case "Booklet":
+                        prices.setNewBookletPrice(newPrice);
+                        break;
+                    default:
+                        return;
+                }
+                Message message = new Message();
+                message.setMessage("get prices");
+                message.setData("change price");
+                message.setPrices(prices);
+                client.sendMessage(message);
+                //the clearSelection pops an error. the use of the clear is needed because
+                //if we change a price of something, and then sign out and sign in again when clicking
+                //the change price directly we will be asked to change the price of
+                // last thing we changed.
+                chooseItemComboBox.getSelectionModel().clearSelection();
+                chooseItemComboBox.setButtonCell(new ListCell<>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setText(chooseItemComboBox.getPromptText());
+                        }
+                    }
+                });
             }
-            Message message = new Message();
-            message.setMessage("get prices");
-            message.setData("change price");
-            message.setPrices(prices);
-            client.sendMessage(message);
-            //the clearSelection pops an error. the use of the clear is needed because
-            //if we change a price of something, and then sign out and sign in again when clicking
-            //the change price directly we will be asked to change the price of
-            // last thing we changed.
-            //chooseItemComboBox.getSelectionModel().clearSelection();
-        }catch (NumberFormatException NumberFormatException) {
+        } catch (NumberFormatException NumberFormatException) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Price Error", "Please enter a valid number");
         } catch (Exception e) {
             e.printStackTrace();
