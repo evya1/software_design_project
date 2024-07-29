@@ -1,0 +1,7 @@
+/* Style the TextArea to have rounded corners */
+.text-area {
+    -fx-background-color: white;
+    -fx-border-color: -fx-text-box-border;;
+    -fx-border-radius: 10; /* Adjust the value to set the corner radius */
+    -fx-background-radius: 10; /* Match this value to the border radius */
+}

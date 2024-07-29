@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -20,19 +22,51 @@
                         <Insets bottom="10.0" />
                     </BorderPane.margin>
                <children>
-                  <ComboBox fx:id="chooseItemComboBox" layoutX="403.0" layoutY="33.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#chooseItem" prefHeight="26.0" prefWidth="216.0" promptText="Choose Item To Change Its Price" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" />
+                  <ComboBox fx:id="chooseItemComboBox" layoutX="403.0" layoutY="33.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#chooseItem" prefHeight="26.0" prefWidth="216.0" promptText="Choose Item To Change Its Price">
+                     <stylesheets>
+                        <URL value="@../catalogM/styleColor.css" />
+                        <URL value="@../catalogM/ComboBox.css" />
+                     </stylesheets>
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></ComboBox>
                </children>
                 </AnchorPane>
             </center>
             <left>
                 <AnchorPane prefHeight="431.0" prefWidth="201.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button fx:id="showReportsBtn" layoutX="43.0" layoutY="130.0" mnemonicParsing="false" onAction="#showReports" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Show Reports" textFill="#00a606" />
-                        <Button fx:id="homeScreenBtn" layoutX="43.0" layoutY="60.0" mnemonicParsing="false" onAction="#homeScreen" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Home Screen" textFill="#d90303" />
-                        <Button fx:id="changePriceBtn" layoutX="43.0" layoutY="340.0" mnemonicParsing="false" onAction="#changePriceAction" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Change Price" textFill="#635300" />
-                  <Button fx:id="showComplaintsBtn" layoutX="43.0" layoutY="410.0" mnemonicParsing="false" onAction="#showComplaints" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Show Complaints" textFill="#0009ff" />
-                  <Button fx:id="changeContentBtn" layoutX="43.0" layoutY="270.0" mnemonicParsing="false" onAction="#changeContent" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Change Content" textFill="#ff00f2" />
-                  <Button fx:id="confirmChangeBtn" layoutX="43.0" layoutY="200.0" mnemonicParsing="false" onAction="#confirmChange" prefHeight="26.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Confirm Change" textFill="#ff396e" />
+                        <Button fx:id="showReportsBtn" layoutX="43.0" layoutY="130.0" mnemonicParsing="false" onAction="#showReports" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Show Reports" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></Button>
+                        <Button fx:id="homeScreenBtn" layoutX="43.0" layoutY="60.0" mnemonicParsing="false" onAction="#homeScreen" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Home Screen" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></Button>
+                        <Button fx:id="changePriceBtn" layoutX="43.0" layoutY="340.0" mnemonicParsing="false" onAction="#changePriceAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Change Price" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></Button>
+                  <Button fx:id="showComplaintsBtn" layoutX="43.0" layoutY="410.0" mnemonicParsing="false" onAction="#showComplaints" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Show Complaints" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></Button>
+                  <Button fx:id="changeContentBtn" layoutX="43.0" layoutY="270.0" mnemonicParsing="false" onAction="#changeContent" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Change Content" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></Button>
+                  <Button fx:id="confirmChangeBtn" layoutX="43.0" layoutY="200.0" mnemonicParsing="false" onAction="#confirmChange" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Confirm Change" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></Button>
                     </children>
                 </AnchorPane>
             </left>
@@ -54,10 +88,14 @@
                         <Font size="22.0" />
                      </font>
                   </Button>
-                  <Button fx:id="logOUTBtn" layoutX="642.0" layoutY="113.0" mnemonicParsing="false" onAction="#logOut" prefHeight="36.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Sign out">
+                  <Button fx:id="logOUTBtn" layoutX="642.0" layoutY="113.0" mnemonicParsing="false" onAction="#logOut" prefHeight="36.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Sign out" textFill="WHITE">
                      <font>
                         <Font size="22.0" />
                      </font>
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
                   </Button>
                     </children>
                 </AnchorPane>

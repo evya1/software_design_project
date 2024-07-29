@@ -12,92 +12,97 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1400.0" style="-fx-background-color: #ffff;" styleClass="PanelBackground" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PurchaseFiles.PurchaseController">
-   <top>
-      <AnchorPane prefHeight="100.0" prefWidth="1400.0" styleClass="PanelBackground" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER">
-         <children>
-            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../catalogM/logo.png" />
-               </image>
-            </ImageView>
-            <Label layoutX="561.0" layoutY="47.0" text="Payment Screen" textFill="WHITE">
-               <font>
-                  <Font size="47.0" />
-               </font>
-            </Label>
-         </children>
-      </AnchorPane>
-   </top>
-   <left>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="PanelBackground" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER" />
-   </left>
-   <center>
-      <AnchorPane prefHeight="200.0" prefWidth="1148.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </BorderPane.margin>
-         <children>
-            <Text fx:id="privateName" layoutX="181.0" layoutY="135.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Private Name:">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-            <TextField fx:id="privateNameField" layoutX="330.0" layoutY="115.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="lastName" layoutX="184.0" layoutY="193.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Name:">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-            <TextField fx:id="surnameNameField" layoutX="331.0" layoutY="175.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="id" layoutX="182.0" layoutY="253.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ID Number:">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-            <TextField fx:id="idNumberField" layoutX="329.0" layoutY="235.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="cardNumber" layoutX="590.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Card Number:">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-            <TextField fx:id="cardNumField" layoutX="737.0" layoutY="113.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="cvv" layoutX="590.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CVV:">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-            <TextField fx:id="cvvField" layoutX="737.0" layoutY="178.0" prefHeight="25.0" prefWidth="174.0" />
-            <Separator layoutX="546.0" layoutY="74.0" orientation="VERTICAL" prefHeight="277.0" prefWidth="4.0" />
-            <Button fx:id="confirmPurchaseBtn" layoutX="840.0" layoutY="387.0" mnemonicParsing="false" onAction="#confirmBtnControl" prefHeight="53.0" prefWidth="209.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Confirm Purchase" textAlignment="CENTER">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Button>
-            <Button fx:id="returnBtn" layoutX="35.0" layoutY="388.0" mnemonicParsing="false" onAction="#returnBtnControl" prefHeight="53.0" prefWidth="96.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Return" textAlignment="CENTER">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Button>
-            <Text fx:id="email" layoutX="182.0" layoutY="313.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Email:">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-            <TextField fx:id="emailField" layoutX="329.0" layoutY="295.0" prefHeight="25.0" prefWidth="174.0" />
-            <Text fx:id="expireDate" layoutX="590.0" layoutY="257.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Expire Date:">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-            <TextField fx:id="expireField" layoutX="737.0" layoutY="239.0" prefHeight="25.0" prefWidth="174.0" />
-         </children>
-      </AnchorPane>
-   </center>
-   <right>
-      <AnchorPane prefHeight="550.0" prefWidth="100.0" styleClass="PanelBackground" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER" />
-   </right>
-   <bottom>
-      <AnchorPane prefHeight="25.0" prefWidth="1400.0" styleClass="PanelBackground" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER" />
-   </bottom>
-</BorderPane>
+
+<AnchorPane stylesheets="@../catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PurchaseFiles.PurchaseController">
+   <children>
+      <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1400.0" style="-fx-background-color: #ffff;" styleClass="PanelBackground">
+         <top>
+            <AnchorPane prefHeight="100.0" prefWidth="1400.0" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER">
+               <children>
+                  <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../catalogM/logo.png" />
+                     </image>
+                  </ImageView>
+                  <Label layoutX="561.0" layoutY="47.0" text="Payment Screen" textFill="WHITE">
+                     <font>
+                        <Font size="47.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
+         </top>
+         <left>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER" />
+         </left>
+         <center>
+            <AnchorPane prefHeight="200.0" prefWidth="1148.0" style="-fx-background-color: #ffff;" styleClass="text-area" stylesheets="@../catalogM/TextArea.css" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </BorderPane.margin>
+               <children>
+                  <Text fx:id="privateName" layoutX="181.0" layoutY="135.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Private Name:">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="privateNameField" layoutX="330.0" layoutY="115.0" prefHeight="25.0" prefWidth="174.0" />
+                  <Text fx:id="lastName" layoutX="184.0" layoutY="193.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Name:">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="surnameNameField" layoutX="331.0" layoutY="175.0" prefHeight="25.0" prefWidth="174.0" />
+                  <Text fx:id="id" layoutX="182.0" layoutY="253.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ID Number:">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="idNumberField" layoutX="329.0" layoutY="235.0" prefHeight="25.0" prefWidth="174.0" />
+                  <Text fx:id="cardNumber" layoutX="590.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Card Number:">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="cardNumField" layoutX="737.0" layoutY="113.0" prefHeight="25.0" prefWidth="174.0" />
+                  <Text fx:id="cvv" layoutX="590.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CVV:">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="cvvField" layoutX="737.0" layoutY="178.0" prefHeight="25.0" prefWidth="174.0" />
+                  <Separator layoutX="546.0" layoutY="74.0" orientation="VERTICAL" prefHeight="277.0" prefWidth="4.0" />
+                  <Button fx:id="confirmPurchaseBtn" layoutX="840.0" layoutY="387.0" mnemonicParsing="false" onAction="#confirmBtnControl" prefHeight="53.0" prefWidth="209.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Confirm Purchase" textAlignment="CENTER">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="returnBtn" layoutX="35.0" layoutY="388.0" mnemonicParsing="false" onAction="#returnBtnControl" prefHeight="53.0" prefWidth="96.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Return" textAlignment="CENTER">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Button>
+                  <Text fx:id="email" layoutX="182.0" layoutY="313.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Email:">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="emailField" layoutX="329.0" layoutY="295.0" prefHeight="25.0" prefWidth="174.0" />
+                  <Text fx:id="expireDate" layoutX="590.0" layoutY="257.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Expire Date:">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="expireField" layoutX="737.0" layoutY="239.0" prefHeight="25.0" prefWidth="174.0" />
+               </children>
+            </AnchorPane>
+         </center>
+         <right>
+            <AnchorPane prefHeight="550.0" prefWidth="100.0" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER" />
+         </right>
+         <bottom>
+            <AnchorPane prefHeight="25.0" prefWidth="1400.0" stylesheets="@../catalogM/style.css" BorderPane.alignment="CENTER" />
+         </bottom>
+      </BorderPane>
+   </children>
+</AnchorPane>

@@ -12,7 +12,7 @@
             <Font size="26.0" />
          </font>
       </Text>
-      <Button fx:id="okayBtn" layoutX="205.0" layoutY="186.0" mnemonicParsing="false" onAction="#okayBtnControl" text="Okay">
+      <Button fx:id="okayBtn" layoutX="205.0" layoutY="186.0" mnemonicParsing="false" onAction="#okayBtnControl" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Okay">
          <font>
             <Font size="16.0" />
          </font>

@@ -306,6 +306,9 @@ public class PrimaryController implements ClientDependent {
     void chooseBranch(ActionEvent event) {
         datePicker.setEditable(true);
         datePicker.setVisible(true);
+        filterByGenreComboBox.getSelectionModel().clearSelection();
+        filterByGenreComboBox.setPromptText("Choose Genre");
+        filterByTypeComboBox.setValue("All Movies");
         Branch selectedBranch = branchComboBox.getSelectionModel().getSelectedItem();
         if (selectedBranch != null) {
             int branchId = selectedBranch.getId();
@@ -316,6 +319,7 @@ public class PrimaryController implements ClientDependent {
             client.sendMessage(message);
             System.out.println("Message Branches sent");
         }
+
 
     }
 

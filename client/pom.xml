@@ -9,6 +9,12 @@
 	</parent>
 	<groupId>il.cshaifasweng.OCSFMediatorExample</groupId>
 	<artifactId>client</artifactId>
+	<repositories>
+		<repository>
+			<id>gluon-releases</id>
+			<url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<!-- JavaFX Dependencies -->
 		<dependency>
@@ -36,6 +42,12 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>entities</artifactId>
+		</dependency>
+		<!-- Gluon Charm Glisten Dependency -->
+		<dependency>
+			<groupId>com.gluonhq</groupId>
+			<artifactId>charm-glisten</artifactId>
+			<version>6.0.3</version>
 		</dependency>
 		<!-- SLF4J API -->
 		<dependency>
