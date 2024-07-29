@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PriceConstants;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -25,6 +26,9 @@ public class Purchase implements Serializable {
     private String customerPID;
 
     private double price = 0.0;
+    @OneToOne
+    @JoinColumn(name = "price_id", nullable = true)
+    private PriceConstants priceConstants;
 
     @OneToOne
     @JoinColumn(name = "booklet_id", nullable = true)
@@ -85,17 +89,21 @@ public class Purchase implements Serializable {
         this.price = price;
     }
 
+    public void SetPrice(PriceConstants price) {
+        priceConstants = price;
+    }
+
     public void setPriceByItem(PurchaseType purchasedItem) {
         this.purchaseType = purchasedItem;
         switch (purchasedItem) {
             case BOOKLET:
-                this.setPrice(PriceConstants.getBookletPrice());
+                this.setPrice(priceConstants.getBookletPrice());
                 break;
             case MOVIE_LINK:
-                this.setPrice(PriceConstants.getMovieLinkPrice());
+                this.setPrice(priceConstants.getMovieLinkPrice());
                 break;
             case MOVIE_TICKET:
-                this.setPrice(PriceConstants.getMovieTicketPrice());
+                this.setPrice(priceConstants.getMovieTicketPrice());
                 break;
         }
     }

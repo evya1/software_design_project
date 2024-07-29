@@ -8,6 +8,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PriceConstants;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
@@ -75,7 +77,7 @@ public class EmployeeController implements ClientDependent {
     private List<Employee> employees;
     //private List<Movie> movies;
     private Employee employee;
-
+    private PriceConstants prices;
 
 
     @FXML
@@ -96,13 +98,15 @@ public class EmployeeController implements ClientDependent {
         message.setMessage(GET_EMPLOYEES);
         message.setData(SHOW_ALL_EMPLOYEES);
         client.sendMessage(message);
+        message.setMessage("get prices");
+        message.setData("show all prices");
+        client.sendMessage(message);
         EventBus.getDefault().register(this);
         checkMsg();
     }
 
     private void checkMsg() {
         if (localMessage.getSourceFXML() == ADD_EDIT_MOVIE) {
-            chooseItemComboBox.setVisible(true);
             logINBtn.setVisible(false);
             logOUTBtn.setVisible(true);
             homeScreenBtn.setDisable(true);
@@ -117,6 +121,15 @@ public class EmployeeController implements ClientDependent {
             Message message = event.getMessage();
             if (message.getData().equals(SHOW_ALL_EMPLOYEES)) {
                 this.employees = message.getEmployeeList();
+            }
+            else if(message.getData().equals("prices")) {
+                this.prices = message.getPrices();
+                System.out.println(prices.getNewBookletPrice());
+                System.out.println(prices.getNewMovieLinkPrice());
+                System.out.println(prices.getNewMovieTicketPrice());
+                System.out.println(prices.getBookletPrice());
+                System.out.println(prices.getMovieTicketPrice());
+                System.out.println(prices.getMovieLinkPrice());
             }
         }
     }
@@ -141,7 +154,7 @@ public class EmployeeController implements ClientDependent {
             message.setMessage("nfew movie");
             message.setSourceFXML(EMPLOYEE_SCREEN);
             EventBus.getDefault().unregister(this);
-            client.moveScene(ADD_EDIT_MOVIE, stage ,message);
+            client.moveScene(ADD_EDIT_MOVIE, stage, message);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -149,6 +162,11 @@ public class EmployeeController implements ClientDependent {
 
     @FXML
     void confirmChange(ActionEvent event) {
+        Message message = new Message();
+        message.setMessage("get prices");
+        message.setData("confirm prices change");
+        message.setPrices(prices);
+        client.sendMessage(message);
 
     }
 
@@ -161,18 +179,59 @@ public class EmployeeController implements ClientDependent {
 
     @FXML
     void changePriceAction(ActionEvent event) {
+        chooseItemComboBox.setVisible(true);
+        List<String> purchaseItems = Arrays.asList("Movie Ticket", "Movie Link", "Booklet");
+        chooseItemComboBox.setItems(FXCollections.observableArrayList(purchaseItems));
 
     }
 
     @FXML
     void chooseItem(ActionEvent event) {
+        String itemToChangePrice = chooseItemComboBox.getValue();
+        try {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Change " + itemToChangePrice + " Price");
+            dialog.setHeaderText("New " + itemToChangePrice + " Price");
+            dialog.setContentText("Set New Price: ");
+            Optional<String> result = dialog.showAndWait();
+            Double newPrice = (double) -1.0;
+            if (result.get() != null && result.get() != "");
+                newPrice = Double.parseDouble(result.get());
 
+            switch (itemToChangePrice) {
+                case "Movie Ticket":
+                    prices.setNewMovieTicketPrice(newPrice);
+                    break;
+                case "Movie Link":
+                    prices.setNewMovieLinkPrice(newPrice);
+                    break;
+                case "Booklet":
+                    prices.setNewBookletPrice(newPrice);
+                    break;
+                default:
+                    return;
+            }
+            Message message = new Message();
+            message.setMessage("get prices");
+            message.setData("change price");
+            message.setPrices(prices);
+            client.sendMessage(message);
+            //the clearSelection pops an error. the use of the clear is needed because
+            //if we change a price of something, and then sign out and sign in again when clicking
+            //the change price directly we will be asked to change the price of
+            // last thing we changed.
+            //chooseItemComboBox.getSelectionModel().clearSelection();
+        }catch (NumberFormatException NumberFormatException) {
+            SimpleClient.showAlert(Alert.AlertType.ERROR, "Price Error", "Please enter a valid number");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     void logIn(ActionEvent event) {
         try {
-            Dialog<Pair<String,String>> dialog = new Dialog<>();
+            Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Sign In");
             ButtonType signInButtonType = new ButtonType("Sign In", ButtonType.OK.getButtonData());
             dialog.getDialogPane().getButtonTypes().addAll(signInButtonType, ButtonType.CANCEL);
@@ -192,12 +251,12 @@ public class EmployeeController implements ClientDependent {
 
             dialog.getDialogPane().setContent(grid);
             dialog.showAndWait();
-            Pair<String,String> usernamePassword = new Pair<>(username.getText(),password.getText());
+            Pair<String, String> usernamePassword = new Pair<>(username.getText(), password.getText());
             System.out.println(usernamePassword);
             boolean flag = false;
             for (Employee e : employees) {
                 if (e.getUsername().equalsIgnoreCase(usernamePassword.getKey())
-                            && e.getPassword().equals(usernamePassword.getValue())) {
+                        && e.getPassword().equals(usernamePassword.getValue())) {
                     flag = true;
                     employee = e;
                 }
@@ -208,15 +267,15 @@ public class EmployeeController implements ClientDependent {
                 errorDialog.setHeaderText("Your username or password is incorrect.");
                 errorDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
                 errorDialog.showAndWait();
-            }else {
+            } else {
                 emp();
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void emp(){
+    private void emp() {
         logINBtn.setVisible(false);
         logOUTBtn.setVisible(true);
         homeScreenBtn.setDisable(true);
@@ -231,7 +290,7 @@ public class EmployeeController implements ClientDependent {
                 showReportsBtn.setDisable(false);
                 break;
             case CONTENT_MANAGER:
-                chooseItemComboBox.setVisible(true);
+                //chooseItemComboBox.setVisible(true);
                 changeContentBtn.setDisable(false);
                 changePriceBtn.setDisable(false);
                 break;

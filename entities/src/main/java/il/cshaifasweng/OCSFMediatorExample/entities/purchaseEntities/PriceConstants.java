@@ -1,40 +1,89 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 
-public class PriceConstants {
+import javax.persistence.*;
+import java.io.Serializable;
 
-//    public static final double BOOKLET_PRICE = 127.5;
-//    public static final double MOVIE_LINK_PRICE = 27.5;
-//    public static final double MOVIE_TICKET_PRICE = 29.5;
+@Entity
+@Table(name = "prices")
+public class PriceConstants implements Serializable {
 
-    private static double bookletPrice;
-    private static double movieTicketPrice;
-    private static double movieLinkPrice;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-    public static double getBookletPrice() {
+
+    //     boolean is_confirmed;
+//
+//    public void setIsConfirmed(boolean is_confirmed) {
+//        PriceConstants.is_confirmed = is_confirmed;
+//    }
+//
+//    public boolean getIsConfirmed() {
+//        return is_confirmed;
+//    }
+    private double bookletPrice;
+    private double movieTicketPrice;
+    private double movieLinkPrice;
+
+    private double newBookletPrice = -1;
+    private double newMovieTicketPrice = -1;
+    private double newMovieLinkPrice = -1;
+
+    public PriceConstants(double B, double T, double L) {
+        bookletPrice = B;
+        movieTicketPrice = T;
+        movieLinkPrice = L;
+    }
+
+    public PriceConstants() {
+    }
+
+    public double getNewBookletPrice() {
+        return newBookletPrice;
+    }
+
+    public void setNewBookletPrice(double newBookletPrice) {
+        this.newBookletPrice = newBookletPrice;
+    }
+
+    public double getNewMovieTicketPrice() {
+        return newMovieTicketPrice;
+    }
+
+    public void setNewMovieTicketPrice(double newMovieTicketPrice) {
+        this.newMovieTicketPrice = newMovieTicketPrice;
+    }
+
+    public double getNewMovieLinkPrice() {
+        return newMovieLinkPrice;
+    }
+
+    public void setNewMovieLinkPrice(double newMovieLinkPrice) {
+        this.newMovieLinkPrice = newMovieLinkPrice;
+    }
+
+    public double getBookletPrice() {
         return bookletPrice;
     }
 
-    public static void setBookletPrice(double bP) {
+    public void setBookletPrice(double bP) {
         bookletPrice = bP;
     }
 
-    public static double getMovieTicketPrice() {
+    public double getMovieTicketPrice() {
         return movieTicketPrice;
     }
 
-    public static void setMovieTicketPrice(double MTP) {
+    public void setMovieTicketPrice(double MTP) {
         movieTicketPrice = MTP;
     }
 
-    public static double getMovieLinkPrice() {
+    public double getMovieLinkPrice() {
         return movieLinkPrice;
     }
 
-    public static void setMovieLinkPrice(double MLP) {
+    public void setMovieLinkPrice(double MLP) {
         movieLinkPrice = MLP;
     }
-
-
-
 
 }
