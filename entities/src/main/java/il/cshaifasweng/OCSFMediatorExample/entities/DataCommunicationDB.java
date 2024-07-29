@@ -409,6 +409,10 @@ public class DataCommunicationDB
                 session.save(employee);
             }
 
+            // prices
+            PriceConstants prices = new PriceConstants(250,40,30);
+            session.save(prices);
+
             // Create 3 Branches
             String[] branchNames = {"Johns Cinema", "General Bay Cinema", "Selection Cinema"};
             Movie[][] branchMovies = {
@@ -527,6 +531,22 @@ public class DataCommunicationDB
 
 
     /******************* GETTERS **************************/
+    public static PriceConstants getPrices() {
+        List<PriceConstants> prices = null;
+        try {
+            session.beginTransaction();
+            prices = session.createQuery("FROM PriceConstants ", PriceConstants.class).list();
+            session.getTransaction().commit();
+        } catch (Exception exception) {
+            if (session != null && session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+        return prices.get(0);
+    }
+
     public static Movie getMovieByID(int movieID){
         return session.get(Movie.class, movieID);
     }
@@ -695,7 +715,6 @@ public class DataCommunicationDB
                 System.out.println("TypeOfMovie with ID " + typeId + " not found.");
                 return;
             }
-
             // Apply the updater function to modify the TypeOfMovie
             updater.accept(typeOfMovie);
 

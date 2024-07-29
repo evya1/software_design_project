@@ -3,10 +3,7 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
@@ -41,6 +38,7 @@ public class Message implements Serializable {
     private Customer customer;
     private Purchase purchase;
     private Booklet booklet;
+    private PriceConstants prices;
 
     //Movie Related messages
     private Movie specificMovie;
@@ -189,5 +187,9 @@ public class Message implements Serializable {
     public List<Employee> getEmployeeList() {return employeeList;}
 
     public void setEmployeeList(List<Employee> employeeList) {this.employeeList = employeeList;}
+
+    public void setPrices(PriceConstants prices) {this.prices = prices;}
+
+    public PriceConstants getPrices() {return prices;}
 
 }
