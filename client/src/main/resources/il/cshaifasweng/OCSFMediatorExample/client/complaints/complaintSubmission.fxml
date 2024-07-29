@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -20,7 +21,7 @@
     <children>
         <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1400.0" styleClass="PanelBackground">
             <top>
-                <AnchorPane prefHeight="100.0" prefWidth="1400.0" stylesheets="@../catalogM/styleColor.css" BorderPane.alignment="CENTER">
+                <AnchorPane prefHeight="100.0" prefWidth="1400.0" BorderPane.alignment="CENTER">
                     <children>
                         <Label layoutX="519.0" layoutY="46.0" text="Complaint Submission" textFill="WHITE">
                             <font>
@@ -38,10 +39,14 @@
             <left>
                 <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button fx:id="returnBtn" layoutX="62.0" layoutY="434.0" mnemonicParsing="false" onAction="#returnBtnController" text="Return" textAlignment="CENTER">
+                        <Button fx:id="returnBtn" layoutX="62.0" layoutY="434.0" mnemonicParsing="false" onAction="#returnBtnController" text="Return" textAlignment="CENTER" textFill="WHITE">
                             <font>
                                 <Font size="16.0" />
                             </font>
+                     <styleClass>
+                        <String fx:value="hover-button" />
+                        <String fx:value="rounded-corners" />
+                     </styleClass>
                         </Button>
                     </children></AnchorPane>
             </left>
@@ -51,22 +56,22 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                     </BorderPane.margin>
                     <children>
-                        <TextField fx:id="privateNameField" layoutX="74.0" layoutY="60.0" promptText="Private Name ">
+                        <TextField fx:id="privateNameField" layoutX="74.0" layoutY="60.0" promptText="Private Name " styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </TextField>
-                        <TextField fx:id="lastNameField" layoutX="303.0" layoutY="60.0" promptText="Last Name">
+                        <TextField fx:id="lastNameField" layoutX="303.0" layoutY="60.0" promptText="Last Name" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </TextField>
-                        <TextField fx:id="idField" layoutX="531.0" layoutY="61.0" promptText="9 Digits ID Number">
+                        <TextField fx:id="idField" layoutX="531.0" layoutY="61.0" promptText="9 Digits ID Number" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </TextField>
-                        <TextField fx:id="mailField" layoutX="761.0" layoutY="62.0" promptText="Email Address">
+                        <TextField fx:id="mailField" layoutX="761.0" layoutY="62.0" promptText="Email Address" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
                             <font>
                                 <Font size="16.0" />
                             </font>
@@ -81,28 +86,28 @@
                                 <Font size="18.0" />
                             </font>
                         </Text>
-                        <TextArea fx:id="complaintTxtArea" layoutX="71.0" layoutY="235.0" prefHeight="214.0" prefWidth="669.0" promptText="Enter Your Complaint Here:">
+                        <TextArea fx:id="complaintTxtArea" layoutX="71.0" layoutY="235.0" prefHeight="214.0" prefWidth="669.0" promptText="Enter Your Complaint Here:" stylesheets="@../catalogM/TextArea.css">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </TextArea>
-                        <CheckBox fx:id="purchasedCheckbox" layoutX="78.0" layoutY="114.0" mnemonicParsing="false" onAction="#purchasedCheckController" text="I want to complain on a Purchased Item">
+                        <CheckBox fx:id="purchasedCheckbox" layoutX="78.0" layoutY="114.0" mnemonicParsing="false" onAction="#purchasedCheckController" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="I want to complain on a Purchased Item">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </CheckBox>
-                        <CheckBox fx:id="otherCheckbox" layoutX="409.0" layoutY="114.0" mnemonicParsing="false" onAction="#otherCheckController" prefHeight="25.0" prefWidth="79.0" text="Other">
+                        <CheckBox fx:id="otherCheckbox" layoutX="409.0" layoutY="114.0" mnemonicParsing="false" onAction="#otherCheckController" prefHeight="25.0" prefWidth="79.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Other">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </CheckBox>
                         <ComboBox fx:id="purchasedItemCombobox" layoutX="531.0" layoutY="115.0" prefHeight="25.0" prefWidth="182.0" promptText="Choose purchased Item" styleClass="rounded-corners" />
-                        <Button fx:id="submitComplaintBtn" layoutX="933.0" layoutY="414.0" mnemonicParsing="false" onAction="#submitComplaintBtnController" text="Submit Complaint" textAlignment="CENTER">
+                        <Button fx:id="submitComplaintBtn" layoutX="933.0" layoutY="414.0" mnemonicParsing="false" onAction="#submitComplaintBtnController" styleClass="rounded-corners" text="Submit Complaint" textAlignment="CENTER">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </Button>
-                        <TextField fx:id="complaintTitleField" layoutX="72.0" layoutY="191.0" prefHeight="36.0" prefWidth="353.0" promptText="Enter Complaint Title">
+                        <TextField fx:id="complaintTitleField" layoutX="72.0" layoutY="191.0" prefHeight="36.0" prefWidth="353.0" promptText="Enter Complaint Title" styleClass="rounded-corners">
                             <font>
                                 <Font size="16.0" />
                             </font>
@@ -114,7 +119,7 @@
                 <AnchorPane prefHeight="550.0" prefWidth="75.0" BorderPane.alignment="CENTER" />
             </right>
             <bottom>
-                <AnchorPane prefHeight="25.0" prefWidth="1400.0" styleClass="PanelBackground" BorderPane.alignment="CENTER" />
+                <AnchorPane prefHeight="25.0" prefWidth="1400.0" BorderPane.alignment="CENTER" />
             </bottom>
             <stylesheets>
                 <URL value="@../catalogM/style.css" />

@@ -1,0 +1,20 @@
+/* Set the color of the selected item in the ComboBox */
+.combo-box .list-cell:selected {
+    -fx-text-fill: white; /* Change this color as needed for the selected item */
+
+}
+
+/* Keep the list of options in black */
+.combo-box .list-cell {
+    -fx-text-fill: black;
+}
+
+/* Ensure the ComboBox displays the selected item in the desired color */
+.combo-box-display {
+    -fx-text-fill: #ffffff; /* Change this color as needed for the displayed selected item */
+}
+
+/* Set the text color of the TextField */
+.text-field {
+    -fx-text-fill: #ffffff; /* Change this color as needed */
+}

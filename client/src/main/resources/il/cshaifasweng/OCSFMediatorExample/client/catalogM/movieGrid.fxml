@@ -8,11 +8,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="298.0" prefWidth="190.0" minHeight="298.0" minWidth="190.0" maxHeight="298.0" maxWidth="190.0" style="-fx-background-color: #ffff;" styleClass="rounded-corners" stylesheets="@styleColor.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieGridController">
+<AnchorPane maxHeight="298.0" maxWidth="190.0" minHeight="298.0" minWidth="190.0" prefHeight="298.0" prefWidth="190.0" style="-fx-background-color: #ffff;" styleClass="rounded-corners" stylesheets="@styleColor.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieGridController">
    <children>
-      <VBox alignment="TOP_CENTER" layoutX="10.0">
+      <VBox alignment="TOP_CENTER" layoutX="4.0" layoutY="5.0" maxHeight="230.0" maxWidth="180.0" minHeight="230.0" minWidth="180.0" prefHeight="230.0" prefWidth="180.0">
          <children>
-            <ImageView fx:id="movieImageView" fitHeight="230.0" fitWidth="180.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" styleClass="rounded-corners">
+            <ImageView fx:id="movieImageView" fitHeight="230.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="true" styleClass="rounded-corners">
                <viewport>
                   <Rectangle2D />
                </viewport>
@@ -25,7 +25,7 @@
             </ImageView>
          </children>
       </VBox>
-      <VBox alignment="CENTER" layoutX="5.0" layoutY="247.0" prefHeight="44.0" prefWidth="183.0" minHeight="44.0" minWidth="183.0" maxHeight="44.0" maxWidth="183.0">
+      <VBox alignment="CENTER" layoutX="5.0" layoutY="248.0" maxHeight="44.0" maxWidth="183.0" minHeight="44.0" minWidth="183.0" prefHeight="44.0" prefWidth="183.0">
          <children>
             <Label fx:id="hebrewLabel" alignment="CENTER" contentDisplay="CENTER" text="שם בעברית" wrapText="true" VBox.vgrow="SOMETIMES" />
             <Label fx:id="englishLabel" alignment="CENTER" contentDisplay="CENTER" text="Movie Name" wrapText="true" VBox.vgrow="SOMETIMES" />
