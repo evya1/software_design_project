@@ -12,7 +12,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.InputMethodEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -31,6 +33,7 @@ import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
 public class PrimaryController implements ClientDependent {
+    public ImageView logoBtn;
 
     //region: Attributes
 
@@ -425,6 +428,24 @@ public class PrimaryController implements ClientDependent {
     @Override
     public void setMessage(Message message) {
         // this.localMessage = message;
+    }
+
+    public void openAdminPanel(MouseEvent mouseEvent) {
+        logoBtn.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 5) {
+                try{
+                    Stage stage = (Stage) logoBtn.getScene().getWindow();
+                    Message message = new Message();
+                    message.setSourceFXML(PRIMARY_SCREEN);
+                    EventBus.getDefault().unregister(this);
+                    client.moveScene(ADMIN_SCREEN, stage, message);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
     //endregion
 }
