@@ -17,5 +17,4 @@ public class ClientRequests {
     public static final String SHOW_ALL_EMPLOYEES = "show all employees";
     public static final String GET_CUSTOMER_INFO = "get customer information";
     public static final String GET_CUSTOMER_ID = "get customer id";
-
 }

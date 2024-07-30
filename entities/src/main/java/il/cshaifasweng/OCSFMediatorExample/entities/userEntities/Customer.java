@@ -29,9 +29,9 @@ public class Customer implements Serializable {
     @OneToOne(cascade = CascadeType.ALL)
     private Payment payment;
 
-//TODO:
-//    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Complaint> complaints = new ArrayList<>();
+
+    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Complaint> complaints = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -78,8 +78,8 @@ public class Customer implements Serializable {
     public void setPurchases(List<Purchase> purchases) {this.purchases = purchases;}
 
     public void addPurchase(Purchase purchase) {this.purchases.add(purchase);}
-//TODO:
-//    public List<Complaint> getComplaints() {return complaints;}
-//TODO:
-//    public void setComplaints(List<Complaint> complaints) {this.complaints = complaints;}
+
+    public List<Complaint> getComplaints() {return complaints;}
+
+    public void setComplaints(List<Complaint> complaints) {this.complaints = complaints;}
 }

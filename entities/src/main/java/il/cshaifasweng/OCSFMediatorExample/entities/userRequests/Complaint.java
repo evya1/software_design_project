@@ -15,7 +15,11 @@ public class Complaint implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String complaintTitle;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String complaintContent;
+
     private LocalDateTime dateOfComplaint;
     private String complaintStatus;
     private PurchaseType purchaseType = null;
