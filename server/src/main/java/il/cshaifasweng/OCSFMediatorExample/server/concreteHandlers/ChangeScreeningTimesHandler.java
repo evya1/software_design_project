@@ -19,64 +19,69 @@ import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.
 public class ChangeScreeningTimesHandler implements RequestHandler {
     private static Session session;
 
+    private void changeScreeningTimes(MovieSlot mv, int movieSlotId) {
+        session.beginTransaction();
+
+        MovieSlot movieSl = session.get(MovieSlot.class, movieSlotId);
+        movieSl.setMovieTitle(mv.getMovieTitle());
+        movieSl.setBranch(mv.getBranch());
+        movieSl.setTheater(mv.getTheater());
+        movieSl.setStartDateTime(mv.getStartDateTime());
+        movieSl.setEndDateTime(mv.getEndDateTime());
+
+        Theater thea = session.get(Theater.class,movieSl.getTheater().getTheaterNum());
+        thea.getSchedule().add(movieSl);
+
+        session.getTransaction().commit();
+    }
+
+    private void addNewScreeningTime(Message message, int movieSlotId) {
+        session.beginTransaction();
+
+        MovieSlot movieSl = new MovieSlot();
+        System.out.println(movieSl.getId());
+        MovieSlot mv = message.getMovieSlot();
+        Movie movie = session.get(Movie.class, message.getSpecificMovie().getId());
+        movieSl.setMovie(movie);
+        movieSl.setMovieTitle(mv.getMovieTitle());
+        movieSl.setBranch(mv.getBranch());
+        movieSl.setTheater(mv.getTheater());
+        movieSl.setStartDateTime(mv.getStartDateTime());
+        movieSl.setEndDateTime(mv.getEndDateTime());
+
+        Theater thea = session.get(Theater.class,movieSl.getTheater().getTheaterNum());
+        thea.getSchedule().add(movieSl);
+
+        movie.getMovieScreeningTime().add(movieSl);
+
+        session.getTransaction().commit();
+    }
+
     @Override
     public void handle(Message message, ConnectionToClient client) {
         try {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
             DataCommunicationDB.setSession(session);
-            // the client should put in the object of the message a new movie such that the fields
-            // take the same fields of the movie we want to change screening times
-            // apart from the field of the List of the movieSlot to be changed with the new time slots.
             Movie movie = message.getSpecificMovie();
-            MovieSlot mv = new MovieSlot();
+            MovieSlot mv = null;
 
             int movieSlotId = message.getMovieID();
             for (MovieSlot movieSlot : movie.getMovieScreeningTime()) {
                 int movieId = movieSlot.getId();
-                if (movieSlotId == movieId) {
-                    LocalDateTime movieStartTime = movieSlot.getStartDateTime();
-                    LocalDateTime movieEndTime = movieSlot.getEndDateTime();
-                    Branch branch = movieSlot.getBranch();
-
-                    Theater theater = movieSlot.getTheater();
-                    System.out.println(theater.getTheaterNum());
-                    DataCommunicationDB.modifyMovieSlotStartTime(movieSlotId, movieStartTime);
-                    DataCommunicationDB.modifyMovieSlotEndTime(movieSlotId, movieEndTime);
-                    if (message.getFlag())
-                        DataCommunicationDB.modifyMovieSlotBranch(movieSlotId, branch);
-                    else {
-                        session.close();
-                        session = sessionFactory.openSession();
-                        DataCommunicationDB.setSession(session);
-                    }
-                    //DataCommunicationDB.modifyMovieSlotTheater(movieSlotId, null);
-                    DataCommunicationDB.modifyMovieSlotTheater(movieSlotId, theater);
-                    for (MovieSlot mvs : movie.getMovieScreeningTime()) {
-                        if (mvs.getId() == movieSlotId) {
-                            System.out.println(mvs.getTheater().getTheaterNum());
-                        }
-                    }
-                    session.close();
-                    session = sessionFactory.openSession();
-                    DataCommunicationDB.setSession(session);
-
-                    session.beginTransaction();
-                    theater.getSchedule().add(movieSlot);
-                    //movieSlot.getTheater().getSchedule().add(movieSlot);
-                    session.update(theater);
-                    session.flush();
-                    session.getTransaction().commit();
-                }
+                if (movieSlotId == movieId) mv = movieSlot;
             }
+            if (movieSlotId == -1) addNewScreeningTime(message, movieSlotId);
+            else changeScreeningTimes(mv, movieSlotId);
+
             Message answer = new Message();
-            answer.setMessage("screening times of the movie updated");
+            answer.setMessage("screening times of the movie updated/added");
             answer.setData(GET_BRANCHES);
             List<Branch> branches = DataCommunicationDB.getBranches();
             for (Branch branch : branches) {
-                for (Theater theater : branch.getTheaterList()){
-                    theater.getTheaterNum();
-                    theater.getSchedule();
+                for (Theater th : branch.getTheaterList()) {
+                    th.getTheaterNum();
+                    th.getSchedule();
                 }
             }
             answer.setBranches(branches);

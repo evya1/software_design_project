@@ -328,9 +328,25 @@ public class PrimaryController implements ClientDependent {
         // Clear all filters
         filterByTypeComboBox.setValue("All Movies");
         branchComboBox.getSelectionModel().clearSelection();
-        branchComboBox.setPromptText("Choose Cinema");
+        branchComboBox.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Branch item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(branchComboBox.getPromptText());
+                }
+            }
+        });
         filterByGenreComboBox.getSelectionModel().clearSelection();
-        filterByGenreComboBox.setPromptText("Choose Genre");
+        filterByGenreComboBox.setButtonCell(new ListCell<>() {
+           @Override
+           protected void updateItem(MovieGenre item, boolean empty) {
+               super.updateItem(item, empty);
+               if (item == null || empty) {
+                   setText(filterByGenreComboBox.getPromptText());
+               }
+           }
+        });
         datePicker.setEditable(false);
         datePicker.setVisible(false);
         searchTextField.clear();
@@ -362,17 +378,16 @@ public class PrimaryController implements ClientDependent {
     @FXML
     void employeeController(ActionEvent event) {
         try {
-        Stage stage = (Stage) employeePanelBtn.getScene().getWindow();
-        Message message = new Message();
-        message.setMessage("employee panel");
-        message.setSourceFXML(PRIMARY_SCREEN);
-        EventBus.getDefault().unregister(this);
-        client.moveScene(EMPLOYEE_SCREEN, stage, message);
-    } catch(Exception e)
-    {
-        e.printStackTrace();
+            Stage stage = (Stage) employeePanelBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("employee panel");
+            message.setSourceFXML(PRIMARY_SCREEN);
+            EventBus.getDefault().unregister(this);
+            client.moveScene(EMPLOYEE_SCREEN, stage, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
 
     @FXML
     void customerController(ActionEvent event) {

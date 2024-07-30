@@ -52,6 +52,7 @@ public class MovieAdditionController implements ClientDependent {
     private List<Movie> movies;
     private List<MovieSlot> slots;
     private Movie movie;
+    private MovieSlot movieSlot;
     private TypeOfMovie movieType;
     private SimpleClient client;
     private Message localMessage;
@@ -59,6 +60,9 @@ public class MovieAdditionController implements ClientDependent {
 
     @FXML
     private Button browseBtn;
+
+    @FXML
+    private TextField movieDurationTextField;
 
     @FXML // fx:id="castTextField"
     private TextField castTextField; // Value injected by FXMLLoader
@@ -148,9 +152,13 @@ public class MovieAdditionController implements ClientDependent {
             addTextInputListener(hebrewTitleTextField, borderDefault);
             addTextInputListener(producerTextField, borderDefault);
             addTextInputListener(castTextField, borderDefault);
+            addTextInputListener(movieDurationTextField, borderDefault);
         }
         //Loading an existing movie.
         else {
+            filePathTextField.setDisable(true);
+            browseBtn.setDisable(true);
+            previewImageButton.setDisable(true);
             chooseMovieComboBox.setVisible(true);
             backBtn1.setVisible(false);
             backBtn1.setDisable(true);
@@ -242,8 +250,8 @@ public class MovieAdditionController implements ClientDependent {
             if (selectedItem != null && currentSlot != null) {
                 TextInputDialog dialog = new TextInputDialog(selectedItem.toString());
                 dialog.setTitle("Modify Screening Time");
-                dialog.setHeaderText("Modify the time in this format dd/MM/yyyy HH:mm " +
-                        "in branch: branchName at theater: theaterNum");
+                dialog.setHeaderText("Modify the time in this format: dd/MM/yyyy HH:mm, " +
+                        "in branch: branchName, at theater: theaterNum");
                 dialog.setContentText("New time:");
                 Optional<String> result = dialog.showAndWait();
 
@@ -274,11 +282,10 @@ public class MovieAdditionController implements ClientDependent {
             brName = brArray[1].strip();
             theaterNum = Integer.parseInt(theaterArray[1].strip());
 
-            System.out.println(checkInput(newStart, brName, theaterNum));
-
-            if (checkInput(newStart, brName, theaterNum))
-                sendNewInput(newStart, brName, theaterNum, slotIndex);
-
+            if (checkInput(newStart, brName, theaterNum)) {
+                if (slotIndex != -1) sendChangedInput(newStart, brName, theaterNum, slotIndex);
+                else sendNewInput(newStart, brName, theaterNum);
+            }
         } catch (DateTimeParseException ParseException) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Time Error", "Please enter a valid time");
         } catch (NumberFormatException NumberFormatException) {
@@ -290,14 +297,42 @@ public class MovieAdditionController implements ClientDependent {
         }
     }
 
+    private void sendNewInput(LocalDateTime newStart, String brName, int theaterNum) {
+        movieSlot = new MovieSlot();
+        movieSlot.setMovie(movie);
+        movieSlot.setMovieTitle(movie.getMovieName());
+        movieSlot.setStartDateTime(newStart);
+        movieSlot.setEndDateTime(newStart.plusMinutes(movie.getMovieDuration()));
+        for (Branch branch : branches) {
+            if (branch.getBranchName().equalsIgnoreCase(brName)) {
+                movieSlot.setBranch(branch);
+                for (Theater theater : branch.getTheaterList()) {
+                    if (theater.getTheaterNum() == theaterNum)
+                        movieSlot.setTheater(theater);
+                }
+            }
+        }
 
-    private void sendNewInput(LocalDateTime newStart, String brName, int theaterNum, int slotIndex) {
+        Message message = new Message();
+        message.setMessage(CHANGE_SCREEN_TIME);
+        message.setSpecificMovie(movie);
+        message.setMovieSlot(movieSlot);
+        message.setMovieID(-1);
+        client.sendMessage(message);
+
+        screeningTimesListView.getItems().clear();
+        message.setMessage(GET_MOVIE_SLOT_BY_MOVIE_ID);
+        message.setSpecificMovie(movie);
+        client.sendMessage(message);
+    }
+
+    private void sendChangedInput(LocalDateTime newStart, String brName, int theaterNum, int slotIndex) {
         try {
             LocalDateTime newEnd = newStart.plusMinutes(movie.getMovieDuration());
 
             for (int i = 0; i < movie.getMovieScreeningTime().get(slotIndex).getTheater().getSchedule().size(); i++) {
                 if (movie.getMovieScreeningTime().get(slotIndex).getTheater().getSchedule().get(i).getStartDateTime() ==
-                    movie.getMovieScreeningTime().get(slotIndex).getStartDateTime() &&
+                        movie.getMovieScreeningTime().get(slotIndex).getStartDateTime() &&
                         movie.getMovieScreeningTime().get(slotIndex).getTheater().getSchedule().get(i).getBranch().getBranchName()
                                 == movie.getMovieScreeningTime().get(slotIndex).getBranch().getBranchName()) {
                     movie.getMovieScreeningTime().get(slotIndex).getTheater().getSchedule().remove(i);
@@ -316,7 +351,6 @@ public class MovieAdditionController implements ClientDependent {
                     for (int j = 0; j < branches.get(i).getTheaterList().size(); j++) {
                         if (branches.get(i).getTheaterList().get(j).getTheaterNum() == theaterNum) {
                             movie.getMovieScreeningTime().get(slotIndex).setTheater(branches.get(i).getTheaterList().get(j));
-                            //movie.getMovieScreeningTime().get(slotIndex).getTheater().getSchedule().add(movie.getMovieScreeningTime().get(slotIndex));
                         }
                     }
                 }
@@ -330,11 +364,7 @@ public class MovieAdditionController implements ClientDependent {
                 }
             }
 
-            System.out.println(movie.getMovieScreeningTime().get(slotIndex).getBranch().getBranchName());
-            System.out.println(movie.getMovieScreeningTime().get(slotIndex).getTheater().getTheaterNum());
-
             Message message = new Message();
-            message.setFlag(flag);
             message.setMessage(CHANGE_SCREEN_TIME);
             message.setSpecificMovie(movie);
             message.setMovieID(movie.getMovieScreeningTime().get(slotIndex).getId());
@@ -392,8 +422,8 @@ public class MovieAdditionController implements ClientDependent {
         try {
             TextInputDialog dialog = new TextInputDialog();
             dialog.setTitle("Add Screening Time");
-            dialog.setHeaderText("Add the time in this format dd/MM/yyyy HH:mm " +
-                    "in branch: branchName at theater: theaterNum");
+            dialog.setHeaderText("Add the time in this format dd/MM/yyyy HH:mm, " +
+                    "in branch: branchName, at theater: theaterNum");
             dialog.setContentText("New time:");
             Optional<String> result = dialog.showAndWait();
 
@@ -439,6 +469,7 @@ public class MovieAdditionController implements ClientDependent {
                 descriptionTextArea.setText(movie.getMovieDescription());
                 hebrewTitleTextField.setText(movie.getHebrewMovieName());
                 englishTitleTextField.setText(movie.getMovieName());
+                movieDurationTextField.setText(Integer.toString(movie.getMovieDuration()));
 
                 //Populating Combobox
                 chooseGenreComboBox.setValue(movie.getMovieGenre());
@@ -560,18 +591,30 @@ public class MovieAdditionController implements ClientDependent {
         //Checking if the requested is a New movie and checking the fields accordingly.
         if (localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)) {
             if (!checkFields()) {
-                copyMovieDetails(true);
-                Message message = new Message();
-                message.setMessage(CONTENT_CHANGE);
-                message.setData("New Movie");
-                message.setSpecificMovie(movie);
-                client.sendMessage(message);
-                System.out.println("Movie ID: " + movie.getId() +
-                        ", Name: " + movie.getMovieName() + "Hebrew: " + movie.getHebrewMovieName() +
-                        ", Main Cast: " + movie.getMainCast() +
-                        ", Producer: " + movie.getProducer() +
-                        ", Description: " + movie.getMovieDescription() +
-                        ", Duration: " + movie.getMovieDuration());
+                try {
+                    copyMovieDetails(true);
+                    Message message = new Message();
+                    message.setMessage(CONTENT_CHANGE);
+                    message.setData("New Movie");
+                    message.setSpecificMovie(movie);
+                    client.sendMessage(message);
+                    System.out.println("Movie ID: " + movie.getId() +
+                            ", Name: " + movie.getMovieName() + "Hebrew: " + movie.getHebrewMovieName() +
+                            ", Main Cast: " + movie.getMainCast() +
+                            ", Producer: " + movie.getProducer() +
+                            ", Description: " + movie.getMovieDescription() +
+                            ", Duration: " + movie.getMovieDuration());
+
+                    Stage stage = (Stage) newMovieBtn.getScene().getWindow();
+                    message = new Message();
+                    message.setMessage("");
+                    logger.info("Moving scene");
+                    EventBus.getDefault().unregister(this);
+                    client.moveScene(ADD_EDIT_MOVIE, stage, message);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             // If its a new movie setup the fields.
         } else {
@@ -611,21 +654,25 @@ public class MovieAdditionController implements ClientDependent {
     }
 
     private void copyMovieDetails(boolean newMovie) throws IOException {
+        try {
         movie.setHebrewMovieName(hebrewTitleTextField.getText());
         movie.setMovieName(englishTitleTextField.getText());
         movie.setMovieDescription(descriptionTextArea.getText());
         movie.setMainCast(castTextField.getText());
+        movie.setMovieDuration(Integer.parseInt(movieDurationTextField.getText()));
         movie.setProducer(producerTextField.getText());
         movie.setMovieGenre(chooseGenreComboBox.getValue());
         movie.getMovieType().setUpcoming(soonCheckBox.isSelected());
         movie.getMovieType().setCurrentlyRunning(inTheatersCheckBox.isSelected());
         movie.getMovieType().setPurchasable(packageCheckBox.isSelected());
-        try {
+
             //If it's a new movie or if there was a new image loaded for the movie during edit.
             if (newMovie || !filePathTextField.getText().isEmpty()) {
                 movie.setImage(Files.readAllBytes(Paths.get(filePathTextField.getText())));
             }
-        } catch (IOException e) {
+        }catch (NumberFormatException NumberFormatException) {
+            SimpleClient.showAlert(Alert.AlertType.ERROR, "Movie Duration error", "Please enter a valid integer");
+        }catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -648,6 +695,9 @@ public class MovieAdditionController implements ClientDependent {
         if (castTextField.getText().isEmpty()) {
             changeControlBorderColor(castTextField, errorColor);
             flag = true;
+        }
+        if (movieDurationTextField.getText().isEmpty()) {
+            changeControlBorderColor(movieDurationTextField, errorColor);
         }
         if (filePathTextField.getText().isEmpty() && localMessage.getMessage().equals("new movie")) {
             changeControlBorderColor(filePathTextField, errorColor);
@@ -681,6 +731,7 @@ public class MovieAdditionController implements ClientDependent {
         changeControlTextColor(soonCheckBox, normalColor);
         changeControlTextColor(inTheatersCheckBox, normalColor);
         changeControlTextColor(packageCheckBox, normalColor);
+        changeControlTextColor(movieDurationTextField, normalColor);
     }
 
     @FXML
