@@ -15,5 +15,7 @@ public class ClientRequests {
     public static final String GET_MOVIES_BY_BRANCH_ID = "Get movies by branch id";
     public static final String GET_EMPLOYEES = "Get employees";
     public static final String SHOW_ALL_EMPLOYEES = "show all employees";
+    public static final String GET_CUSTOMER_INFO = "get customer information";
+    public static final String GET_CUSTOMER_ID = "get customer id";
 
 }

@@ -40,6 +40,10 @@ public class Message implements Serializable {
     private Booklet booklet;
     private PriceConstants prices;
 
+
+
+    private String customerID;
+
     //Movie Related messages
     private Movie specificMovie;
     private List<Movie> movies;
@@ -61,9 +65,15 @@ public class Message implements Serializable {
 
 
     public MovieSlot getMovieSlot() {return movieSlot;}
+    public String getCustomerID() {
+        return customerID;
+    }
 
     public void setMovieSlot(MovieSlot movieSlot) {this.movieSlot = movieSlot;}
 
+    public void setCustomerID(String customerID) {
+        this.customerID = customerID;
+    }
     public int getBranchID() {
         return branchID;
     }
