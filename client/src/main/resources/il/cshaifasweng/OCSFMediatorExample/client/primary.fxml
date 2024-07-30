@@ -72,7 +72,7 @@
                         <URL value="@catalogM/styleColor.css" />
                         <URL value="@catalogM/ComboBox.css" />
                      </stylesheets></ComboBox>
-                  <Button fx:id="clearFiltersBtn" layoutX="1035.0" layoutY="20.0" mnemonicParsing="false" onAction="#clearFilters" prefHeight="25.0" prefWidth="96.0" stylesheets="@catalogM/styleColor.css" text="Clear Filters" textFill="WHITE">
+                  <Button fx:id="clearFiltersBtn" layoutX="1035.0" layoutY="20.0" mnemonicParsing="false" onAction="#clearFilters" prefHeight="25.0" prefWidth="96.0" stylesheets="@catalogM/styleColor.css" text="Clear Filters" textFill="#222831">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
@@ -97,27 +97,27 @@
          <left>
             <AnchorPane prefHeight="431.0" prefWidth="201.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="customerPanelBtn" layoutX="61.0" layoutY="130.0" mnemonicParsing="false" onAction="#customerController" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Customer Panel" textFill="WHITE">
+                  <Button fx:id="customerPanelBtn" layoutX="61.0" layoutY="130.0" mnemonicParsing="false" onAction="#customerController" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Customer Panel" textFill="#222831">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
-                  <Button fx:id="employeePanelBtn" layoutX="61.0" layoutY="200.0" mnemonicParsing="false" onAction="#employeeController" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Employee Panel" textFill="WHITE">
+                  <Button fx:id="employeePanelBtn" layoutX="61.0" layoutY="200.0" mnemonicParsing="false" onAction="#employeeController" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Employee Panel" textFill="#222831">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
-                  <Button fx:id="submitComplaintBtn" layoutX="61.0" layoutY="270.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Submit Complaint" textFill="WHITE">
+                  <Button fx:id="submitComplaintBtn" layoutX="61.0" layoutY="270.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Submit Complaint" textFill="#222831">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
-                  <Button fx:id="homeScreenBtn" layoutX="61.0" layoutY="60.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Home Screen" textFill="WHITE">
+                  <Button fx:id="homeScreenBtn" layoutX="61.0" layoutY="60.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Home Screen" textFill="#222831">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
-                  <Button fx:id="bookletPurchaseBtn" layoutX="61.0" layoutY="340.0" mnemonicParsing="false" onAction="#purchaseBookletControl" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Purchase Booklet" textFill="WHITE">
+                  <Button fx:id="bookletPurchaseBtn" layoutX="61.0" layoutY="340.0" mnemonicParsing="false" onAction="#purchaseBookletControl" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Purchase Booklet" textFill="#222831">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />

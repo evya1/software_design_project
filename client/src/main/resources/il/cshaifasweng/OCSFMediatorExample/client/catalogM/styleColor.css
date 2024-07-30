@@ -10,9 +10,10 @@
 
 
 .hover-button {
-    -fx-background-color: #3244b8; /* Initial color */
+    -fx-background-color: #76ABAE; /* Initial color */
+    -fx-text-fill: #222831
 }
 
 .hover-button:hover {
-    -fx-background-color: #177c9c; /* Color on hover */
+    -fx-background-color: #EEEEEE; /* Color on hover */
 }

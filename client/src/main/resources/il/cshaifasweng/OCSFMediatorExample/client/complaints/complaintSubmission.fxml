@@ -86,7 +86,7 @@
                                 <Font size="18.0" />
                             </font>
                         </Text>
-                        <TextArea fx:id="complaintTxtArea" layoutX="71.0" layoutY="235.0" prefHeight="214.0" prefWidth="669.0" promptText="Enter Your Complaint Here:" stylesheets="@../catalogM/TextArea.css">
+                        <TextArea fx:id="complaintTxtArea" layoutX="71.0" layoutY="235.0" prefHeight="214.0" prefWidth="669.0" promptText="Enter Your Complaint Here:" stylesheets="@../catalogM/TextArea.css" wrapText="true">
                             <font>
                                 <Font size="16.0" />
                             </font>
