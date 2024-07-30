@@ -178,9 +178,10 @@ public class EmployeeController implements ClientDependent {
                 dialog.setHeaderText("New " + itemToChangePrice + " Price");
                 dialog.setContentText("Set New Price: ");
                 Optional<String> result = dialog.showAndWait();
-                Double newPrice = (double) -1.0;
-                if (result.isPresent() && result.get() != "")
+                double newPrice = -1.0;
+                if (result.isPresent() && !result.get().isEmpty()) {
                     newPrice = Double.parseDouble(result.get());
+                }
                 switch (itemToChangePrice) {
                     case "Movie Ticket":
                         prices.setNewMovieTicketPrice(newPrice);
@@ -201,34 +202,37 @@ public class EmployeeController implements ClientDependent {
                     message.setPrices(prices);
                     client.sendMessage(message);
                 }
-                //the clearSelection pops an error. the use of the clear is needed because
-                //if we change a price of something, and then sign out and sign in again when clicking
-                //the change price directly we will be asked to change the price of
-                // last thing we changed.
-                chooseItemComboBox.getSelectionModel().clearSelection();
-                chooseItemComboBox.setButtonCell(new ListCell<>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setText(chooseItemComboBox.getPromptText());
+
+                // Clear the selection and reset the button cell in the ComboBox
+                Platform.runLater(() -> {
+                    chooseItemComboBox.getSelectionModel().clearSelection();
+                    chooseItemComboBox.setButtonCell(new ListCell<>() {
+                        @Override
+                        protected void updateItem(String item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (item == null || empty) {
+                                setText(chooseItemComboBox.getPromptText());
+                            } else {
+                                setText(item);
+                            }
                         }
-                    }
+                    });
                 });
             }
-        } catch (NumberFormatException NumberFormatException) {
+        } catch (NumberFormatException e) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "Price Error", "Please enter a valid number");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
     @FXML
     void logIn(ActionEvent event) {
         try {
             Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Sign In");
-            ButtonType signInButtonType = new ButtonType("Sign In", ButtonType.OK.getButtonData());
+            ButtonType signInButtonType = new ButtonType("Sign In", ButtonBar.ButtonData.OK_DONE);
             dialog.getDialogPane().getButtonTypes().addAll(signInButtonType, ButtonType.CANCEL);
             GridPane grid = new GridPane();
             grid.setHgap(10);
@@ -245,30 +249,41 @@ public class EmployeeController implements ClientDependent {
             grid.add(password, 1, 1);
 
             dialog.getDialogPane().setContent(grid);
-            dialog.showAndWait();
-            Pair<String, String> usernamePassword = new Pair<>(username.getText(), password.getText());
-            System.out.println(usernamePassword);
-            boolean flag = false;
-            for (Employee e : employees) {
-                if (e.getUsername().equalsIgnoreCase(usernamePassword.getKey())
-                        && e.getPassword().equals(usernamePassword.getValue())) {
-                    flag = true;
-                    employee = e;
+
+            // Set the result converter for the dialog
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == signInButtonType) {
+                    return new Pair<>(username.getText(), password.getText());
                 }
-            }
-            if (!flag) {
-                Dialog<String> errorDialog = new Dialog<>();
-                errorDialog.setTitle("Sign In Error");
-                errorDialog.setHeaderText("Your username or password is incorrect.");
-                errorDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-                errorDialog.showAndWait();
-            } else {
-                emp();
-            }
+                return null;
+            });
+
+            Optional<Pair<String, String>> result = dialog.showAndWait();
+            result.ifPresent(usernamePassword -> {
+                System.out.println(usernamePassword);
+                boolean flag = false;
+                for (Employee e : employees) {
+                    if (e.getUsername().equalsIgnoreCase(usernamePassword.getKey())
+                            && e.getPassword().equals(usernamePassword.getValue())) {
+                        flag = true;
+                        employee = e;
+                    }
+                }
+                if (!flag) {
+                    Dialog<String> errorDialog = new Dialog<>();
+                    errorDialog.setTitle("Sign In Error");
+                    errorDialog.setHeaderText("Your username or password is incorrect.");
+                    errorDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+                    errorDialog.showAndWait();
+                } else {
+                    emp();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     private void emp() {
         logINBtn.setVisible(false);

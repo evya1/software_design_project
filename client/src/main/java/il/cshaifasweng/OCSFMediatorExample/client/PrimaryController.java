@@ -391,7 +391,19 @@ public class PrimaryController implements ClientDependent {
 
     @FXML
     void customerController(ActionEvent event) {
+        try{
+            Stage stage = (Stage) customerPanelBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("customer panel");
+            message.setSourceFXML(PRIMARY_SCREEN);
+            EventBus.getDefault().unregister(this);
+            client.moveScene(CUSTOMER_SCREEN, stage, message);
 
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @FXML

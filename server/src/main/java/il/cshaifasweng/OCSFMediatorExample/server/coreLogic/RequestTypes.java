@@ -18,5 +18,7 @@ public class RequestTypes {
     public static final String GET_COMPLAINT_REQUEST = "New Complaint";
     public static final String GET_EMPLOYEES = "Get employees";
     public static final String SHOW_ALL_EMPLOYEES = "show all employees";
+    public static final String GET_CUSTOMER_INFO = "get customer information";
+    public static final String GET_CUSTOMER_ID = "get customer id";
 }
 
