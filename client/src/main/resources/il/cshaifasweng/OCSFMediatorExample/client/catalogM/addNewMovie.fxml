@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
+<?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
@@ -62,18 +64,46 @@
                   <Image url="@logo.png" />
                </image>
             </ImageView>
-            <ComboBox fx:id="chooseMovieComboBox" layoutX="625.0" layoutY="150.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#chooseMovie" prefWidth="150.0" promptText="Choose Movie" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+            <ComboBox fx:id="chooseMovieComboBox" layoutX="625.0" layoutY="150.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#chooseMovie" prefWidth="150.0" promptText="Choose Movie">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass>
+               <stylesheets>
+                  <URL value="@styleColor.css" />
+                  <URL value="@ComboBox.css" />
+               </stylesheets></ComboBox>
          </children>
       </AnchorPane>
    </top>
    <left>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="PanelBackground" stylesheets="@style.css" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="backBtn" layoutX="62.0" layoutY="384.0" mnemonicParsing="false" onAction="#backToHomeScreen" prefHeight="26.0" prefWidth="77.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Return" />
-            <Button fx:id="submitMovieBtn" layoutX="45.0" layoutY="170.0" mnemonicParsing="false" onAction="#submitMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Submit Movie" />
-            <Button fx:id="newMovieBtn" layoutX="45.0" layoutY="110.0" mnemonicParsing="false" onAction="#createNewMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="New Movie" />
-            <Button fx:id="deleteMovieBtn" layoutX="46.0" layoutY="230.0" mnemonicParsing="false" onAction="#deleteMovie" prefHeight="25.0" prefWidth="109.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Delete Movie" />
-            <Button fx:id="backBtn1" layoutX="61.0" layoutY="230.0" mnemonicParsing="false" onAction="#backBtnAction" prefHeight="26.0" prefWidth="77.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Back" />
+            <Button fx:id="backBtn" layoutX="62.0" layoutY="384.0" mnemonicParsing="false" onAction="#backToHomeScreen" prefHeight="26.0" prefWidth="77.0" stylesheets="@styleColor.css" text="Return" textFill="WHITE">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass></Button>
+            <Button fx:id="submitMovieBtn" layoutX="45.0" layoutY="170.0" mnemonicParsing="false" onAction="#submitMovie" prefHeight="25.0" prefWidth="109.0" stylesheets="@styleColor.css" text="Submit Movie" textFill="WHITE">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass></Button>
+            <Button fx:id="newMovieBtn" layoutX="45.0" layoutY="110.0" mnemonicParsing="false" onAction="#createNewMovie" prefHeight="25.0" prefWidth="109.0" stylesheets="@styleColor.css" text="New Movie" textFill="WHITE">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass></Button>
+            <Button fx:id="deleteMovieBtn" layoutX="46.0" layoutY="230.0" mnemonicParsing="false" onAction="#deleteMovie" prefHeight="25.0" prefWidth="109.0" stylesheets="@styleColor.css" text="Delete Movie" textFill="WHITE">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass></Button>
+            <Button fx:id="backBtn1" layoutX="61.0" layoutY="230.0" mnemonicParsing="false" onAction="#backBtnAction" prefHeight="26.0" prefWidth="77.0" stylesheets="@styleColor.css" text="Back" textFill="WHITE">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass></Button>
          </children></AnchorPane>
    </left>
    <right>

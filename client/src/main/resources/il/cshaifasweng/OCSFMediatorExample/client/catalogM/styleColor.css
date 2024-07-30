@@ -4,6 +4,15 @@
 }
 
 .date-with-movie {
-    -fx-background-color: #ffcccb; /* Light red background */
+    -fx-background-color: #ccf9b2; /* Light red background */
     -fx-text-fill: black;
+}
+
+
+.hover-button {
+    -fx-background-color: #3244b8; /* Initial color */
+}
+
+.hover-button:hover {
+    -fx-background-color: #177c9c; /* Color on hover */
 }
