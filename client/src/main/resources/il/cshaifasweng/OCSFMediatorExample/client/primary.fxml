@@ -133,7 +133,7 @@
                         <Font size="36.0" />
                      </font>
                   </Label>
-                  <ImageView fitHeight="127.0" fitWidth="148.0" layoutX="52.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="logoBtn" fitHeight="127.0" fitWidth="148.0" layoutX="52.0" layoutY="26.0" onMouseClicked="#openAdminPanel" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@catalogM/logo.png" />
                      </image>
