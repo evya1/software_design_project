@@ -123,27 +123,9 @@ public class EmployeeController implements ClientDependent {
                 this.employees = message.getEmployeeList();
             } else if (message.getData().equals("prices")) {
                 this.prices = message.getPrices();
-                System.out.println(prices.getNewBookletPrice());
-                System.out.println(prices.getNewMovieLinkPrice());
-                System.out.println(prices.getNewMovieTicketPrice());
-                System.out.println(prices.getBookletPrice());
-                System.out.println(prices.getMovieTicketPrice());
-                System.out.println(prices.getMovieLinkPrice());
             }
         }
     }
-
-    public void chooseMovie(Movie movie, Stage stage) {
-        try {
-            localMessage = new Message();
-            localMessage.setSpecificMovie(movie);
-            EventBus.getDefault().unregister(this);
-            client.moveScene("catalogM/Movie", stage, localMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @FXML
     void changeContent(ActionEvent event) {
@@ -212,11 +194,13 @@ public class EmployeeController implements ClientDependent {
                     default:
                         return;
                 }
-                Message message = new Message();
-                message.setMessage("get prices");
-                message.setData("change price");
-                message.setPrices(prices);
-                client.sendMessage(message);
+                if (newPrice != -1) {
+                    Message message = new Message();
+                    message.setMessage("get prices");
+                    message.setData("change price");
+                    message.setPrices(prices);
+                    client.sendMessage(message);
+                }
                 //the clearSelection pops an error. the use of the clear is needed because
                 //if we change a price of something, and then sign out and sign in again when clicking
                 //the change price directly we will be asked to change the price of

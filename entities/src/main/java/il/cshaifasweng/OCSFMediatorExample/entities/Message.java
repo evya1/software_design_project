@@ -46,6 +46,7 @@ public class Message implements Serializable {
     private List<MovieSlot> movieSlots;
     private MovieLink movieLink;
     private int movieID;
+    private MovieSlot movieSlot;
 
     //Branch or Theater related
     private int branchID;
@@ -58,12 +59,11 @@ public class Message implements Serializable {
     private PurchaseType purchaseType;
 
 
-    private boolean flag;
 
-    public void setFlag(boolean f) {
-        flag = f;
-    }
-    public boolean getFlag() {return flag;}
+    public MovieSlot getMovieSlot() {return movieSlot;}
+
+    public void setMovieSlot(MovieSlot movieSlot) {this.movieSlot = movieSlot;}
+
     public int getBranchID() {
         return branchID;
     }
