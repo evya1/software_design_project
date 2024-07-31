@@ -544,6 +544,7 @@ public class MovieAdditionController implements ClientDependent {
             Message message = new Message();
             message.setMessage("nfew movie");
             message.setSourceFXML(ADD_EDIT_MOVIE);
+            message.setEmployee(localMessage.getEmployee());
             EventBus.getDefault().unregister(this);
             client.moveScene(EMPLOYEE_SCREEN, stage, message);
         } catch (Exception e) {
@@ -607,7 +608,7 @@ public class MovieAdditionController implements ClientDependent {
 
                     Stage stage = (Stage) newMovieBtn.getScene().getWindow();
                     message = new Message();
-                    message.setMessage("");
+                    message.setMessage(NEW_MOVIE_TEXT_REQUEST);
                     logger.info("Moving scene");
                     EventBus.getDefault().unregister(this);
                     client.moveScene(ADD_EDIT_MOVIE, stage, message);
@@ -680,6 +681,10 @@ public class MovieAdditionController implements ClientDependent {
     //Checking the fields and setting them accordingly.
     private boolean checkFields() {
         boolean flag = false;
+        for (Movie mov : movies) {
+            if (mov.getMovieName() != null && mov.getMovieName().equalsIgnoreCase(englishTitleTextField.getText().trim()))
+                return true;
+        }
         if (hebrewTitleTextField.getText().isEmpty()) {
             changeControlBorderColor(hebrewTitleTextField, errorColor);
             flag = true;
@@ -711,6 +716,7 @@ public class MovieAdditionController implements ClientDependent {
             setCheckBoxesColor(errorColor);
             flag = true;
         }
+
         return flag;
     }
 

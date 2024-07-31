@@ -1,4 +1,5 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
+
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,8 +16,7 @@ public class FXMLUtils {
                 if (controller instanceof ClientDependent) {
                     ((ClientDependent) controller).setClient(client);
                     ((ClientDependent) controller).setMessage(msg);
-                }
-                else {
+                } else {
                     System.err.println("Warning: Controller " + clazz.getName() + " does not implement ClientDependent interface.");
                 }
                 return controller;
