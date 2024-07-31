@@ -410,6 +410,41 @@ public class DataCommunicationDB
                 session.save(employee);
             }
 
+            //customer
+            Customer customer1 = new Customer("cust1","smith","csm@gmail.com","20548",
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+            Customer customer2 = new Customer("cust2","freeman","free@gmail.com","7159",
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+            Customer customer3 = new Customer("cust3","fox","cfox@gmail.com","03254",
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+            Customer customer4 = new Customer("cust4","al pacino","godfather@gmail.com","1808",
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+            List<Customer> customers = Arrays.asList(customer1, customer2, customer3, customer4);
+            for (Customer customer : customers) {
+                session.save(customer);
+            }
+
+            //complaints
+
+            Complaint comp = new Complaint("bad booklet","i dont want the booklet anymore, i've used 5 tickets out of 20",
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"1808",customer4,-1);
+            Complaint comp1 = new Complaint("bad link","the link is not working",
+                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_LINK,"1808",customer4,-1);
+            Complaint comp2 = new Complaint("bad ticket","i don't want the ticket anymore",
+                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_TICKET,"1808",customer4,-1);
+            Complaint comp3 = new Complaint("not good movie","the dark knight is not as i expected",
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"1808",customer4,-1);
+            Complaint comp4 = new Complaint("bad booklet","the booklet is not working and i cant use it",
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"03254",customer3,-1);
+            Complaint comp5 = new Complaint("link corrupt","the stream stops in the middle ",
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"03254",customer3,-1);
+            Complaint comp6 = new Complaint("link corrupt","the stream stops in the middle ",
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"7159",customer2,-1);
+            List<Complaint> complaints = Arrays.asList(comp1, comp2, comp3, comp4,comp5,comp6);
+            for (Complaint complaint : complaints) {
+                session.save(complaint);
+            }
+
             // prices
             PriceConstants prices = new PriceConstants(250,40,30);
             session.save(prices);

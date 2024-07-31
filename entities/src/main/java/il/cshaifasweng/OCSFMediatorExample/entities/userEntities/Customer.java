@@ -33,6 +33,19 @@ public class Customer implements Serializable {
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Complaint> complaints = new ArrayList<>();
 
+    public Customer(String firstName, String lastName, String email, String personalID, List<Purchase> purchases, Payment payment, List<Complaint> complaints) {
+
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.personalID = personalID;
+        this.purchases = purchases;
+        this.payment = payment;
+        this.complaints = complaints;
+    }
+
+    public Customer() {}
+
     public int getId() {
         return id;
     }

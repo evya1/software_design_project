@@ -29,6 +29,34 @@ public class Complaint implements Serializable {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    public double getMoneyToReturn() {
+        return moneyToReturn;
+    }
+
+    public void setMoneyToReturn(double moneyToReturn) {
+        this.moneyToReturn = moneyToReturn;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    private double moneyToReturn;
+
+    public Complaint(String complaintTitle, String complaintContent, LocalDateTime dateOfComplaint
+            , String complaintStatus, PurchaseType purchaseType, String customerPId, Customer customer, double money) {
+        this.complaintTitle = complaintTitle;
+        this.complaintContent = complaintContent;
+        this.dateOfComplaint = dateOfComplaint;
+        this.complaintStatus = complaintStatus;
+        this.purchaseType = purchaseType;
+        this.customerPId = customerPId;
+        this.customer = customer;
+        this.moneyToReturn = money;
+    }
+
+    public Complaint() {}
+
     public String getComplaintTitle() {
         return complaintTitle;
     }

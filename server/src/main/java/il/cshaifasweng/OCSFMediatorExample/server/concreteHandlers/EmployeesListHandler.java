@@ -24,16 +24,33 @@ public class EmployeesListHandler implements RequestHandler {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
             DataCommunicationDB.setSession(session);
-            Message answer = new Message();
-            answer.setMessage(GET_EMPLOYEES);
-
             String hql = "FROM Employee";
             Query query = session.createQuery(hql);
             List<Employee> employees = query.list();
             System.out.println("LOG: Server side - the number of employees is : " + employees.size());
-            answer.setData(SHOW_ALL_EMPLOYEES);
-            answer.setEmployeeList(employees);
-            client.sendToClient(answer);
+            Message answer = new Message();
+            answer.setMessage(GET_EMPLOYEES);
+            if (message.getData().equals("check password")) {
+                String[] usernamePass = message.getUsernamePassword().split("=");
+                Employee employee = null;
+                for (Employee emp : employees) {
+                    if (usernamePass[0].equalsIgnoreCase(emp.getUsername().trim())
+                            && usernamePass[1].equals(emp.getPassword().trim())) {
+                        employee = emp;
+                    }
+                }
+                answer.setData("password check");
+                answer.setEmployee(employee);
+                client.sendToClient(answer);
+            } else if (message.getData().equals("set employee as active")) {
+                session.beginTransaction();
+                Employee employee = session.get(Employee.class, message.getEmployee().getId());
+                employee.setActive(true);
+                session.getTransaction().commit();
+                answer.setData("employee is active");
+                answer.setEmployee(employee);
+                client.sendToClient(answer);
+            }
         } catch (Exception e) {
             System.err.println("An error occurred");
             e.printStackTrace();

@@ -34,6 +34,16 @@ public class Message implements Serializable {
     private List<Employee> employeeList;
     private Employee employee;
 
+    public String getUsernamePassword() {
+        return usernamePassword;
+    }
+
+    public void setUsernamePassword(String usernamePassword) {
+        this.usernamePassword = usernamePassword;
+    }
+
+    private String usernamePassword;
+
     //Purchase related messages.
     private Customer customer;
     private Purchase purchase;
@@ -61,26 +71,27 @@ public class Message implements Serializable {
     private Complaint complaint;
     private String complaintTitle;
     private PurchaseType purchaseType;
+    private List<Complaint> complaints;
 
 
 
-    public MovieSlot getMovieSlot() {return movieSlot;}
+    public List<Complaint> getComplaints() { return complaints; }
+
+    public void setComplaints(List<Complaint> complaints) { this.complaints = complaints; }
+
+    public MovieSlot getMovieSlot() { return movieSlot; }
     public String getCustomerID() {
         return customerID;
     }
 
-    public void setMovieSlot(MovieSlot movieSlot) {this.movieSlot = movieSlot;}
+    public void setMovieSlot(MovieSlot movieSlot) { this.movieSlot = movieSlot; }
 
     public void setCustomerID(String customerID) {
         this.customerID = customerID;
     }
-    public int getBranchID() {
-        return branchID;
-    }
+    public int getBranchID() { return branchID; }
 
-    public void setBranchID(int branchID) {
-        this.branchID = branchID;
-    }
+    public void setBranchID(int branchID) { this.branchID = branchID; }
 
     public MovieLink getMovieLink() {return movieLink;}
 

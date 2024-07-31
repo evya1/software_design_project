@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox styleClass="PanelBackground" stylesheets="@../catalogM/styleColor.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ContentChange.HandleComplaintController">
+    <children>
+        <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1400.0" styleClass="PanelBackground">
+            <top>
+                <AnchorPane prefHeight="100.0" prefWidth="1400.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <ImageView fitHeight="127.0" fitWidth="148.0" layoutX="35.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../catalogM/logo.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </AnchorPane>
+            </top>
+            <left>
+                <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button fx:id="returnBtn" layoutX="62.0" layoutY="434.0" mnemonicParsing="false" onAction="#returnBtnController" text="Return" textAlignment="CENTER" textFill="WHITE">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                            <styleClass>
+                                <String fx:value="hover-button" />
+                                <String fx:value="rounded-corners" />
+                            </styleClass>
+                        </Button>
+                    </children></AnchorPane>
+            </left>
+            <center>
+                <AnchorPane prefHeight="200.0" prefWidth="1148.0" style="-fx-background-color: #ffff;" BorderPane.alignment="CENTER">
+                    <BorderPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </BorderPane.margin>
+                    <children>
+                        <TextField fx:id="privateNameField" layoutX="74.0" layoutY="60.0" promptText="Private Name " styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </TextField>
+                        <TextField fx:id="lastNameField" layoutX="303.0" layoutY="60.0" promptText="Last Name" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </TextField>
+                        <TextField fx:id="idField" layoutX="531.0" layoutY="61.0" promptText="9 Digits ID Number" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </TextField>
+                        <TextField fx:id="mailField" layoutX="761.0" layoutY="62.0" promptText="Email Address" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </TextField>
+                        <Text layoutX="389.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer's Complaint Information" wrappingWidth="324.74102783203125">
+                            <font>
+                                <Font size="18.0" />
+                            </font>
+                        </Text>
+                        <TextArea fx:id="complaintTxtArea" layoutX="71.0" layoutY="235.0" prefHeight="214.0" prefWidth="669.0" promptText="Enter Your Complaint Here:" stylesheets="@../catalogM/TextArea.css" wrapText="true">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </TextArea>
+                        <Button fx:id="submitComplaintBtn" layoutX="796.0" layoutY="413.0" mnemonicParsing="false" onAction="#submitDecision" prefHeight="38.0" prefWidth="235.0" styleClass="rounded-corners" text="Submit Complaint Decision" textAlignment="CENTER">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Button>
+                        <TextField fx:id="complaintTitleField" layoutX="72.0" layoutY="191.0" prefHeight="36.0" prefWidth="353.0" promptText="Enter Complaint Title" styleClass="rounded-corners">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </TextField>
+                  <TextField fx:id="PurchaseTypeField" layoutX="74.0" layoutY="126.0" promptText="Purchase Type" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </TextField>
+                  <TextField fx:id="moneyToReturnField" layoutX="814.0" layoutY="342.0" promptText="Money To Return" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </TextField>
+                    </children>
+                </AnchorPane>
+            </center>
+            <right>
+                <AnchorPane prefHeight="550.0" prefWidth="75.0" BorderPane.alignment="CENTER" />
+            </right>
+            <bottom>
+                <AnchorPane prefHeight="25.0" prefWidth="1400.0" BorderPane.alignment="CENTER" />
+            </bottom>
+            <stylesheets>
+                <URL value="@../catalogM/style.css" />
+                <URL value="@../catalogM/styleColor.css" />
+            </stylesheets>
+        </BorderPane>
+    </children>
+</VBox>
