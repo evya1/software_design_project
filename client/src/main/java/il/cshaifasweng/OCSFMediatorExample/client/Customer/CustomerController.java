@@ -12,13 +12,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
@@ -36,6 +36,9 @@ public class CustomerController implements ClientDependent {
 
     @FXML
     private Button homeScreenBtn;
+
+    @FXML
+    private Accordion PurchasesAccordion;
 
     @FXML
     private Button loginLogoutBtn;
@@ -80,9 +83,9 @@ public class CustomerController implements ClientDependent {
         loggedOutButtons();
         EventBus.getDefault().register(this);
 
-
         //Initialize the table values
         //Initialize the columns
+
         complaintIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         complaintTitleCol.setCellValueFactory(new PropertyValueFactory<>("complaintTitle"));
         complaintDescriptionCol.setCellValueFactory(new PropertyValueFactory<>("complaintContent"));
@@ -211,16 +214,38 @@ public class CustomerController implements ClientDependent {
         viewPurchasesBtn.setVisible(false);
         loginLogoutBtn.setText("Login");
         welcomeLabel.setText("Welcome to the customer panel, login to view your information");
+        disableElements();
+
+    }
+
+    private void disableElements(){
+        tableViewComplaints.setVisible(false);
+        tableViewComplaints.setDisable(true);
+        PurchasesAccordion.setVisible(false);
+        PurchasesAccordion.setDisable(true);
     }
     @FXML
     void returnHomeAction(ActionEvent event) {
-        EventBus.getDefault().unregister(this);
-        // Navigate to the home screen
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
+            Message message = new Message();
+            EventBus.getDefault().unregister(this);
+            client.moveScene(PRIMARY_SCREEN, stage, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
     @FXML
     void viewComplaintsAction(ActionEvent event) {
+        disableElements();
+        tableViewComplaints.setVisible(true);
+        tableViewComplaints.setDisable(false);
         if (localCustomer == null) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "No Customer", "You must be logged in to view complaints.");
             return;
@@ -239,7 +264,10 @@ public class CustomerController implements ClientDependent {
 
     @FXML
     void viewPurchasesAction(ActionEvent event) {
-
+        tableViewComplaints.setDisable(true);
+        tableViewComplaints.setVisible(false);
+        PurchasesAccordion.setVisible(true);
+        PurchasesAccordion.setDisable(false);
     }
 
     @Override
