@@ -71,7 +71,7 @@ public class Employee implements Serializable {
 
     public void setEmployeeType(EmployeeType employeeType) {
         this.employeeType = employeeType;
-        if (employeeType == EmployeeType.THEATER_MANAGER) {
+        if (employeeType == EmployeeType.BRANCH_MANAGER) {
             this.branch = this.branchInCharge;
         }
     }
@@ -128,7 +128,7 @@ public class Employee implements Serializable {
         return branch;
     }
 
-    private void setBranch(Branch branch) {
+    public void setBranch(Branch branch) {
         this.branch = branch;
     }
 
@@ -140,7 +140,7 @@ public class Employee implements Serializable {
      * @return the branch in charge or null if the employee is not a theater manager
      */
     public Branch getBranchInCharge() {
-        if (employeeType == EmployeeType.THEATER_MANAGER) {
+        if (employeeType == EmployeeType.BRANCH_MANAGER) {
             return branchInCharge;
         }
         return null;
@@ -155,7 +155,7 @@ public class Employee implements Serializable {
      * @param branchInCharge the branch to set as the branch in charge
      */
     public void setBranchInCharge(Branch branchInCharge) {
-        if (employeeType == EmployeeType.THEATER_MANAGER) {
+        if (employeeType == EmployeeType.BRANCH_MANAGER) {
             this.branchInCharge = branchInCharge;
 
         }
@@ -167,7 +167,7 @@ public class Employee implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("Employee ID: ").append(id).append(", First Name: ").append(firstName).append(", Last Name: ").append(lastName).append(", Email: ").append(email).append(", Username: ").append(username).append(", Employee Type: ").append(employeeType);
 
-        if (employeeType == EmployeeType.THEATER_MANAGER && branchInCharge != null) {
+        if (employeeType == EmployeeType.BRANCH_MANAGER && branchInCharge != null) {
             sb.append(", Branch In Charge: ").append(branchInCharge.getBranchName());
         }
 

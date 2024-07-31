@@ -50,6 +50,10 @@ public class EmployeesListHandler implements RequestHandler {
                 answer.setData("employee is active");
                 answer.setEmployee(employee);
                 client.sendToClient(answer);
+            } else if (message.getData().equals("Get all employees")) {
+                answer.setData("Get all employees");
+                answer.setEmployeeList(employees);
+                client.sendToClient(answer);
             }
         } catch (Exception e) {
             System.err.println("An error occurred");

@@ -17,4 +17,11 @@ public class ClientRequests {
     public static final String SHOW_ALL_EMPLOYEES = "show all employees";
     public static final String GET_CUSTOMER_INFO = "get customer information";
     public static final String GET_CUSTOMER_ID = "get customer id";
+    public static final String EMPLOYEE_INFORMATION = "Employee information";
+    public static final String CREATE_EMPLOYEE = "Create employee";
+    public static final String UPDATE_EMPLOYEE = "Update employee";
+    public static final String DELETE_EMPLOYEE = "Delete employee";
+    public static final String GET_ALL_EMPLOYEES = "Get all employees";
+    public static final String EMPLOYEE_CREATED = "Employee created successfully";
+
 }
