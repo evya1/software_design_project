@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee.createEmployee;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
 
 public class DataCommunicationDB
@@ -156,7 +155,7 @@ public class DataCommunicationDB
             System.out.println(employee);
 
             // Print Branch In Charge if Theater Manager
-            if (employee.getEmployeeType() == EmployeeType.THEATER_MANAGER) {
+            if (employee.getEmployeeType() == EmployeeType.BRANCH_MANAGER) {
                 Branch branchInCharge = employee.getBranchInCharge();
                 if (branchInCharge != null) {
                     System.out.println("\tBranch In Charge: " + branchInCharge.getBranchName());
@@ -232,7 +231,7 @@ public class DataCommunicationDB
             Random random = new Random();
 
             Employee employee = new Employee();
-            employee.setEmployeeType(EmployeeType.THEATER_MANAGER);
+            employee.setEmployeeType(EmployeeType.BRANCH_MANAGER);
             employee.setEmail("Something@c.com");
             employee.setFirstName("Shimi");
             employee.setLastName("Tavori");
@@ -463,7 +462,7 @@ public class DataCommunicationDB
 
                 // Create Branch Manager
                 Employee branchManager = new Employee();
-                branchManager.setEmployeeType(EmployeeType.THEATER_MANAGER);
+                branchManager.setEmployeeType(EmployeeType.BRANCH_MANAGER);
                 branchManager.setEmail("manager" + (i + 1) + "@branch.com");
                 branchManager.setFirstName("Manager" + (i + 1));
                 branchManager.setLastName("Branch " + (i + 1));
@@ -941,7 +940,7 @@ public class DataCommunicationDB
 
     private static Branch createBranchWithManager(String branchName, String managerUsername, String managerEmail, String managerFirstName, String managerLastName) {
         Employee branchManager = new Employee();
-        branchManager.setEmployeeType(EmployeeType.THEATER_MANAGER);
+        branchManager.setEmployeeType(EmployeeType.BRANCH_MANAGER);
         branchManager.setFirstName(managerFirstName);
         branchManager.setLastName(managerLastName);
         branchManager.setEmail(managerEmail);
@@ -971,11 +970,11 @@ public class DataCommunicationDB
     }
 
     private static Employee createBranchManagerJaneSmith() {
-        return Employee.createEmployee(EmployeeType.THEATER_MANAGER, "Jane", "Smith", "jane.smith@example.com", "janesmith", "password", true, null);
+        return Employee.createEmployee(EmployeeType.BRANCH_MANAGER, "Jane", "Smith", "jane.smith@example.com", "janesmith", "password", true, null);
     }
 
     private static Employee createJoeEmployee() {
-        return Employee.createEmployee(EmployeeType.THEATER_MANAGER, "Shimi", "Tavori", "Something@c.com", "Sodk", "129090m", true, null);
+        return Employee.createEmployee(EmployeeType.BRANCH_MANAGER, "Shimi", "Tavori", "Something@c.com", "Sodk", "129090m", true, null);
     }
 
     private static Theater createTheater(Branch branch) {

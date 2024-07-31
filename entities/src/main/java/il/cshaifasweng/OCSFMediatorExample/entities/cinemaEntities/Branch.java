@@ -29,10 +29,10 @@ public class Branch implements Serializable {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Report report;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     private Employee branchManager;
 
-    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "branch", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Employee> employees = new ArrayList<>();
 
     public Branch() {}
@@ -83,8 +83,10 @@ public class Branch implements Serializable {
     }
 
     public void setBranchManager(Employee branchManager) {
-        if (branchManager.getEmployeeType() == EmployeeType.THEATER_MANAGER) {
+        if (branchManager != null && branchManager.getEmployeeType() == EmployeeType.BRANCH_MANAGER) {
             this.branchManager = branchManager;
+        } else {
+            this.branchManager = null;  // Explicitly set to null if conditions are not met
         }
     }
 

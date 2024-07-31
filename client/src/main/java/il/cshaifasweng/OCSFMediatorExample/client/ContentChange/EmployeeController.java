@@ -2,12 +2,8 @@ package il.cshaifasweng.OCSFMediatorExample.client.ContentChange;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
-import il.cshaifasweng.OCSFMediatorExample.client.MovieCatalog.MovieGridController;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PriceConstants;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
@@ -15,11 +11,8 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -352,7 +345,7 @@ public class EmployeeController implements ClientDependent {
             case SERVICE:
                 showComplaintsBtn.setDisable(false);
                 break;
-            case THEATER_MANAGER:
+            case BRANCH_MANAGER:
                 showReportsBtn.setDisable(false);
                 break;
             case CONTENT_MANAGER:

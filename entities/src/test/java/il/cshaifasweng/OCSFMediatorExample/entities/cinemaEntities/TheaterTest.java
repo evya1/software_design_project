@@ -49,7 +49,7 @@ public class TheaterTest {
         newBranch.setBranchName(branchName);
 
         Employee manager = new Employee();
-        manager.setEmployeeType(EmployeeType.THEATER_MANAGER);
+        manager.setEmployeeType(EmployeeType.BRANCH_MANAGER);
         manager.setEmail(email);
         manager.setFirstName(firstName);
         manager.setLastName(lastName);

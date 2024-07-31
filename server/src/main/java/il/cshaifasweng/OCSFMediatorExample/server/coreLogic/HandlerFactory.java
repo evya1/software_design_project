@@ -31,6 +31,7 @@ public class HandlerFactory {
         handlers.put(RequestTypes.GET_COMPLAINT_REQUEST, new ComplaintSubmissionHandler());
         handlers.put(RequestTypes.GET_EMPLOYEES, new EmployeesListHandler());
         handlers.put(RequestTypes.GET_CUSTOMER_INFO, new CustomerInfoHandler());
+        handlers.put(RequestTypes.EMPLOYEE_INFORMATION, new EmployeeModificationHandler(server));
     }
 
     public static synchronized HandlerFactory getInstance(SimpleServer server) {
