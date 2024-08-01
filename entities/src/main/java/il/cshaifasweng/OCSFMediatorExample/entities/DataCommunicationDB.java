@@ -410,35 +410,36 @@ public class DataCommunicationDB
             }
 
             //customer
-            Customer customer1 = new Customer("cust1","smith","csm@gmail.com","20548",
+            Customer customer1 = new Customer("cust1","smith","csm@gmail.com","123456789",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
-            Customer customer2 = new Customer("cust2","freeman","free@gmail.com","7159",
+            Customer customer2 = new Customer("cust2","freeman","free@gmail.com","345345345",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
-            Customer customer3 = new Customer("cust3","fox","cfox@gmail.com","03254",
+            Customer customer3 = new Customer("cust3","fox","cfox@gmail.com","888888888",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
-            Customer customer4 = new Customer("cust4","al pacino","godfather@gmail.com","1808",
+            Customer customer4 = new Customer("cust4","al pacino","godfather@gmail.com","000000001",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
             List<Customer> customers = Arrays.asList(customer1, customer2, customer3, customer4);
             for (Customer customer : customers) {
                 session.save(customer);
             }
 
+
             //complaints
 
             Complaint comp = new Complaint("bad booklet","i dont want the booklet anymore, i've used 5 tickets out of 20",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"1808",customer4,-1);
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"000000001",customer4,-1);
             Complaint comp1 = new Complaint("bad link","the link is not working",
-                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_LINK,"1808",customer4,-1);
+                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_LINK,"000000001",customer4,-1);
             Complaint comp2 = new Complaint("bad ticket","i don't want the ticket anymore",
-                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_TICKET,"1808",customer4,-1);
+                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_TICKET,"000000001",customer4,-1);
             Complaint comp3 = new Complaint("not good movie","the dark knight is not as i expected",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"1808",customer4,-1);
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"000000001",customer4,-1);
             Complaint comp4 = new Complaint("bad booklet","the booklet is not working and i cant use it",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"03254",customer3,-1);
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"888888888",customer3,-1);
             Complaint comp5 = new Complaint("link corrupt","the stream stops in the middle ",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"03254",customer3,-1);
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"888888888",customer3,-1);
             Complaint comp6 = new Complaint("link corrupt","the stream stops in the middle ",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"7159",customer2,-1);
+                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"345345345",customer2,-1);
             List<Complaint> complaints = Arrays.asList(comp1, comp2, comp3, comp4,comp5,comp6);
             for (Complaint complaint : complaints) {
                 session.save(complaint);
@@ -538,6 +539,24 @@ public class DataCommunicationDB
                 session.flush();
             }
 
+            // Create and assign movie tickets to customers
+            MovieTicket ticket1 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 2, 1, 1, session.get(MovieSlot.class,24));
+            MovieTicket ticket2 = new MovieTicket(session.get(Movie.class, 2), session.get(Branch.class, 1), "The Matrix", "Johns Cinema", 1, 1, 1, session.get(MovieSlot.class,11));
+            MovieTicket ticket3 = new MovieTicket(session.get(Movie.class, 3), session.get(Branch.class, 2), "Interstellar", "General Bay Cinema", 5, 1, 1, session.get(MovieSlot.class,90));
+            MovieTicket ticket4 = new MovieTicket(session.get(Movie.class, 4), session.get(Branch.class, 2), "The Dark Knight", "General Bay Cinema", 4, 2, 1,session.get(MovieSlot.class,76));
+            MovieTicket ticket5 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 1, 2, 1,session.get(MovieSlot.class,5));
+            List<MovieTicket> tickets = Arrays.asList(ticket1, ticket2, ticket3, ticket4, ticket5);
+            for (MovieTicket ticket : tickets) {
+                session.save(ticket);
+            }
+
+            assignTicketToCustomer(session.get(Customer.class, customer1.getId()), ticket1, session);
+            assignTicketToCustomer(session.get(Customer.class, customer2.getId()), ticket2, session);
+            assignTicketToCustomer(session.get(Customer.class, customer3.getId()), ticket3, session);
+            assignTicketToCustomer(session.get(Customer.class, customer4.getId()), ticket4, session);
+            assignTicketToCustomer(session.get(Customer.class, customer1.getId()), ticket5, session);
+
+
             session.getTransaction().commit();
         } catch (Exception exception) {
             if (session != null) {
@@ -546,6 +565,33 @@ public class DataCommunicationDB
             System.err.println("An error occurred, changes have been rolled back.");
             exception.printStackTrace();
         }
+    }
+
+
+    private static void assignTicketToCustomer(Customer customer, MovieTicket ticket, Session session) {
+        Purchase purchase = new Purchase();
+        purchase.setCustomerPID(customer.getPersonalID());
+        purchase.setPurchasedMovieTicket(ticket);
+        purchase.setPurchaseType(PurchaseType.MOVIE_TICKET);
+        purchase.SetPrice(session.get(PriceConstants.class,1));
+        purchase.setPriceByItem(purchase.getPurchaseType());
+        purchase.setDateOfPurchase(LocalDateTime.now());
+        purchase.setBranch(ticket.getBranch());
+        purchase.setCustomer(customer);
+        customer.addPurchase(purchase);
+        session.save(purchase);
+        session.save(customer);
+    }
+
+
+    private static void printCustomerTickets(Customer customer) {
+        System.out.println("Tickets for customer: " + customer.getFirstName() + " " + customer.getLastName());
+        for (Purchase purchase : customer.getPurchases()) {
+            MovieTicket ticket = purchase.getPurchasedMovieTicket();
+            System.out.println("Ticket ID: " + ticket.getId() + ", Movie: " + ticket.getMovieName() + ", Branch: " + ticket.getBranchName() +
+                    ", Theater: " + ticket.getTheaterNum() + ", Row: " + ticket.getSeatRow() + ", Seat: " + ticket.getSeatNum());
+        }
+        System.out.println();
     }
 
     public static List<MovieSlot> getScreeningTimesByMovie(Session session, int movieId) {
