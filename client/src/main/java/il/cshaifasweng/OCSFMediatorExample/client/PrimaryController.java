@@ -21,7 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,29 +34,25 @@ import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 public class PrimaryController implements ClientDependent {
     public ImageView logoBtn;
 
-    //region: Attributes
+    //region Attributes
 
-    //region: FXML Attributes
+    //region FXML Attributes
     @FXML
     private ComboBox<Branch> branchComboBox;
     @FXML
     private ComboBox<String> filterByTypeComboBox;
     @FXML
     private ComboBox<MovieGenre> filterByGenreComboBox;
-
     @FXML
     private DatePicker datePicker;
-
     @FXML
     private GridPane moveisListGrid;
     @FXML
     private VBox movieLayout;
-
     @FXML
     private Button catalogButton;
     @FXML
     private Button customerPanelBtn;
-
     @FXML
     private Button employeePanelBtn;
     @FXML
@@ -70,13 +65,12 @@ public class PrimaryController implements ClientDependent {
     private Button bookletPurchaseBtn;
     @FXML
     private Button submitComplaintBtn;
-
     @FXML
     private TextField searchTextField;
 
     //endregion
 
-    //region: Additional Attributes
+    //region Additional Attributes
     private Message localMessage;
     private SimpleClient client;
     private List<Movie> movies;
@@ -90,12 +84,15 @@ public class PrimaryController implements ClientDependent {
 
     @FXML
     void initialize() {
+        // Initialize UI components and set initial state
         datePicker.setVisible(false);
         datePicker.setEditable(false);
         filterByTypeComboBox.getItems().addAll("All Movies", "Upcoming Movies", "In Theater", "Viewing Package");
         filterByTypeComboBox.setValue("All Movies");
         filterByGenreComboBox.getItems().addAll(MovieGenre.COMEDY, MovieGenre.ACTION, MovieGenre.HORROR, MovieGenre.DRAMA, MovieGenre.ADVENTURE, MovieGenre.DOCUMENTARY);
         homeScreenBtn.setDisable(true);
+
+        // Send initial requests to the server
         Message message = new Message();
         message.setMessage("new client");
         client.sendMessage(message);
@@ -105,11 +102,14 @@ public class PrimaryController implements ClientDependent {
         message.setMessage(BRANCH_THEATER_INFORMATION);
         message.setData(GET_BRANCHES);
         client.sendMessage(message);
+
+        // Register EventBus to receive messages
         EventBus.getDefault().register(this);
 
-        // Add listener to searchTextField
+        // Add listener to searchTextField for real-time filtering
         searchTextField.textProperty().addListener((observable, oldValue, newValue) -> filterMovies());
 
+        // Customize datePicker cells to highlight dates with movies
         datePicker.setDayCellFactory(picker -> new DateCell() {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
@@ -124,6 +124,7 @@ public class PrimaryController implements ClientDependent {
             }
         });
 
+        // Set action for datePicker to filter movies by selected date
         datePicker.setOnAction(event -> {
             LocalDate selectedDate = datePicker.getValue();
             if (selectedDate != null) {
@@ -132,48 +133,45 @@ public class PrimaryController implements ClientDependent {
         });
     }
 
-    //Subscriber Method
+    // Method to handle data received through EventBus
     @Subscribe
     public void dataReceived(MessageEvent event) {
         if (event != null) {
-
-            //Creating a local message to handle the subMessage
+            // Creating a local message to handle the subMessage
             Message message = event.getMessage();
 
-            //Request to show all the movies.
+            // Handle different types of messages
             if (message.getData().equals(SHOW_ALL_MOVIES)) {
-                //Movies Received show all
+                // Movies received, show all
                 Platform.runLater(() -> {
                     this.movies = message.getMovies();
                     loadMovies(movies);
                     filteredMovies = movies;
                 });
-            }
-            //Request to show all the branch names.
-            else if (message.getData().equals(GET_BRANCHES)) {
+            } else if (message.getData().equals(GET_BRANCHES)) {
+                // Branch information received, populate branchComboBox
                 Platform.runLater(() -> {
                     this.branches = message.getBranches();
-                    branchComboBox.getItems().clear();  // Clear previous items
-                    branchComboBox.getItems().addAll(branches);  // Add Branch objects directly
+                    branchComboBox.getItems().clear();
+                    branchComboBox.getItems().addAll(branches);
                 });
             } else if (message.getData().equals(GET_MOVIES_BY_BRANCH_ID)) {
+                // Movies and slots for a specific branch received
                 Platform.runLater(() -> {
                     this.movies = message.getMovies();
                     this.slots = message.getMovieSlots();
                     updateDatesWithMovies();
                     loadMovies(movies);
                     filteredMovies = movies;
-
                 });
             }
         }
     }
 
-    //region: Helper Methods
+    //region Helper Methods
+    // Method to load and display movies in the grid
     private void loadMovies(List<Movie> moviesToDisplay) {
-
         moveisListGrid.getChildren().clear();
-        // Ensure movies list is initialized and populated
         int col = 0;
         int row = 0;
         try {
@@ -203,6 +201,7 @@ public class PrimaryController implements ClientDependent {
         }
     }
 
+    // Method to filter movies based on selected filters
     private void filterMovies() {
         String typeSelection = filterByTypeComboBox.getValue();
         MovieGenre genreSelection = filterByGenreComboBox.getValue();
@@ -236,44 +235,48 @@ public class PrimaryController implements ClientDependent {
             filteredMovies.removeIf(movie -> !movie.getMovieName().toLowerCase().contains(searchText));
         }
 
-
+        // Load filtered movies
         loadMovies(filteredMovies);
     }
 
+    // Method to handle movie selection
     public void chooseMovie(Movie movie, Stage stage) {
         try {
             localMessage = new Message();
             localMessage.setSpecificMovie(movie);
             localMessage.setSourceFXML(PRIMARY_SCREEN);
             client.moveScene("catalogM/Movie", stage, localMessage);
+            EventBus.getDefault().unregister(this);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    // Method to filter movies by selected date
     private void filterMoviesByDate(LocalDate selectedDate) {
         if (selectedDate == null || slots == null) return;
 
         List<Movie> moviesToDisplay = slots.stream()
                 .filter(slot -> slot.getStartDateTime().toLocalDate().equals(selectedDate))
-                .map(MovieSlot::getMovie)  // Extract the Movie object from each slot
-                .distinct()  // Ensure no duplicate movies are added
+                .map(MovieSlot::getMovie)
+                .distinct()
                 .collect(Collectors.toList());
 
         Platform.runLater(() -> loadMovies(moviesToDisplay));
     }
 
+    // Method to update dates with movies for highlighting in datePicker
     private void updateDatesWithMovies() {
-        datesWithMovies.clear();  // Clear the set to remove old dates
+        datesWithMovies.clear();
         for (MovieSlot slot : slots) {
             LocalDate date = slot.getStartDateTime().toLocalDate();
-            datesWithMovies.add(date);  // Add new dates
+            datesWithMovies.add(date);
         }
     }
-
     //endregion
 
-    //region: GUI Actions
+    //region GUI Actions
+    // Method to handle booklet purchase action
     @FXML
     void purchaseBookletControl(ActionEvent event) {
         if (client == null) {
@@ -292,11 +295,13 @@ public class PrimaryController implements ClientDependent {
         }
     }
 
+    // Method to handle genre selection action
     @FXML
     void chooseGenre(ActionEvent event) {
         filterMovies();
     }
 
+    // Method to handle type selection action
     @FXML
     public void chooseType(ActionEvent event) {
         filterByGenreComboBox.getSelectionModel().clearSelection();
@@ -305,6 +310,7 @@ public class PrimaryController implements ClientDependent {
         filterMovies();
     }
 
+    // Method to handle branch selection action
     @FXML
     void chooseBranch(ActionEvent event) {
         datePicker.setEditable(true);
@@ -322,13 +328,11 @@ public class PrimaryController implements ClientDependent {
             client.sendMessage(message);
             System.out.println("Message Branches sent");
         }
-
-
     }
 
+    // Method to clear all filters
     @FXML
     void clearFilters(ActionEvent event) {
-        // Clear all filters
         filterByTypeComboBox.setValue("All Movies");
         branchComboBox.getSelectionModel().clearSelection();
         branchComboBox.setButtonCell(new ListCell<>() {
@@ -342,13 +346,13 @@ public class PrimaryController implements ClientDependent {
         });
         filterByGenreComboBox.getSelectionModel().clearSelection();
         filterByGenreComboBox.setButtonCell(new ListCell<>() {
-           @Override
-           protected void updateItem(MovieGenre item, boolean empty) {
-               super.updateItem(item, empty);
-               if (item == null || empty) {
-                   setText(filterByGenreComboBox.getPromptText());
-               }
-           }
+            @Override
+            protected void updateItem(MovieGenre item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(filterByGenreComboBox.getPromptText());
+                }
+            }
         });
         datePicker.setEditable(false);
         datePicker.setVisible(false);
@@ -360,6 +364,7 @@ public class PrimaryController implements ClientDependent {
         client.sendMessage(message);
     }
 
+    // Method to handle complaint submission action
     @FXML
     void complaintController(ActionEvent event) {
         if (client == null) {
@@ -378,6 +383,7 @@ public class PrimaryController implements ClientDependent {
         }
     }
 
+    // Method to open employee panel
     @FXML
     void employeeController(ActionEvent event) {
         try {
@@ -392,9 +398,10 @@ public class PrimaryController implements ClientDependent {
         }
     }
 
+    // Method to open customer panel
     @FXML
     void customerController(ActionEvent event) {
-        try{
+        try {
             Stage stage = (Stage) customerPanelBtn.getScene().getWindow();
             Message message = new Message();
             message.setMessage("customer panel");
@@ -402,24 +409,24 @@ public class PrimaryController implements ClientDependent {
             EventBus.getDefault().unregister(this);
             client.moveScene(CUSTOMER_SCREEN, stage, message);
 
-        }
-        catch(Exception e)
-        {
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
     @FXML
     void dateFilterPicker(ActionEvent event) {
-
+        // Not implemented
     }
 
     @FXML
     public void textChangeSearchField(InputMethodEvent inputMethodEvent) {
+        // Not implemented
     }
     //endregion
 
-    //region: Interface Methods
+    //region Interface Methods
+    // Method to set client instance
     @Override
     public void setClient(SimpleClient client) {
         this.client = client;
@@ -430,18 +437,17 @@ public class PrimaryController implements ClientDependent {
         // this.localMessage = message;
     }
 
+    // Method to open admin panel
     public void openAdminPanel(MouseEvent mouseEvent) {
         logoBtn.setOnMouseClicked(event -> {
             if (event.getClickCount() == 5) {
-                try{
+                try {
                     Stage stage = (Stage) logoBtn.getScene().getWindow();
                     Message message = new Message();
                     message.setSourceFXML(PRIMARY_SCREEN);
                     EventBus.getDefault().unregister(this);
                     client.moveScene(ADMIN_SCREEN, stage, message);
-                }
-                catch(Exception e)
-                {
+                } catch(Exception e) {
                     e.printStackTrace();
                 }
             }

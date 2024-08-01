@@ -46,7 +46,7 @@ public class Theater implements Serializable {
     }
 
     // Getters and Setters
-    public int getTheaterNum() {
+    public int getId() {
         return theaterNum;
     }
 

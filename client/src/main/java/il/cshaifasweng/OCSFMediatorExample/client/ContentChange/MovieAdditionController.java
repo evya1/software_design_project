@@ -207,7 +207,7 @@ public class MovieAdditionController implements ClientDependent {
                     List<String> slotsNames = new ArrayList<>();
                     for (MovieSlot slot : slots) {
                         String cur = slot.getStartDateTime().toString() + ", in branch: " + slot.getBranch().getBranchName()
-                                + ", at theater: " + slot.getTheater().getTheaterNum();
+                                + ", at theater: " + slot.getTheater().getId();
                         slotsNames.add(cur);
 
                     }
@@ -239,7 +239,7 @@ public class MovieAdditionController implements ClientDependent {
             for (int i = 0; i < movie.getMovieScreeningTime().size(); i++) {
                 String cur = movie.getMovieScreeningTime().get(i).getStartDateTime().toString() +
                         ", in branch: " + movie.getMovieScreeningTime().get(i).getBranch().getBranchName() +
-                        ", at theater: " + movie.getMovieScreeningTime().get(i).getTheater().getTheaterNum();
+                        ", at theater: " + movie.getMovieScreeningTime().get(i).getTheater().getId();
 
                 if (cur.equals(selectedItem)) {
                     currentSlot = movie.getMovieScreeningTime().get(i);
@@ -307,7 +307,7 @@ public class MovieAdditionController implements ClientDependent {
             if (branch.getBranchName().equalsIgnoreCase(brName)) {
                 movieSlot.setBranch(branch);
                 for (Theater theater : branch.getTheaterList()) {
-                    if (theater.getTheaterNum() == theaterNum)
+                    if (theater.getId() == theaterNum)
                         movieSlot.setTheater(theater);
                 }
             }
@@ -349,7 +349,7 @@ public class MovieAdditionController implements ClientDependent {
                     flag = true;
                     movie.getMovieScreeningTime().get(slotIndex).setBranch(branches.get(i));
                     for (int j = 0; j < branches.get(i).getTheaterList().size(); j++) {
-                        if (branches.get(i).getTheaterList().get(j).getTheaterNum() == theaterNum) {
+                        if (branches.get(i).getTheaterList().get(j).getId() == theaterNum) {
                             movie.getMovieScreeningTime().get(slotIndex).setTheater(branches.get(i).getTheaterList().get(j));
                         }
                     }
@@ -357,7 +357,7 @@ public class MovieAdditionController implements ClientDependent {
             }
             if (!flag) {
                 for (int i = 0; i < movie.getMovieScreeningTime().get(slotIndex).getBranch().getTheaterList().size(); i++) {
-                    if (movie.getMovieScreeningTime().get(slotIndex).getBranch().getTheaterList().get(i).getTheaterNum() == theaterNum) {
+                    if (movie.getMovieScreeningTime().get(slotIndex).getBranch().getTheaterList().get(i).getId() == theaterNum) {
                         movie.getMovieScreeningTime().get(slotIndex).setTheater(movie.getMovieScreeningTime().get(slotIndex).getBranch().getTheaterList().get(i));
                         movie.getMovieScreeningTime().get(slotIndex).getTheater().getSchedule().add(movie.getMovieScreeningTime().get(slotIndex));
                     }
@@ -387,13 +387,13 @@ public class MovieAdditionController implements ClientDependent {
                 if (branch.getBranchName().equalsIgnoreCase(brName)) {
                     branchFound = true;
                     for (Theater theater : branch.getTheaterList()) {
-                        if (theater.getTheaterNum() == theaterNum) {
+                        if (theater.getId() == theaterNum) {
                             theaterFound = true;
                             int i = 0;
                             for (MovieSlot slot : theater.getSchedule()) {
                                 if (slot.getStartDateTime().equals(newStart) &&
                                         slot.getBranch().getBranchName().equalsIgnoreCase(brName) &&
-                                        slot.getTheater().getTheaterNum() == theaterNum) {
+                                        slot.getTheater().getId() == theaterNum) {
                                     SimpleClient.showAlert(Alert.AlertType.ERROR, "Time Error", "The time you entered is already there");
                                     return false;
                                 }
