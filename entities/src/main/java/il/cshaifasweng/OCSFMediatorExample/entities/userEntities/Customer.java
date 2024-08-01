@@ -98,4 +98,9 @@ public class Customer implements Serializable {
     public List<Complaint> getComplaints() {return complaints;}
 
     public void setComplaints(List<Complaint> complaints) {this.complaints = complaints;}
+
+    @Override
+    public String toString() {
+        return getFirstName() + " " + getLastName() + " " + getEmail() + " " + getPersonalID() + " " + getPayment() + " " + getComplaints() + " " + getPurchases() + " " + getPayment();
+    }
 }

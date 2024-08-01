@@ -3,11 +3,12 @@ package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "movie_link")
-public class MovieLink {
+public class MovieLink implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +21,16 @@ public class MovieLink {
     private String movieLink;
     private LocalDateTime creationTime;
     private LocalDateTime expirationTime;
+
+    public MovieLink() {}
+
+    public MovieLink(Movie movie, String movieName, String movieLink, LocalDateTime creationTime, LocalDateTime expirationTime) {
+        this.movie = movie;
+        this.movieName = movieName;
+        this.movieLink = movieLink;
+        this.creationTime = creationTime;
+        this.expirationTime = expirationTime;
+    }
 
 
     public Movie getMovie() {
