@@ -50,6 +50,8 @@ public class Purchase implements Serializable {
     @JoinColumn(name = "branch_id", nullable = true)
     private Branch branch;
 
+
+
     public int getId() { return id; }
 
     public PurchaseType getPurchaseType() { return purchaseType; }
@@ -64,6 +66,9 @@ public class Purchase implements Serializable {
 
     public void setCustomer(Customer customer) { this.customer = customer; }
 
+    public int getBookletId(){
+        return purchasedBooklet.getId();
+    }
     public Booklet getPurchasedBooklet() {return purchasedBooklet;}
 
     public void setPurchasedBooklet(Booklet purchasedBooklet) {this.purchasedBooklet = purchasedBooklet;}

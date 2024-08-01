@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -20,11 +21,26 @@ public class MovieTicket implements Serializable {
     @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Branch branch;
 
+    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    MovieSlot movieSlot = new MovieSlot();
+
     private String movieName;
     private String branchName;
     private int theaterNum;
     private int seatNum;
     private int seatRow;
+
+    public MovieTicket(Movie movie, Branch branch, String movieName, String branchName, int theaterNum, int seatNum, int seatRow, MovieSlot movieSlot) {
+        this.id = getId();
+        this.movie = movie;
+        this.branch = branch;
+        this.movieName = movieName;
+        this.branchName = branchName;
+        this.theaterNum = theaterNum;
+        this.seatNum = seatNum;
+        this.seatRow = seatRow;
+        this.movieSlot = movieSlot;
+    }
 
     public MovieTicket(){}
 
@@ -86,6 +102,14 @@ public class MovieTicket implements Serializable {
 
     public void setBranchName(String branchName) {
         this.branchName = branchName;
+    }
+
+    public MovieSlot getMovieSlot() {
+        return movieSlot;
+    }
+
+    public void setMovieSlot(MovieSlot movieSlot) {
+        this.movieSlot = movieSlot;
     }
 
 }

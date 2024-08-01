@@ -54,7 +54,7 @@ public class SimpleChatServer {
             DataCommunicationDB.generateMovieList();
 //            DataCommunicationDB.generateMovieList2();
 //            DataCommunicationDB.createMockData();
-            //DataCommunicationDB.printAllEntities();
+            DataCommunicationDB.printAllEntities();
 
 
         } catch (Exception exception) {

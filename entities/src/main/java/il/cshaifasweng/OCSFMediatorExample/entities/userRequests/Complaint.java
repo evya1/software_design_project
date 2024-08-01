@@ -23,7 +23,7 @@ public class Complaint implements Serializable {
     private LocalDateTime dateOfComplaint;
     private String complaintStatus;
     private PurchaseType purchaseType = null;
-    private String customerPId;
+    private String customerPId; 
 
     @ManyToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
