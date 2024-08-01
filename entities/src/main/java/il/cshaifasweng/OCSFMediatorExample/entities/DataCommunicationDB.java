@@ -556,6 +556,34 @@ public class DataCommunicationDB
             assignTicketToCustomer(session.get(Customer.class, customer4.getId()), ticket4, session);
             assignTicketToCustomer(session.get(Customer.class, customer1.getId()), ticket5, session);
 
+            // Create and assign movie links to customers
+            MovieLink link1 = new MovieLink(movie1, "Inception", "http://example.com/inception", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+            MovieLink link2 = new MovieLink(movie2, "The Matrix", "http://example.com/matrix", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+            MovieLink link3 = new MovieLink(movie3, "Interstellar", "http://example.com/interstellar", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+            MovieLink link4 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+            List<MovieLink> movieLinks = Arrays.asList(link1, link2, link3, link4);
+            for (MovieLink movieLink : movieLinks) {
+                session.save(movieLink);
+            }
+
+            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link1, session);
+            assignLinkToCustomer(session.get(Customer.class, customer2.getId()), link2, session);
+            assignLinkToCustomer(session.get(Customer.class, customer3.getId()), link3, session);
+            assignLinkToCustomer(session.get(Customer.class, customer4.getId()), link4, session);
+
+            //create and assign Booklets
+            Booklet booklet1 = new Booklet();
+            Booklet booklet2 = new Booklet();
+            Booklet booklet3 = new Booklet();
+            Booklet booklet4 = new Booklet();
+            List<Booklet> booklets = Arrays.asList(booklet1, booklet2, booklet3, booklet4);
+            for (Booklet booklet : booklets) {
+                session.save(booklet);
+            }
+            assignBookletToCustomer(session.get(Customer.class, customer1.getId()), booklet1, session);
+            assignBookletToCustomer(session.get(Customer.class, customer2.getId()), booklet2, session);
+            assignBookletToCustomer(session.get(Customer.class, customer3.getId()), booklet3, session);
+            assignBookletToCustomer(session.get(Customer.class, customer4.getId()), booklet4, session);
 
             session.getTransaction().commit();
         } catch (Exception exception) {
@@ -583,16 +611,31 @@ public class DataCommunicationDB
         session.save(customer);
     }
 
-
-    private static void printCustomerTickets(Customer customer) {
-        System.out.println("Tickets for customer: " + customer.getFirstName() + " " + customer.getLastName());
-        for (Purchase purchase : customer.getPurchases()) {
-            MovieTicket ticket = purchase.getPurchasedMovieTicket();
-            System.out.println("Ticket ID: " + ticket.getId() + ", Movie: " + ticket.getMovieName() + ", Branch: " + ticket.getBranchName() +
-                    ", Theater: " + ticket.getTheaterNum() + ", Row: " + ticket.getSeatRow() + ", Seat: " + ticket.getSeatNum());
-        }
-        System.out.println();
+    private static void assignLinkToCustomer(Customer customer, MovieLink link, Session session) {
+        Purchase purchase = new Purchase();
+        purchase.setCustomerPID(customer.getPersonalID());
+        purchase.setPurchasedMovieLink(link);
+        purchase.setPurchaseType(PurchaseType.MOVIE_LINK);
+        purchase.SetPrice(session.get(PriceConstants.class,1));
+        purchase.setPriceByItem(purchase.getPurchaseType());
+        purchase.setDateOfPurchase(LocalDateTime.now());
+        purchase.setCustomer(customer);
+        customer.addPurchase(purchase);
+        session.save(purchase);
     }
+
+    private static void assignBookletToCustomer(Customer customer, Booklet booklet, Session session) {
+        Purchase purchase = new Purchase();
+        purchase.setPurchasedBooklet(booklet);
+        purchase.setPurchaseType(PurchaseType.BOOKLET);
+        purchase.setDateOfPurchase(LocalDateTime.now());
+        purchase.setCustomerPID(customer.getPersonalID());
+        purchase.setCustomer(customer);
+        customer.addPurchase(purchase);
+        session.save(purchase);
+    }
+
+
 
     public static List<MovieSlot> getScreeningTimesByMovie(Session session, int movieId) {
         return session.createQuery(

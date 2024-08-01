@@ -33,6 +33,7 @@ public class CustomerInfoHandler implements RequestHandler {
                     session.beginTransaction();
                     customer = DataCommunicationDB.getCustomerByPersonalID(session, message.getCustomerID());
                     answer.setCustomer(customer);
+                    System.out.println(customer);
                     client.sendToClient(answer); //If there was a null then the customer doesn't exist show a popup.
                     break;
                 default:
