@@ -4,6 +4,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
@@ -24,21 +25,39 @@ public class BranchTheaterHandler implements RequestHandler {
             session = sessionFactory.openSession();
             DataCommunicationDB.setSession(session);
             Message answer = new Message();
+            List<Branch> branches;
+            answer.setMessage(BRANCH_THEATER_INFORMATION);
 
             switch (message.getData()){
+
                 case GET_BRANCHES:
-                    answer.setMessage(BRANCH_THEATER_INFORMATION);
                     answer.setData(GET_BRANCHES);
-                    List<Branch> branches = DataCommunicationDB.getBranches();
+                    branches = DataCommunicationDB.getBranches();
                     for (Branch branch : branches) {
                         for (Theater theater : branch.getTheaterList()){
-                            theater.getTheaterNum();
+                            theater.getId();
                             theater.getSchedule();
                         }
                     }
                     answer.setBranches(branches);
                     client.sendToClient(answer);
                     break;
+                case GET_BRANCHES_BY_MOVIE_ID:
+                    answer.setData(GET_BRANCHES_BY_MOVIE_ID);
+                    branches = DataCommunicationDB.getBranchesByMovieID(message.getMovieID());
+                    answer.setBranches(branches);
+                    client.sendToClient(answer);
+                    break;
+                case GET_MOVIE_SLOT_BY_MOVIE_ID_AND_BRANCH_ID:
+                    answer.setData(GET_MOVIE_SLOT_BY_MOVIE_ID_AND_BRANCH_ID);
+                    List<MovieSlot> slots = DataCommunicationDB
+                            .getMovieSlotsByBranchIDAndMovieID(message.getMovieID(),message.getBranchID());
+                    answer.setMovieSlots(slots);
+                    client.sendToClient(answer);
+                    break;
+                default:
+                    break;
+
             }
 
         } catch (Exception e) {

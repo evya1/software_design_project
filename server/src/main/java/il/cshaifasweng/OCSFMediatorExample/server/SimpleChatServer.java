@@ -1,12 +1,14 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Scanner;
 
 public class SimpleChatServer {
@@ -52,7 +54,7 @@ public class SimpleChatServer {
             DataCommunicationDB.generateMovieList();
 //            DataCommunicationDB.generateMovieList2();
 //            DataCommunicationDB.createMockData();
-            DataCommunicationDB.printAllEntities();
+            //DataCommunicationDB.printAllEntities();
 
 
         } catch (Exception exception) {

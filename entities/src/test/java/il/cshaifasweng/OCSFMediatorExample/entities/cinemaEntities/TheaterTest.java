@@ -67,7 +67,7 @@ public class TheaterTest {
     public void testGetTheaterNum() {
         int theaterNum = 1;
         theater.setTheaterNum(theaterNum);
-        assertEquals(theaterNum, theater.getTheaterNum());
+        assertEquals(theaterNum, theater.getId());
 
         printTestInfo("Theater number set and retrieved successfully");
     }
@@ -76,7 +76,7 @@ public class TheaterTest {
     public void testSetTheaterNum() {
         int theaterNum = 2;
         theater.setTheaterNum(theaterNum);
-        assertEquals(theaterNum, theater.getTheaterNum());
+        assertEquals(theaterNum, theater.getId());
 
         printTestInfo("Theater number set successfully");
     }

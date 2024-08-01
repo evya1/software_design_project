@@ -11,7 +11,6 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_BRANCHES;
@@ -29,7 +28,7 @@ public class ChangeScreeningTimesHandler implements RequestHandler {
         movieSl.setStartDateTime(mv.getStartDateTime());
         movieSl.setEndDateTime(mv.getEndDateTime());
 
-        Theater thea = session.get(Theater.class,movieSl.getTheater().getTheaterNum());
+        Theater thea = session.get(Theater.class,movieSl.getTheater().getId());
         thea.getSchedule().add(movieSl);
 
         session.getTransaction().commit();
@@ -49,7 +48,7 @@ public class ChangeScreeningTimesHandler implements RequestHandler {
         movieSl.setStartDateTime(mv.getStartDateTime());
         movieSl.setEndDateTime(mv.getEndDateTime());
 
-        Theater thea = session.get(Theater.class,movieSl.getTheater().getTheaterNum());
+        Theater thea = session.get(Theater.class,movieSl.getTheater().getId());
         thea.getSchedule().add(movieSl);
 
         movie.getMovieScreeningTime().add(movieSl);
@@ -80,7 +79,7 @@ public class ChangeScreeningTimesHandler implements RequestHandler {
             List<Branch> branches = DataCommunicationDB.getBranches();
             for (Branch branch : branches) {
                 for (Theater th : branch.getTheaterList()) {
-                    th.getTheaterNum();
+                    th.getId();
                     th.getSchedule();
                 }
             }

@@ -48,6 +48,13 @@ public class MovieSlot implements Serializable {
         return branch;
     }
 
+    public int getBranchId() {
+        return branch != null ? branch.getId() : -1;
+    }
+    public int getTheaterId(){
+        return theater != null ? theater.getId() : -1;
+    }
+
     public void setBranch(Branch branch) {
         this.branch = branch;
     }

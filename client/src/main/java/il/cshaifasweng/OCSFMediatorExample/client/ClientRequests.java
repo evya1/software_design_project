@@ -23,5 +23,7 @@ public class ClientRequests {
     public static final String DELETE_EMPLOYEE = "Delete employee";
     public static final String GET_ALL_EMPLOYEES = "Get all employees";
     public static final String EMPLOYEE_CREATED = "Employee created successfully";
+    public static final String GET_BRANCHES_BY_MOVIE_ID = "Get branches by movie ID";
+    public static final String GET_MOVIE_SLOT_BY_MOVIE_ID_AND_BRANCH_ID = "Get screening by movie and branch id";
 
 }

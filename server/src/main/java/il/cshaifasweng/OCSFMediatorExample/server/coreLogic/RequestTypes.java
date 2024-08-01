@@ -15,6 +15,8 @@ public class RequestTypes {
     public static final String GET_BRANCHES = "Get all branches";
     public static final String BRANCH_THEATER_INFORMATION = "Branch or Theater information";
     public static final String GET_MOVIES_BY_BRANCH_ID = "Get movies by branch id";
+    public static final String GET_BRANCHES_BY_MOVIE_ID = "Get branches by movie ID";
+    public static final String GET_MOVIE_SLOT_BY_MOVIE_ID_AND_BRANCH_ID = "Get screening by movie and branch id";
     public static final String GET_COMPLAINT_REQUEST = "New Complaint";
     public static final String GET_EMPLOYEES = "Get employees";
     public static final String SHOW_ALL_EMPLOYEES = "show all employees";

@@ -29,7 +29,7 @@ public class GetTimeSlotByMovieID implements RequestHandler {
             screeningTimes.size();
             for (MovieSlot movieSlot : screeningTimes) {
                 if (movieSlot.getTheater() != null && movieSlot.getBranch() != null) {
-                movieSlot.getTheater().getTheaterNum();
+                movieSlot.getTheater().getId();
                 movieSlot.getBranch().getBranchName();
                 }
             }

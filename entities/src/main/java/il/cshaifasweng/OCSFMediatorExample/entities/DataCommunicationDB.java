@@ -137,7 +137,7 @@ public class DataCommunicationDB
             // Print Theaters in Branch
             List<Theater> branchTheaters = branch.getTheaterList();
             for (Theater branchTheater : branchTheaters) {
-                System.out.println("\tTheater ID: " + branchTheater.getTheaterNum() +
+                System.out.println("\tTheater ID: " + branchTheater.getId() +
                         ", Num of Seats: " + branchTheater.getNumOfSeats() +
                         ", Available Seats: " + branchTheater.getAvailableSeats());
             }
@@ -861,6 +861,46 @@ public class DataCommunicationDB
         }
         return movieSlots;
     }
+
+    public static List<MovieSlot> getMovieSlotsByBranchIDAndMovieID(int movieID, int branchID){
+        Transaction transaction = null;
+        List<MovieSlot> movieSlots = null;
+        try {
+            transaction = session.beginTransaction();
+            movieSlots = session.createQuery(
+                            "FROM MovieSlot ms WHERE ms.movie.id = :movie_Id AND ms.branch.id = :branch_Id", MovieSlot.class)
+                    .setParameter("movie_Id", movieID)
+                    .setParameter("branch_Id", branchID)
+                    .getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();  // Log the exception for debugging
+        }
+        return movieSlots;
+    }
+
+    public static List<Branch> getBranchesByMovieID(int movieID){
+        Transaction transaction = null;
+        List<Branch> branches = null;
+        try {
+            transaction = session.beginTransaction();
+            branches = session.createQuery(
+                            "SELECT DISTINCT ms.branch FROM MovieSlot ms WHERE ms.movie.id = :movie_Id", Branch.class)
+                    .setParameter("movie_Id", movieID)
+                    .getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();  // Log the exception for debugging
+        }
+        return branches;
+    }
+
 
     public static List<Movie> getMoviesByBranch(int branchId) {
         Transaction transaction = null;
