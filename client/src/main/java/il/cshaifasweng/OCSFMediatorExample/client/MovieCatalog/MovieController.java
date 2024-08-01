@@ -178,19 +178,6 @@ public class MovieController implements ClientDependent {
                         });
 
             }
-//            Platform.runLater(() -> {
-//
-//                setTheTimeSlots(message.getMovieSlots());
-//                ObservableList<LocalDateTime> times = FXCollections.observableArrayList();
-//                for (MovieSlot slot : message.getMovieSlots()) {
-//                    if (!movie.getMovieType().isUpcoming()) {
-//                        times.add(slot.getStartDateTime());
-//                    }
-//                }
-//                // Sort the times
-//                Collections.sort(times);
-//                screeningTimesListView.setItems(times);
-//            });
         }
     }
 
@@ -228,8 +215,13 @@ public class MovieController implements ClientDependent {
             EventBus.getDefault().unregister(this);
             Message message = new Message();
             message.setMovieSlot(selectedMovieSlot);
-            SimpleClient.showAlert(Alert.AlertType.CONFIRMATION,"Purchase Tickets","Moving to Purchase tickets screen(TBD) "+ selectedMovieSlot.getBranch());
-            //move screen
+            try {
+                EventBus.getDefault().unregister(this);
+                Stage stage = (Stage) movieTicketBtn.getScene().getWindow();
+                client.moveScene(CHOOSE_SEATS_SCREEN, stage, message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         else{
             SimpleClient.showAlert(Alert.AlertType.ERROR,"Screening Error","Please choose a screening time before moving to purchase.");
