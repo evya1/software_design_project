@@ -129,7 +129,18 @@
                       </TitledPane>
                       <TitledPane fx:id="viewingPackageTilePane" animated="false" text="Viewing Package">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <TableView fx:id="moviePackageTableView" prefHeight="316.0" prefWidth="934.0">
+                                      <columns>
+                                        <TableColumn fx:id="idNumMovieLinkCol" prefWidth="38.888885498046875" text="ID" />
+                                        <TableColumn fx:id="movieNameMovieLinkCol" prefWidth="175.33331298828125" text="Movie Name" />
+                                          <TableColumn fx:id="linkMovieLinkCol" prefWidth="272.0" text="Movie Link" />
+                                          <TableColumn fx:id="activationTimeMovieLinkCol" prefWidth="226.2222900390625" text="Activation Time" />
+                                          <TableColumn fx:id="expirationTimeMovieLinkCol" minWidth="0.0" prefWidth="221.7777099609375" text="Expiration Time" />
+                                      </columns>
+                                    </TableView>
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                     </panes>

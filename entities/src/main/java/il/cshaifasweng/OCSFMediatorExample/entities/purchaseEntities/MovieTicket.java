@@ -6,6 +6,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "movie_ticket")
@@ -111,5 +112,7 @@ public class MovieTicket implements Serializable {
     public void setMovieSlot(MovieSlot movieSlot) {
         this.movieSlot = movieSlot;
     }
+
+
 
 }
