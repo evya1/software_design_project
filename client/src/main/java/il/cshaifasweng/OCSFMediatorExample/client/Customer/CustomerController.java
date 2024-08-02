@@ -1,12 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Customer;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieTicket;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import javafx.application.Platform;
@@ -101,7 +100,7 @@ public class CustomerController implements ClientDependent {
     private TableColumn<MovieTicket, String> movieNameMovieTicketCol;
 
     @FXML
-    private TableColumn<MovieTicket, String> movieSlotMovieTicketCol;
+    private TableColumn<MovieTicket, MovieSlot> movieSlotMovieTicketCol;
 
     @FXML
     private TableColumn<MovieTicket, Integer> theaterNumMovieTicketCol;
@@ -125,16 +124,37 @@ public class CustomerController implements ClientDependent {
     @FXML
     private TitledPane viewingPackageTilePane;
 
+    @FXML
+    private TableColumn<MovieLink, LocalDateTime> activationTimeMovieLinkCol;
+
+    @FXML
+    private TableColumn<MovieLink, LocalDateTime> expirationTimeMovieLinkCol;
+
+    @FXML
+    private TableColumn<MovieLink, Integer> idNumMovieLinkCol;
+
+    @FXML
+    private TableColumn<MovieLink, String> linkMovieLinkCol;
+
+    @FXML
+    private TableColumn<MovieLink, String> movieNameMovieLinkCol;
+
+    @FXML
+    private TableView<MovieLink> moviePackageTableView;
+
+
+
+
 
     @FXML
     void initialize() {
         loggedOutButtons();
         EventBus.getDefault().register(this);
 
-        //Initialize the table values
-        //Initialize the columns
+        // Initialize the table values
+        // Initialize the columns
 
-        //region Complaint Columns
+        // region Complaint Columns
         complaintIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         complaintTitleCol.setCellValueFactory(new PropertyValueFactory<>("complaintTitle"));
         complaintDescriptionCol.setCellValueFactory(new PropertyValueFactory<>("complaintContent"));
@@ -153,16 +173,15 @@ public class CustomerController implements ClientDependent {
                 }
             }
         });
-
-        // Make sure to set the cell value factory if not already set
         dateOfComplaintCol.setCellValueFactory(new PropertyValueFactory<>("dateOfComplaint"));
-        //endregion
+        // endregion
 
-
+        // region Booklet Columns
         idBookletCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         numOfEntriesBookletCol.setCellValueFactory(new PropertyValueFactory<>("numOfEntries"));
+        // endregion
 
-
+        // region Movie Ticket Columns
         idNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         movieNameMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("movieName"));
         movieSlotMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("movieSlot"));
@@ -170,18 +189,52 @@ public class CustomerController implements ClientDependent {
         rowNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("seatRow"));
         seatNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("seatNum"));
         branchNameMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("branchName"));
+        // endregion
 
-        //Initialize pane popups
-        if(movieTicketsTitlePane != null) {
+        // region Movie Link Columns
+        idNumMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        linkMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("movieLink"));
+        movieNameMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("movieName"));
+        expirationTimeMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("expirationTime"));
+        expirationTimeMovieLinkCol.setCellFactory(column -> new TableCell<MovieLink, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    // Format the LocalDateTime
+                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+                }
+            }
+        });
+        activationTimeMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("creationTime"));
+        activationTimeMovieLinkCol.setCellFactory(column -> new TableCell<MovieLink, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    // Format the LocalDateTime
+                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+                }
+            }
+        });
+        // endregion
+
+        // Initialize pane popups
+        if (movieTicketsTitlePane != null) {
             addPopUpToTitledPane(movieTicketsTitlePane);
         }
-        if(bookletsTilePane != null) {
+        if (bookletsTilePane != null) {
             addPopUpToTitledPane(bookletsTilePane);
         }
-        if(viewingPackageTilePane != null) {
+        if (viewingPackageTilePane != null) {
             addPopUpToTitledPane(viewingPackageTilePane);
         }
     }
+
 
     @Subscribe
     public void dataReceived(MessageEvent event) {
@@ -289,9 +342,9 @@ public class CustomerController implements ClientDependent {
                 else if(pane == bookletsTilePane) {
                     items = bookletTableView.getItems().isEmpty();
                 }
-                //TODO: Add later
+
                 else if(pane == viewingPackageTilePane) {
-                //    items = viewingPackageTableView.getItems().isEmpty();
+                    items = moviePackageTableView.getItems().isEmpty();
                 }
 
                 if(items) {
@@ -316,9 +369,9 @@ public class CustomerController implements ClientDependent {
         disableElements();
 
         //When loading a new customer clear the tables.
-        //TODO: Add the Viewing Package clear.
         bookletTableView.getItems().clear();
         movieTicketTableView.getItems().clear();
+        moviePackageTableView.getItems().clear();
 
         //Checking if the panes are not null and then setting them to not expend.
         if(movieTicketsTitlePane != null) {
@@ -395,6 +448,10 @@ public class CustomerController implements ClientDependent {
         movieTicketTableView.setVisible(true);
         movieTicketTableView.setDisable(false);
 
+        // Ensure the movie package table view is visible and enabled
+        moviePackageTableView.setVisible(true);
+        moviePackageTableView.setDisable(false);
+
         // Fetch and display the booklets from purchases
         if (localCustomer == null) {
             SimpleClient.showAlert(Alert.AlertType.ERROR, "No Customer", "You must be logged in to view purchases.");
@@ -414,7 +471,7 @@ public class CustomerController implements ClientDependent {
                 bookletTableView.getItems().addAll(booklets); // Add new items
                 bookletTableView.refresh(); // Refresh the table view to display new data
             } else if (bookletsTilePane.isExpanded() && booklets.isEmpty()) {
-                    SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Booklets", "There are no booklets to display.");
+                SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Booklets", "There are no booklets to display.");
             }
 
             // Extract movie tickets from purchases
@@ -423,18 +480,32 @@ public class CustomerController implements ClientDependent {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            //If tickets are empty don't populate the table.
             if (!movieTickets.isEmpty()) {
                 movieTicketTableView.getItems().clear(); // Clear existing items
                 movieTicketTableView.getItems().addAll(movieTickets); // Add new items
                 movieTicketTableView.refresh(); // Refresh the table view to display new data
             } else if (movieTicketsTitlePane.isExpanded() && movieTickets.isEmpty()) {
-                    SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Movie Tickets", "There are no movie tickets to display.");
+                SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Movie Tickets", "There are no movie tickets to display.");
+            }
+
+            // Extract movie links from purchases
+            List<MovieLink> movieLinks = localCustomer.getPurchases().stream()
+                    .map(Purchase::getPurchasedMovieLink)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (!movieLinks.isEmpty()) {
+                moviePackageTableView.getItems().clear(); // Clear existing items
+                moviePackageTableView.getItems().addAll(movieLinks); // Add new items
+                moviePackageTableView.refresh(); // Refresh the table view to display new data
+            } else if (viewingPackageTilePane.isExpanded() && movieLinks.isEmpty()) {
+                SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Movie Packages", "There are no movie packages to display.");
             }
         } else {
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Purchases", "There are no purchases to display.");
         }
     }
+
 
 
     @Override
