@@ -80,6 +80,12 @@
 			<version>${junit.platform.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- ControlsFX Dependency -->
+		<dependency>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+			<version>11.1.1</version> <!-- Make sure this is the latest version -->
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

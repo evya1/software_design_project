@@ -96,7 +96,7 @@ public class Branch implements Serializable {
 
     @Override
     public String toString(){
-        return "Branch ID: " + id + ", Branch Name: " + branchName;
+        return branchName;
     }
 
     public List<Employee> getEmployeesList() {

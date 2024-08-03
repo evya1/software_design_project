@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import javafx.animation.PauseTransition;
@@ -16,6 +17,7 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Duration;
+import org.controlsfx.control.CheckComboBox;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
@@ -50,6 +52,11 @@ public class AdminPanelController implements ClientDependent {
 
     @FXML
     public Button createEmployeeBtn;
+    @FXML
+    public Button createBranchBtn;
+
+    @FXML
+    public CheckComboBox<Branch> branchManagerCCB;
 
     @FXML
     private TitledPane newEmployeeAccordion;
@@ -75,9 +82,13 @@ public class AdminPanelController implements ClientDependent {
     public TextField usernameEmployee;
     @FXML
     public TextField passwordEmployee;
+    @FXML
+    public TextField branchNameTF;
 
     @FXML
     public TableView<Employee> employeeTableView;
+    @FXML
+    public TableView<Branch> branchTableView;
     @FXML
     public TableColumn<Employee, Integer> idCol;
     @FXML
@@ -98,6 +109,17 @@ public class AdminPanelController implements ClientDependent {
     public TableColumn<Employee, Branch> branchCol;
 
     @FXML
+    public TableColumn<Branch,Integer> branchIDCol;
+    @FXML
+    public TableColumn<Branch, String> branchNameCol;
+    @FXML
+    public TableColumn<Branch,List<Employee>> branchManagersCol;
+    @FXML
+    public TableColumn<Branch,List<Employee>> employeesCol;
+    @FXML
+    public TableColumn<Branch,List<Theater>> theatersCol;
+
+    @FXML
     private Label branchManagerLabel;
     //endregion
 
@@ -110,7 +132,6 @@ public class AdminPanelController implements ClientDependent {
     private Message localMessage;
     private List<Branch> branches;
     private List<Employee> employees;
-    private final String borderDefault = null;
 
     //endregion
 
@@ -175,7 +196,8 @@ public class AdminPanelController implements ClientDependent {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem deleteItem = new MenuItem("Delete");
         MenuItem editItem = new MenuItem("Edit");
-        contextMenu.getItems().addAll(deleteItem, editItem);
+        MenuItem forceDisconnect = new MenuItem("Disconnect");
+        contextMenu.getItems().addAll(deleteItem, editItem, forceDisconnect);
 
         // Set context menu on each row, and only show for non-empty rows
         employeeTableView.setRowFactory(tv -> {
@@ -202,9 +224,36 @@ public class AdminPanelController implements ClientDependent {
             employeeTableView.setEditable(!isEditable);
             editItem.setText(isEditable ? "Edit" : "Disable Edit");
         });
+
+        //reset an employee activity in the system.
+        forceDisconnect.setOnAction(event ->{
+            Employee selectedEmployee = employeeTableView.getSelectionModel().getSelectedItem();
+            if(selectedEmployee != null && selectedEmployee.isActive()){
+                Message message = new Message();
+                message.setMessage(EMPLOYEE_INFORMATION);
+                message.setData(RESET_EMPLOYEE_ACTIVITY);
+                message.setEmployee(selectedEmployee);
+                client.sendMessage(message);
+            }
+        });
     }
 
     //region Helper Methods
+
+
+    // Show label information for 5 seconds.
+    private void pauseTransitionLabelUpdate(String string){
+        notificationLabel.setText(string);
+
+        // Create a pause transition of 5 seconds
+        PauseTransition pause = new PauseTransition(Duration.seconds(5));
+
+        // Set what to do after the pause
+        pause.setOnFinished(event -> notificationLabel.setText(""));
+
+        // Start the pause
+        pause.play();
+    }
 
     // Method to create a new Employee object from the input fields
     private Employee getEmployee() {
@@ -254,6 +303,8 @@ public class AdminPanelController implements ClientDependent {
             employee.setEmployeeType((EmployeeType) event.getNewValue());
         } else if (event.getTableColumn() == branchManagerCol) {
             employee.setBranchInCharge((Branch) event.getNewValue());
+        } else if (event.getTableColumn() == branchCol) {
+            employee.setBranch((Branch) event.getNewValue());
         }
         updateEmployeeOnServer(employee);
     }
@@ -265,7 +316,6 @@ public class AdminPanelController implements ClientDependent {
         request.setData(UPDATE_EMPLOYEE);
         request.setEmployee(employee);
         client.sendMessage(request);
-        System.out.println("Entered updateEmployeeOnServer");
     }
 
     // Method to clear all input fields
@@ -318,25 +368,16 @@ public class AdminPanelController implements ClientDependent {
             });
         }
         if (msgFromServer.getMessage().equals(EMPLOYEE_INFORMATION)) {
-            if (msgFromServer.getData().equals(EMPLOYEE_CREATED)) {
-                Platform.runLater(() -> {
+            switch (msgFromServer.getData()) {
+                case EMPLOYEE_CREATED -> Platform.runLater(() -> {
                     clearFields();
                     SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Employee Created", "Employee has been created.");
                 });
-            }
-            if (msgFromServer.getData().equals(UPDATE_EMPLOYEE)) {
-                Platform.runLater(() -> {
-                    notificationLabel.setText("Employee Information Updated");
-
-                    // Create a pause transition of 5 seconds
-                    PauseTransition pause = new PauseTransition(Duration.seconds(5));
-
-                    // Set what to do after the pause
-                    pause.setOnFinished(event2 -> notificationLabel.setText(""));
-
-                    // Start the pause
-                    pause.play();
-                });
+                case UPDATE_EMPLOYEE ->
+                        Platform.runLater(() -> pauseTransitionLabelUpdate("Employee Information Updated Successfully."));
+                case RESET_EMPLOYEE_ACTIVITY ->
+                        Platform.runLater(() -> pauseTransitionLabelUpdate("Employee Activity Reset Successfully."));
+                default -> System.out.println("Unknown EMPLOYEE_INFORMATION SUB CATEGORY");
             }
         }
     }
@@ -345,11 +386,16 @@ public class AdminPanelController implements ClientDependent {
     public void newEmployeeAction(ActionEvent actionEvent) {
         newEmployeeAccordion.setExpanded(true);
         newEmployeeAccordion.setDisable(false);
+        newBranchAccordion.setDisable(true);
+        newBranchAccordion.setExpanded(false);
     }
 
     @FXML
     public void newBranchAction(ActionEvent actionEvent) {
-        // Implement new branch action
+        newEmployeeAccordion.setExpanded(false);
+        newEmployeeAccordion.setDisable(true);
+        newBranchAccordion.setDisable(false);
+        newBranchAccordion.setExpanded(true);
     }
 
     @FXML
@@ -447,6 +493,9 @@ public class AdminPanelController implements ClientDependent {
     @FXML
     public void workerBranchAction(ActionEvent actionEvent) {
         changeControlBorderColor(branchWorkerCombobox, null);
+    }
+    @FXML
+    public void createBranchAction(ActionEvent event) {
     }
 
     //endregion

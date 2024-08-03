@@ -372,6 +372,7 @@ public class CustomerController implements ClientDependent {
         bookletTableView.getItems().clear();
         movieTicketTableView.getItems().clear();
         moviePackageTableView.getItems().clear();
+        tableViewComplaints.getItems().clear();
 
         //Checking if the panes are not null and then setting them to not expend.
         if(movieTicketsTitlePane != null) {
