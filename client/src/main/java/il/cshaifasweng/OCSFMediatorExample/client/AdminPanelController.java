@@ -56,7 +56,7 @@ public class AdminPanelController implements ClientDependent {
     public Button createBranchBtn;
 
     @FXML
-    public CheckComboBox<Branch> branchManagerCCB;
+    public CheckComboBox<Employee> branchManagerCCB;
 
     @FXML
     private TitledPane newEmployeeAccordion;
@@ -306,6 +306,7 @@ public class AdminPanelController implements ClientDependent {
         } else if (event.getTableColumn() == branchCol) {
             employee.setBranch((Branch) event.getNewValue());
         }
+        System.out.println("Branch worker is " + employee.getBranch() + " Branch In Charge " + employee.getBranchInCharge());
         updateEmployeeOnServer(employee);
     }
 
@@ -373,10 +374,12 @@ public class AdminPanelController implements ClientDependent {
                     clearFields();
                     SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Employee Created", "Employee has been created.");
                 });
-                case UPDATE_EMPLOYEE ->
-                        Platform.runLater(() -> pauseTransitionLabelUpdate("Employee Information Updated Successfully."));
-                case RESET_EMPLOYEE_ACTIVITY ->
-                        Platform.runLater(() -> pauseTransitionLabelUpdate("Employee Activity Reset Successfully."));
+                case UPDATE_EMPLOYEE -> Platform.runLater(()->
+                        pauseTransitionLabelUpdate("Employee Information Updated Successfully."));
+                case RESET_EMPLOYEE_ACTIVITY -> Platform.runLater(()->
+                        pauseTransitionLabelUpdate("Employee Activity Reset Successfully."));
+                case GET_ALL_BRANCH_MANAGERS -> Platform.runLater(()->
+                    branchManagerCCB.getItems().addAll(msgFromServer.getEmployeeList()));
                 default -> System.out.println("Unknown EMPLOYEE_INFORMATION SUB CATEGORY");
             }
         }
@@ -396,6 +399,10 @@ public class AdminPanelController implements ClientDependent {
         newEmployeeAccordion.setDisable(true);
         newBranchAccordion.setDisable(false);
         newBranchAccordion.setExpanded(true);
+        Message message = new Message();
+        message.setMessage(EMPLOYEE_INFORMATION);
+        message.setData(GET_ALL_BRANCH_MANAGERS);
+        client.sendMessage(message);
     }
 
     @FXML

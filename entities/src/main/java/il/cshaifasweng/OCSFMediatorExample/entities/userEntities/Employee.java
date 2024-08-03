@@ -40,7 +40,7 @@ public class Employee implements Serializable {
         setEmployeeType(employeeType);
     }
 
-    public Employee(String firstName, String lastName, String email, String username, String password, boolean active, Branch branchInCharge, EmployeeType employeeType) {
+    public Employee(String firstName, String lastName, String email, String username, String password, boolean active, Branch branchInCharge, EmployeeType employeeType, Branch workingBranch) {
         this(employeeType);
         this.firstName = firstName;
         this.lastName = lastName;
@@ -50,15 +50,16 @@ public class Employee implements Serializable {
         this.active = active;
         // Utilizes setBranchInCharge method to assign both branch and branchInCharge based on employee type.
         setBranchInCharge(branchInCharge);
+        this.branch = workingBranch;
     }
 
-    public Employee(EmployeeType employeeType, String firstName, String lastName, String email, String username, String password, boolean active, Branch branch) {
-        this(firstName, lastName, email, username, password, active, branch, employeeType);
+    public Employee(EmployeeType employeeType, String firstName, String lastName, String email, String username, String password, boolean active, Branch branchInCharge, Branch branchWorker) {
+        this(firstName, lastName, email, username, password, active, branchInCharge, employeeType, branchWorker);
     }
 
     // Factory method to create a new Employee
-    public static Employee createEmployee(EmployeeType employeeType, String firstName, String lastName, String email, String username, String password, boolean active, Branch branch) {
-        return new Employee(employeeType, firstName, lastName, email, username, password, active, branch);
+    public static Employee createEmployee(EmployeeType employeeType, String firstName, String lastName, String email, String username, String password, boolean active, Branch branchInCharge, Branch branchWorker) {
+        return new Employee(employeeType, firstName, lastName, email, username, password, active, branchInCharge,branchWorker);
     }
 
     public int getId() {
@@ -157,24 +158,27 @@ public class Employee implements Serializable {
     public void setBranchInCharge(Branch branchInCharge) {
         if (employeeType == EmployeeType.BRANCH_MANAGER) {
             this.branchInCharge = branchInCharge;
-
         }
-        setBranch(branchInCharge);
+        else {
+            this.branchInCharge = null;
+        }
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Employee ID: ").append(id).append(", First Name: ").append(firstName).append(", Last Name: ").append(lastName).append(", Email: ").append(email).append(", Username: ").append(username).append(", Employee Type: ").append(employeeType);
 
-        if (employeeType == EmployeeType.BRANCH_MANAGER && branchInCharge != null) {
-            sb.append(", Branch In Charge: ").append(branchInCharge.getBranchName());
-        }
-
-        if (employeeType == EmployeeType.CHAIN_MANAGER) {
-            sb.append(", Chain Manager");
-        }
-
-        return sb.toString();
+        return "ID: " + getId() + " " +  getFirstName() + " " + getLastName();
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("Employee ID: ").append(id).append(", First Name: ").append(firstName).append(", Last Name: ").append(lastName).append(", Email: ").append(email).append(", Username: ").append(username).append(", Employee Type: ").append(employeeType);
+//
+//        if (employeeType == EmployeeType.BRANCH_MANAGER && branchInCharge != null) {
+//            sb.append(", Branch In Charge: ").append(branchInCharge.getBranchName());
+//        }
+//
+//        if (employeeType == EmployeeType.CHAIN_MANAGER) {
+//            sb.append(", Chain Manager");
+//        }
+//
+//        return sb.toString();
     }
 }

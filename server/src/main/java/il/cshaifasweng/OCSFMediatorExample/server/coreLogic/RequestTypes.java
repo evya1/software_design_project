@@ -28,6 +28,7 @@ public class RequestTypes {
     public static final String DELETE_EMPLOYEE = "Delete employee";
     public static final String GET_ALL_EMPLOYEES = "Get all employees";
     public static final String EMPLOYEE_CREATED = "Employee created successfully";
+    public static final String GET_ALL_BRANCH_MANAGERS = "Get all branch managers";
 
 }
 

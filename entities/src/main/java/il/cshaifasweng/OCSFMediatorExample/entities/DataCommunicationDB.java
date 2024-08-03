@@ -206,13 +206,13 @@ public class DataCommunicationDB
 
             // create employees and save them in the DB
             Employee e1 = new Employee("emp1","stam","eqwe@gmail.com","7sny",
-                            "12345",false,null,BASE);
+                            "12345",false,null,BASE,null);
             Employee e2 = new Employee("emp2","service","sherotlko7ot@gmail.com",
-                            "sherot","sL1234",false,null,SERVICE);
+                            "sherot","sL1234",false,null,SERVICE,null);
             Employee e3 = new Employee("emp3","content","tochen@gmail.com","co3R",
-                    "waW425",false,null,CONTENT_MANAGER);
+                    "waW425",false,null,CONTENT_MANAGER,null);
             Employee e4 = new Employee("emp4","CEO","CHM@gmail.com",
-                    "Mnkal","imCEO1",false,null,CHAIN_MANAGER);
+                    "Mnkal","imCEO1",false,null,CHAIN_MANAGER,null);
             List<Employee> employees = Arrays.asList(e1, e2, e3, e4);
             for (Employee employee : employees) {
                 session.save(employee);
@@ -580,6 +580,17 @@ public class DataCommunicationDB
         query.setParameter("personalID", personalID);
         return query.uniqueResult();
     }
+    public static List<Employee> getAllEmployees(){
+        //Assume Transaction is already open
+        return (List<Employee>) session.createQuery("FROM Employee").list();
+    }
+    public static List<Employee> getAllBranchManagersEmployees(){
+        //Assume transaction is already open.
+        String hql = "FROM Employee WHERE employeeType = :employeeType";
+        Query query = session.createQuery(hql);
+        query.setParameter("employeeType", EmployeeType.BRANCH_MANAGER);
+        return query.list();
+    }
     //endregion
 
     //region Delete and Update methods
@@ -636,6 +647,38 @@ public class DataCommunicationDB
             e.printStackTrace();
         }
     }
+    public static void updateEmployeeData(Employee updateEmployee){
+        //Assume Transaction is already open
+        Employee currentEmployee = session.get(Employee.class, updateEmployee.getId());
+
+        currentEmployee.setFirstName(updateEmployee.getFirstName());
+        currentEmployee.setLastName(updateEmployee.getLastName());
+        currentEmployee.setEmail(updateEmployee.getEmail());
+        currentEmployee.setPassword(updateEmployee.getPassword());
+        currentEmployee.setUsername(updateEmployee.getUsername());
+        currentEmployee.setBranch(updateEmployee.getBranch());
+        currentEmployee.setBranchInCharge(updateEmployee.getBranchInCharge());
+        currentEmployee.setEmployeeType(updateEmployee.getEmployeeType());
+        currentEmployee.setBranch(updateEmployee.getBranch());
+        session.getTransaction().commit();
+    }
+    public static void deleteEmployee(Employee employeeToDelete) {
+        Employee delete = session.get(Employee.class, employeeToDelete.getId());
+        if (delete != null) {
+            // Check if the employee is referenced as a branch manager
+            if (delete.getBranchInCharge() != null) {
+                Branch branch = delete.getBranchInCharge();
+                if (branch.getBranchManager() != null && branch.getBranchManager().getId() == delete.getId()) {
+                    branch.setBranchManager(null);
+                    session.saveOrUpdate(branch); // Ensure the update is flushed to the database
+                }
+            }
+
+            // Attempt to delete the employee after removing all references
+            session.delete(delete);
+            session.getTransaction().commit();
+        }
+    }
     //endregion
 
     //region Creation Methods
@@ -674,6 +717,11 @@ public class DataCommunicationDB
         session.close();
     }
 
+    public static void createEmployee(Employee newEmployee){
+        //Assume Transaction is already open
+        session.save(newEmployee);
+        session.getTransaction().commit();
+    }
     private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username) {
         Employee employee = new Employee();
         employee.setEmployeeType(employeeType);
