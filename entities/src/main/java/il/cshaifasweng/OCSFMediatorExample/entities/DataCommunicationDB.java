@@ -1119,15 +1119,29 @@ public class DataCommunicationDB
         assignTicketsToCustomers(customers, theaters);
     }
 
+    private static Customer createNewCustomer(String firstName, String lastName, String email, String personalID) {
+        Customer customer = new Customer();
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        customer.setEmail(email);
+        customer.setPersonalID(personalID);
+        customer.setPurchases(new ArrayList<Purchase>()); // Initialize empty purchases list
+        customer.setComplaints(new ArrayList<Complaint>()); // Initialize empty complaints list
+
+        session.save(customer);
+        return customer;
+    }
+
     private static List<Customer> createCustomers() {
         List<Customer> customers = new ArrayList<>();
-        customers.add(createCustomer("Charlie", "Red", "charlie.red@example.com", "123456789"));
-        customers.add(createCustomer("Diana", "Yellow", "diana.yellow@example.com", "987654321"));
-        customers.add(createCustomer("Eve", "Green", "eve.green@example.com", "456789123"));
-        customers.add(createCustomer("Frank", "Blue", "frank.blue@example.com", "654321987"));
-        customers.add(createCustomer("Grace", "Brown", "grace.brown@example.com", "321654987"));
+        customers.add(createNewCustomer("Charlie", "Red", "charlie.red@example.com", "123456789"));
+        customers.add(createNewCustomer("Diana", "Yellow", "diana.yellow@example.com", "987654321"));
+        customers.add(createNewCustomer("Eve", "Green", "eve.green@example.com", "456789123"));
+        customers.add(createNewCustomer("Frank", "Blue", "frank.blue@example.com", "654321987"));
+        customers.add(createNewCustomer("Grace", "Brown", "grace.brown@example.com", "321654987"));
         return customers;
     }
+
 
     private static void assignTicketsToCustomers(List<Customer> customers, List<Theater> theaters) {
         assignTicketsToCustomer(customers.get(0), theaters.get(0), theaters.get(1), theaters.get(2));
@@ -1155,17 +1169,6 @@ public class DataCommunicationDB
 
         session.save(employee);
         return employee;
-    }
-
-    private static Customer createCustomer(String firstName, String lastName, String email, String personalID) {
-        Customer customer = new Customer();
-        customer.setFirstName(firstName);
-        customer.setLastName(lastName);
-        customer.setEmail(email);
-        customer.setPersonalID(personalID);
-
-        session.save(customer);
-        return customer;
     }
 
     private static MovieTicket createMovieTicket(Theater theater, String movieName, String dateTime) {
