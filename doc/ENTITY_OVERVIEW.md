@@ -101,6 +101,12 @@ classDiagram
   class Report {
     int id
     Branch branch
+    ReportType reportType
+    Month month
+    LocalDate reportDate
+    String details
+    Map~String, Double~ dataForGraphs
+    String dataFilePath
   }
   class Customer {
     int id
