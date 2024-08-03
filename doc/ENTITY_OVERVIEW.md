@@ -22,10 +22,10 @@ classDiagram
   class Branch {
     int id
     String branchName
-    Chain chain
     List~Theater~ theaterList
-    List~Report~ reports
+    Report report
     Employee branchManager
+    List~Employee~ employees
   }
   class Chain {
     int id
@@ -95,7 +95,6 @@ classDiagram
   class Report {
     int id
     Branch branch
-    Employee employee
   }
   class Customer {
     int id
@@ -140,7 +139,6 @@ classDiagram
   TypeOfMovie "1" --o "1" Movie
   Complaint "1" --o "1" Customer
   Report "1" --o "1" Branch
-  Report "1" --o "1" Employee
   Seat "1" --o "1" Theater
 ```
 
@@ -162,7 +160,6 @@ classDiagram
   class Booklet {
     int id
     int numOfEntries
-    double price
     Customer customer
     +useEntry()
   }
@@ -179,7 +176,6 @@ classDiagram
     String cardNumber
     LocalDate expiryDate
     String cvv
-    double price
     Customer customer
   }
   class Purchase {
@@ -192,6 +188,7 @@ classDiagram
     MovieLink purchasedMovieLink
     MovieTicket purchasedMovieTicket
     Customer customer
+    Branch branch
     +setPriceByItem(PurchaseType purchasedItem)
   }
   class PriceConstants {
@@ -220,6 +217,7 @@ classDiagram
   Purchase "1" --o "1" MovieLink : purchasedMovieLink
   Purchase "1" --o "1" MovieTicket : purchasedMovieTicket
   Purchase "1" --o "1" Customer : customer
+  Purchase "1" --o "1" Branch : branch
   Booklet "1" --o "1" Customer
   MovieLink "1" --o "1" Movie
   MovieTicket "1" --o "1" Movie
