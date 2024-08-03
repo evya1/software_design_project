@@ -26,6 +26,12 @@ classDiagram
     Report report
     Employee branchManager
     List~Employee~ employees
+    +Branch()
+    +Branch(String branchName)
+    +Branch(String branchName, Employee branchManager)
+    +Branch(String branchName, Employee branchManager, List~Theater~ theaterList)
+    +void addEmployee(Employee employee)
+    +void printBranchManagerDetails()
   }
   class Chain {
     int id
