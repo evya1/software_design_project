@@ -1134,7 +1134,7 @@ public class DataCommunicationDB
 
     private static List<Customer> createCustomers() {
         List<Customer> customers = new ArrayList<>();
-        customers.add(createNewCustomer("Charlie", "Red", "charlie.red@example.com", "123456789"));
+        customers.add(createNewCustomer("Charlie", "Red", "charlie.red@example.com", "123456700"));
         customers.add(createNewCustomer("Diana", "Yellow", "diana.yellow@example.com", "987654321"));
         customers.add(createNewCustomer("Eve", "Green", "eve.green@example.com", "456789123"));
         customers.add(createNewCustomer("Frank", "Blue", "frank.blue@example.com", "654321987"));
