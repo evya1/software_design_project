@@ -123,16 +123,8 @@ public class DataCommunicationDB
         // Print all Branches
         List<Branch> branches = session.createQuery("FROM Branch", Branch.class).list();
         for (Branch branch : branches) {
-            System.out.println("Branch ID: " + branch.getId() +
-                    ", Branch Name: " + branch.getBranchName());
-
-            // Print Branch Manager
-            Employee branchManager = branch.getBranchManager();
-            if (branchManager != null) {
-                System.out.println("\tBranch Manager: " + branchManager.getFirstName() + " " + branchManager.getLastName() +
-                        ", Email: " + branchManager.getEmail() +
-                        ", Username: " + branchManager.getUsername());
-            }
+            System.out.println(branch);
+            branch.printBranchManagerDetails();
 
             // Print Theaters in Branch
             List<Theater> branchTheaters = branch.getTheaterList();
@@ -1035,96 +1027,164 @@ public class DataCommunicationDB
         session = sessionFactory.openSession();
         session.beginTransaction();
 
-        Chain chain = createChain();
-        Branch branch = createBranch(chain);
-        Theater theater = createTheater(branch);
-        createSeats(theater);
+        List<Branch> branches = createAllBranches();
+        List<Theater> theaters = createAllTheatersForBranches(branches);
+
+        createSeatsForAllTheaters(theaters);
+        createAdditionalEmployees(branches);
+        createCustomersWithPurchases(theaters);
+
         session.getTransaction().commit();
         session.close();
     }
 
-    private static Chain createChain() {
-        Employee chainManager = createChainManagerJohnDoe();
-        Chain chain = new Chain();
-        chain.setName("MyCinemaChain");
-        chain.setChainManager(chainManager);
-
-        session.save(chainManager);
-        session.save(chain);
-        return chain;
+    private static List<Branch> createAllBranches() {
+        List<Branch> branches = new ArrayList<>();
+        branches.add(createBranchWithManager("Main Branch", "Jane", "Smith", "jane.smith@example.com", "janesmith"));
+        branches.add(createBranchWithManager("Second Branch", "Bob", "White", "bob.white@example.com", "bobwhite"));
+        branches.add(createBranchWithManager("Third Branch", "Alice", "Green", "alice.green@example.com", "alicegreen"));
+        branches.add(createBranchWithManager("Fourth Branch", "Chris", "Brown", "chris.brown@example.com", "chrisbrown"));
+        branches.add(createBranchWithManager("Fifth Branch", "Emma", "Blue", "emma.blue@example.com", "emmablue"));
+        return branches;
     }
 
-    private static Branch createBranch(Chain chain) {
-        Employee branchManager = createBranchManagerJaneSmith();
-        Branch branch = new Branch();
-        branch.setBranchName("Main Branch");
-//        branch.setChain(chain);
-        branch.setBranchManager(branchManager);
-        branchManager.setBranchInCharge(branch);
-
-        session.save(branchManager);
-        session.save(branch);
-        return branch;
+    private static List<Theater> createAllTheatersForBranches(List<Branch> branches) {
+        List<Theater> theaters = new ArrayList<>();
+        theaters.addAll(createTheatersForBranch(branches.get(0), 3)); // Main Branch: 3 theaters
+        theaters.addAll(createTheatersForBranch(branches.get(1), 4)); // Second Branch: 4 theaters
+        theaters.addAll(createTheatersForBranch(branches.get(2), 7)); // Third Branch: 7 theaters
+        theaters.addAll(createTheatersForBranch(branches.get(3), 4)); // Fourth Branch: 4 theaters
+        theaters.addAll(createTheatersForBranch(branches.get(4), 11)); // Fifth Branch: 11 theaters
+        return theaters;
     }
 
-    private static Branch createBranchWithManager(String branchName, String managerUsername, String managerEmail, String managerFirstName, String managerLastName) {
-        Employee branchManager = new Employee();
-        branchManager.setEmployeeType(EmployeeType.BRANCH_MANAGER);
-        branchManager.setFirstName(managerFirstName);
-        branchManager.setLastName(managerLastName);
-        branchManager.setEmail(managerEmail);
-        branchManager.setUsername(managerUsername);
-        branchManager.setPassword("password");
-        branchManager.setActive(true);
+    private static List<Theater> createTheatersForBranch(Branch branch, int numTheaters) {
+        List<Theater> theaters = new ArrayList<>();
+        for (int i = 0; i < numTheaters; i++) {
+            theaters.add(createTheaterForBranch(branch));
+        }
+        return theaters;
+    }
+
+    private static void createSeatsForAllTheaters(List<Theater> theaters) {
+        for (Theater theater : theaters) {
+            createSeatsForTheater(theater);
+        }
+    }
+
+    private static Branch createBranchWithManager(String branchName, String firstName, String lastName, String email, String username) {
+        Employee branchManager = createEmployee(firstName, lastName, EmployeeType.BRANCH_MANAGER, email, username);
 
         Branch branch = new Branch();
         branch.setBranchName(branchName);
         branch.setBranchManager(branchManager);
         branchManager.setBranchInCharge(branch);
 
-        return branch;
-    }
-
-    private static Branch createJuliusBranch(Employee branchManager) {
-        Branch branch = new Branch();
-        branch.setBranchName("Julius");
-        branch.setBranchManager(branchManager);
-        branchManager.setBranchInCharge(branch);
         branch.setTheaterList(new ArrayList<>());
+
+        session.save(branchManager);
+        session.save(branch);
         return branch;
     }
 
-    private static Employee createChainManagerJohnDoe() {
-        return Employee.createEmployee(EmployeeType.CHAIN_MANAGER, "John", "Doe", "john.doe@example.com", "johndoe", "password", true, null);
-    }
-
-    private static Employee createBranchManagerJaneSmith() {
-        return Employee.createEmployee(EmployeeType.BRANCH_MANAGER, "Jane", "Smith", "jane.smith@example.com", "janesmith", "password", true, null);
-    }
-
-    private static Employee createJoeEmployee() {
-        return Employee.createEmployee(EmployeeType.BRANCH_MANAGER, "Shimi", "Tavori", "Something@c.com", "Sodk", "129090m", true, null);
-    }
-
-    private static Theater createTheater(Branch branch) {
-        int numOfSeats = 100;
-        int availableSeats = 100;
-        int rowLength = 10;
-        List<MovieSlot> schedule = new ArrayList<>();
-        List<Seat> seatList = new ArrayList<>();
-
-        Theater theater = new Theater(numOfSeats, availableSeats, schedule, seatList, rowLength);
+    private static Theater createTheaterForBranch(Branch branch) {
+        Theater theater = new Theater(100, 100, new ArrayList<>(), new ArrayList<>(), 10);
         theater.setBranch(branch);
         session.save(theater);
         return theater;
     }
 
-    private static void createSeats(Theater theater) {
+    private static void createSeatsForTheater(Theater theater) {
         for (int i = 1; i <= 100; i++) {
             Seat seat = new Seat(i, false, theater); // Default taken state is false
             session.save(seat);
         }
     }
+
+    private static void createAdditionalEmployees(List<Branch> branches) {
+        addEmployeeToBranch(branches.get(0), "Joe", "Black", EmployeeType.SERVICE, "joe.black@example.com", "joeblack");
+        addEmployeeToBranch(branches.get(1), "Anna", "Blue", EmployeeType.CONTENT_MANAGER, "anna.blue@example.com", "annablue");
+        addEmployeeToBranch(branches.get(2), "Mark", "Red", EmployeeType.BASE, "mark.red@example.com", "markred");
+        addEmployeeToBranch(branches.get(3), "Nina", "Yellow", EmployeeType.BASE, "nina.yellow@example.com", "ninayellow");
+    }
+
+    private static void addEmployeeToBranch(Branch branch, String firstName, String lastName, EmployeeType employeeType, String email, String username) {
+        Employee employee = createEmployee(firstName, lastName, employeeType, email, username);
+        branch.addEmployee(employee);
+        session.save(employee);
+    }
+
+    private static void createCustomersWithPurchases(List<Theater> theaters) {
+        List<Customer> customers = createCustomers();
+        assignTicketsToCustomers(customers, theaters);
+    }
+
+    private static Customer createNewCustomer(String firstName, String lastName, String email, String personalID) {
+        Customer customer = new Customer();
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        customer.setEmail(email);
+        customer.setPersonalID(personalID);
+        customer.setPurchases(new ArrayList<Purchase>()); // Initialize empty purchases list
+        customer.setComplaints(new ArrayList<Complaint>()); // Initialize empty complaints list
+
+        session.save(customer);
+        return customer;
+    }
+
+    private static List<Customer> createCustomers() {
+        List<Customer> customers = new ArrayList<>();
+        customers.add(createNewCustomer("Charlie", "Red", "charlie.red@example.com", "123456700"));
+        customers.add(createNewCustomer("Diana", "Yellow", "diana.yellow@example.com", "987654321"));
+        customers.add(createNewCustomer("Eve", "Green", "eve.green@example.com", "456789123"));
+        customers.add(createNewCustomer("Frank", "Blue", "frank.blue@example.com", "654321987"));
+        customers.add(createNewCustomer("Grace", "Brown", "grace.brown@example.com", "321654987"));
+        return customers;
+    }
+
+
+    private static void assignTicketsToCustomers(List<Customer> customers, List<Theater> theaters) {
+        assignTicketsToCustomer(customers.get(0), theaters.get(0), theaters.get(1), theaters.get(2));
+        assignTicketsToCustomer(customers.get(1), theaters.get(3), theaters.get(4), theaters.get(5));
+        assignTicketsToCustomer(customers.get(2), theaters.get(6), theaters.get(7), theaters.get(8));
+        assignTicketsToCustomer(customers.get(3), theaters.get(9), theaters.get(10), theaters.get(11));
+        assignTicketsToCustomer(customers.get(4), theaters.get(12), theaters.get(13), theaters.get(14));
+    }
+
+    private static void assignTicketsToCustomer(Customer customer, Theater theater1, Theater theater2, Theater theater3) {
+        assignTicketToCustomer(customer, createMovieTicket(theater1, "Inception", "2024-08-01T20:00"), session);
+        assignTicketToCustomer(customer, createMovieTicket(theater2, "Interstellar", "2024-08-02T20:00"), session);
+        assignTicketToCustomer(customer, createMovieTicket(theater3, "The Dark Knight", "2024-08-03T20:00"), session);
+    }
+
+    private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username) {
+        Employee employee = new Employee();
+        employee.setEmployeeType(employeeType);
+        employee.setFirstName(firstName);
+        employee.setLastName(lastName);
+        employee.setEmail(email);
+        employee.setUsername(username);
+        employee.setPassword("password");
+        employee.setActive(true);
+
+        session.save(employee);
+        return employee;
+    }
+
+    private static MovieTicket createMovieTicket(Theater theater, String movieName, String dateTime) {
+        MovieTicket ticket = new MovieTicket();
+        ticket.setMovieName(movieName);
+        ticket.setBranchName(theater.getBranch().getBranchName());
+        ticket.setTheaterNum(theater.getId()); // Use getId() for theater number
+        ticket.setSeatNum(1); // Assume seat 1 for simplicity
+        ticket.setSeatRow(1);
+        ticket.setMovieSlot(new MovieSlot()); // Assume a new MovieSlot for simplicity
+        ticket.getMovieSlot().setStartDateTime(LocalDateTime.parse(dateTime));
+
+        session.save(ticket);
+        return ticket;
+    }
+
 
     public static void main(String[] args) {
     }

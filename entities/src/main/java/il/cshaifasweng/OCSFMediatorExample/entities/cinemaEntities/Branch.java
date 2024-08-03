@@ -18,10 +18,6 @@ public class Branch implements Serializable {
     private int id;
     private String branchName;
 
-//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JoinColumn(name = "chain_id")
-//    private Chain chain;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "branch")
     @Fetch(FetchMode.SUBSELECT)
     private List<Theater> theaterList;
@@ -37,6 +33,21 @@ public class Branch implements Serializable {
 
     public Branch() {}
 
+    public Branch(String branchName) {
+        this.theaterList = new ArrayList<>();
+        this.employees = new ArrayList<>();
+        setBranchName(branchName);
+    }
+
+    public Branch(String branchName, Employee branchManager) {
+        this(branchName);
+        setBranchManager(branchManager);
+    }
+
+    public Branch(String branchName, Employee branchManager, List<Theater> theaterList) {
+        this(branchName, branchManager);
+        setTheaterList(theaterList);
+    }
     // Getters and Setters
     public int getId() {
         return id;
@@ -53,14 +64,6 @@ public class Branch implements Serializable {
     public void setBranchName(String branchName) {
         this.branchName = branchName;
     }
-
-//    public Chain getChain() {
-//        return chain;
-//    }
-//
-//    public void setChain(Chain chain) {
-//        this.chain = chain;
-//    }
 
     public List<Theater> getTheaterList() {
         return theaterList;
@@ -85,6 +88,7 @@ public class Branch implements Serializable {
     public void setBranchManager(Employee branchManager) {
         if (branchManager != null && branchManager.getEmployeeType() == EmployeeType.BRANCH_MANAGER) {
             this.branchManager = branchManager;
+            branchManager.setBranchInCharge(this);
         } else {
             this.branchManager = null;  // Explicitly set to null if conditions are not met
         }
@@ -92,6 +96,25 @@ public class Branch implements Serializable {
 
     @Override
     public String toString(){
-        return branchName;
+        return "Branch ID: " + id + ", Branch Name: " + branchName;
+    }
+
+    public List<Employee> getEmployeesList() {
+        return employees;
+    }
+
+    public void addEmployee(Employee employee) {
+        this.employees.add(employee);
+        employee.setBranch(this);
+    }
+
+    public void printBranchManagerDetails() {
+        if (branchManager != null) {
+            System.out.println("\tBranch Manager: " + branchManager.getFirstName() + " " + branchManager.getLastName() +
+                    ", Email: " + branchManager.getEmail() +
+                    ", Username: " + branchManager.getUsername());
+        } else {
+            System.out.println("\tNo Branch Manager assigned.");
+        }
     }
 }
