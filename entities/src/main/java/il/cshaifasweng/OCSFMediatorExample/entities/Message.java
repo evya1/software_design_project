@@ -97,6 +97,13 @@ public class Message implements Serializable {
 
     public void setMovieLink(MovieLink movieLink) {this.movieLink = movieLink;}
 
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
     public void setBooklet(Booklet booklet) {this.booklet = booklet;}
 
     public Booklet getBooklet() {return booklet;}

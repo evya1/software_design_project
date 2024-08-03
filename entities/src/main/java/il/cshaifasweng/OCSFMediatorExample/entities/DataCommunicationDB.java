@@ -722,6 +722,12 @@ public class DataCommunicationDB
         session.save(newEmployee);
         session.getTransaction().commit();
     }
+
+    public static void createNewBranch(Branch branch){
+        //assume transaction is already open.
+        session.save(branch);
+        session.getTransaction().commit();
+    }
     private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username) {
         Employee employee = new Employee();
         employee.setEmployeeType(employeeType);

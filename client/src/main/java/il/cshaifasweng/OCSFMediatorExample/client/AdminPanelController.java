@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.CheckComboBox;
 import org.greenrobot.eventbus.EventBus;
@@ -23,6 +24,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.addTextInputListener;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
 
@@ -55,8 +57,7 @@ public class AdminPanelController implements ClientDependent {
     @FXML
     public Button createBranchBtn;
 
-    @FXML
-    public CheckComboBox<Employee> branchManagerCCB;
+
 
     @FXML
     private TitledPane newEmployeeAccordion;
@@ -71,6 +72,8 @@ public class AdminPanelController implements ClientDependent {
     public ComboBox<EmployeeType> employeeTypeComboBox;
     @FXML
     public ComboBox<Branch> branchWorkerCombobox;
+    @FXML
+    public ComboBox<Employee> branchManagerCB;
 
     @FXML
     public TextField firstNameEmployee;
@@ -339,7 +342,18 @@ public class AdminPanelController implements ClientDependent {
 
     @FXML
     public void homeScreen(ActionEvent event) {
-        // Implement home screen action
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
+            Message message = new Message();
+            EventBus.getDefault().unregister(this);
+            client.moveScene(PRIMARY_SCREEN, stage, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Method to handle messages from the server
@@ -379,7 +393,7 @@ public class AdminPanelController implements ClientDependent {
                 case RESET_EMPLOYEE_ACTIVITY -> Platform.runLater(()->
                         pauseTransitionLabelUpdate("Employee Activity Reset Successfully."));
                 case GET_ALL_BRANCH_MANAGERS -> Platform.runLater(()->
-                    branchManagerCCB.getItems().addAll(msgFromServer.getEmployeeList()));
+                    branchManagerCB.getItems().addAll(msgFromServer.getEmployeeList()));
                 default -> System.out.println("Unknown EMPLOYEE_INFORMATION SUB CATEGORY");
             }
         }
@@ -503,8 +517,25 @@ public class AdminPanelController implements ClientDependent {
     }
     @FXML
     public void createBranchAction(ActionEvent event) {
+        Employee employee = null;
+        Branch newBranch = null;
+        String branchName = branchNameTF.getText();
+        if(branchManagerCB.getSelectionModel().getSelectedItem() != null){
+            employee = branchManagerCB.getSelectionModel().getSelectedItem();
+        }
+        if(!branchName.isEmpty() && employee != null) {
+            newBranch = new Branch(branchName,employee,null);
+        }
+        Message msg = new Message();
+        msg.setMessage(BRANCH_THEATER_INFORMATION);
+        msg.setData(CREATE_NEW_BRANCH);
+        msg.setBranch(newBranch);
+        client.sendMessage(msg);
     }
 
+    @FXML
+    public void selectionBranchManager(ActionEvent event) {
+    }
     //endregion
 
     //region Interface Methods
@@ -517,5 +548,7 @@ public class AdminPanelController implements ClientDependent {
     public void setMessage(Message message) {
         this.localMessage = message;
     }
+
+
     //endregion
 }
