@@ -104,24 +104,6 @@ public class Theater implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Theater ID: ").append(theaterNum)
-                .append(", Num of Seats: ").append(numOfSeats)
-                .append(", Available Seats: ").append(availableSeats)
-                .append(", Row Length: ").append(rowLength);
-
-        if (seatList != null) {
-            for (Seat seat : seatList) {
-                sb.append("\n\t").append(seat);
-            }
-        }
-
-        if (schedule != null) {
-            for (MovieSlot movieSlot : schedule) {
-                sb.append("\n\t").append(movieSlot);
-            }
-        }
-
-        return sb.toString();
+        return "Theater ID: " + theaterNum;
     }
 }

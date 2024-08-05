@@ -183,16 +183,57 @@
                                     <content>
                                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <Label layoutX="94.0" layoutY="52.0" text="Creating a new branch">
-                                       <font>
-                                          <Font size="25.0" />
-                                       </font>
-                                    </Label>
-                                    <Label layoutX="94.0" layoutY="108.0" text="Branch name">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
+                                    <TabPane prefHeight="361.0" prefWidth="1059.0" tabClosingPolicy="UNAVAILABLE">
+                                      <tabs>
+                                        <Tab text="Create new Branch">
+                                          <content>
+                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Group layoutX="196.0" layoutY="110.0">
+                                                         <children>
+                                                            <Label text="Creating a new branch">
+                                                               <font>
+                                                                  <Font size="25.0" />
+                                                               </font>
+                                                            </Label>
+                                                            <Label layoutY="50.0" text="Branch name">
+                                                               <font>
+                                                                  <Font size="14.0" />
+                                                               </font>
+                                                            </Label>
+                                                            <TextField fx:id="branchNameTF" layoutX="99.0" layoutY="47.0" prefHeight="25.0" prefWidth="243.0" />
+                                                            <Button fx:id="createBranchBtn" layoutX="297.0" layoutY="87.0" mnemonicParsing="false" onAction="#createBranchAction" text="Create Branch" />
+                                                            <Label layoutX="374.0" layoutY="50.0" text="Branch Manager">
+                                                               <font>
+                                                                  <Font size="14.0" />
+                                                               </font>
+                                                            </Label>
+                                                            <ComboBox fx:id="branchManagerCB" layoutX="495.0" layoutY="47.0" onAction="#selectionBranchManager" prefHeight="25.0" prefWidth="177.0" />
+                                                         </children>
+                                                      </Group>
+                                                   </children>
+                                                </AnchorPane>
+                                          </content>
+                                        </Tab>
+                                        <Tab text="Modify Existing Branch">
+                                          <content>
+                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                   <children>
+                                                      <TableView fx:id="branchTableView" layoutY="7.0" prefHeight="323.0" prefWidth="1059.0">
+                                                        <columns>
+                                                          <TableColumn fx:id="branchIDCol" prefWidth="66.0" text="Branch ID" />
+                                                          <TableColumn fx:id="branchNameCol" prefWidth="231.33331298828125" text="Branch Name" />
+                                                            <TableColumn fx:id="branchManagersCol" prefWidth="204.666748046875" text="Branch Managers" />
+                                                            <TableColumn fx:id="employeesCol" prefWidth="384.666748046875" text="Employees" />
+                                                            <TableColumn fx:id="theatersCol" prefWidth="160.6666259765625" text="Theaters" />
+                                                        </columns>
+                                                      </TableView>
+                                                   </children>
+                                                </AnchorPane>
+                                          </content>
+                                        </Tab>
+                                      </tabs>
+                                    </TabPane>
                                  </children></AnchorPane>
                                     </content>
                                 </TitledPane>

@@ -10,6 +10,7 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.List;
 
@@ -55,6 +56,18 @@ public class BranchTheaterHandler implements RequestHandler {
                     answer.setMovieSlots(slots);
                     client.sendToClient(answer);
                     break;
+                case CREATE_NEW_BRANCH:
+                    answer.setData(CREATE_NEW_BRANCH);
+                    session.beginTransaction();
+                    DataCommunicationDB.setSession(session);
+                    DataCommunicationDB.createNewBranch(message.getBranch());
+                    client.sendToClient(answer);
+                case GET_ALL_THEATERS:
+                    answer.setData(GET_ALL_THEATERS);
+                    session.beginTransaction();
+                    DataCommunicationDB.setSession(session);
+                    answer.setTheaters(DataCommunicationDB.getAllTheaters());
+                    client.sendToClient(answer);
                 default:
                     break;
 
