@@ -9,10 +9,13 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -100,7 +103,7 @@ public class CustomerController implements ClientDependent {
     private TableColumn<MovieTicket, String> movieNameMovieTicketCol;
 
     @FXML
-    private TableColumn<MovieTicket, MovieSlot> movieSlotMovieTicketCol;
+    private TableColumn<MovieTicket, LocalDateTime> movieSlotMovieTicketCol;
 
     @FXML
     private TableColumn<MovieTicket, Integer> theaterNumMovieTicketCol;
@@ -142,14 +145,24 @@ public class CustomerController implements ClientDependent {
     @FXML
     private TableView<MovieLink> moviePackageTableView;
 
+    @FXML
+    private TableColumn<MovieLink, String> activeMovieLinkCol;
 
+    @FXML
+    private Button cancelPurchaseBtn;
 
+    @FXML
+    private TableColumn<MovieLink, Boolean > cancelledMovieLinkCol;
 
+    @FXML
+    private TableColumn<MovieTicket, Boolean> cancelledMovieTicketCol;
 
     @FXML
     void initialize() {
         loggedOutButtons();
         EventBus.getDefault().register(this);
+
+        cancelPurchaseBtn.setVisible(false);
 
         // Initialize the table values
         // Initialize the columns
@@ -184,17 +197,41 @@ public class CustomerController implements ClientDependent {
         // region Movie Ticket Columns
         idNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         movieNameMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("movieName"));
-        movieSlotMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("movieSlot"));
+        movieSlotMovieTicketCol.setCellValueFactory(cellData -> {
+            MovieSlot movieSlot = cellData.getValue().getMovieSlot();
+            return new ReadOnlyObjectWrapper<>(movieSlot.getStartDateTime());
+        });
+        movieSlotMovieTicketCol.setCellFactory(column -> new TableCell<MovieTicket, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    // Format the LocalDateTime
+                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+                }
+            }
+        });
         theaterNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("theaterNum"));
         rowNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("seatRow"));
         seatNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("seatNum"));
         branchNameMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("branchName"));
+        cancelledMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("cancelled"));
+
         // endregion
 
         // region Movie Link Columns
         idNumMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         linkMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("movieLink"));
         movieNameMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("movieName"));
+        cancelledMovieTicketCol.setCellValueFactory(cellData -> {
+            MovieTicket movieTicket = cellData.getValue();
+            Purchase purchase = localCustomer.getPurchases().stream()
+                    .filter(p -> p.getPurchasedMovieTicket() != null && p.getPurchasedMovieTicket().equals(movieTicket))
+                    .findFirst().orElse(null);
+            return new ReadOnlyObjectWrapper<>(purchase != null && purchase.isCancelled());
+        });
         expirationTimeMovieLinkCol.setCellValueFactory(new PropertyValueFactory<>("expirationTime"));
         expirationTimeMovieLinkCol.setCellFactory(column -> new TableCell<MovieLink, LocalDateTime>() {
             @Override
@@ -221,7 +258,58 @@ public class CustomerController implements ClientDependent {
                 }
             }
         });
+        // Active column
+        activeMovieLinkCol.setCellValueFactory(cellData -> {
+            MovieLink movieLink = cellData.getValue();
+            LocalDateTime activationTime = movieLink.getCreationTime();
+            String activeStatus = (activationTime.plusHours(24).isAfter(LocalDateTime.now())) ? "Active" : "Inactive";
+            return new ReadOnlyStringWrapper(activeStatus);
+        });
+        cancelledMovieLinkCol.setCellValueFactory(cellData -> {
+            MovieLink movieLink = cellData.getValue();
+            Purchase purchase = localCustomer.getPurchases().stream()
+                    .filter(p -> p.getPurchasedMovieLink() != null && p.getPurchasedMovieLink().equals(movieLink))
+                    .findFirst().orElse(null);
+            return new ReadOnlyObjectWrapper<>(purchase != null && purchase.isCancelled());
+        });
         // endregion
+
+        //region Cancel Purchase
+        // Disable the cancel purchase button initially
+        cancelPurchaseBtn.setDisable(true);
+
+        // Add listeners to the TableViews
+        movieTicketTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                cancelPurchaseBtn.setDisable(false);
+                cancelPurchaseBtn.setVisible(true);
+            } else if (moviePackageTableView.getSelectionModel().getSelectedItem() == null) {
+                cancelPurchaseBtn.setDisable(true);
+                cancelPurchaseBtn.setVisible(false);
+            }
+        });
+
+        moviePackageTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                cancelPurchaseBtn.setDisable(false);
+                cancelPurchaseBtn.setVisible(true);
+            } else if (movieTicketTableView.getSelectionModel().getSelectedItem() == null) {
+                cancelPurchaseBtn.setDisable(true);
+                cancelPurchaseBtn.setVisible(false);
+            }
+        });
+
+        bookletTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                cancelPurchaseBtn.setDisable(true);
+                cancelPurchaseBtn.setVisible(false);
+            }
+        });
+        // Add listeners to TitledPanes to hide cancelPurchaseBtn when closed
+        addPaneCollapseListener(movieTicketsTitlePane);
+        addPaneCollapseListener(bookletsTilePane);
+        addPaneCollapseListener(viewingPackageTilePane);
+        //endregion
 
         // Initialize pane popups
         if (movieTicketsTitlePane != null) {
@@ -320,6 +408,137 @@ public class CustomerController implements ClientDependent {
             }
         }
     }
+
+    private void addPaneCollapseListener(TitledPane pane) {
+        pane.expandedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // If the pane is collapsed
+                cancelPurchaseBtn.setDisable(true);
+                cancelPurchaseBtn.setVisible(false);
+            }
+        });
+    }
+
+    //TODO: check why it doesn't update the database and also why the clearing isn't working
+    @FXML
+    void cancelAction(ActionEvent event) {
+        MovieTicket selectedMovieTicket = movieTicketTableView.getSelectionModel().getSelectedItem();
+        MovieLink selectedMovieLink = moviePackageTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedMovieTicket != null) {
+            Purchase purchase = localCustomer.getPurchases().stream()
+                    .filter(p -> p.getPurchasedMovieTicket() != null && p.getPurchasedMovieTicket().equals(selectedMovieTicket))
+                    .findFirst().orElse(null);
+
+            if (purchase != null && purchase.isCancelled()) {
+                showAlert("Purchase already cancelled", "This movie ticket has already been cancelled.");
+                movieTicketTableView.getSelectionModel().clearSelection();
+                return;
+            }
+            LocalDateTime startTime = selectedMovieTicket.getMovieSlot().getStartDateTime();
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(startTime)) {
+                if (now.plusHours(3).isBefore(startTime)) {
+                    showConfirmationPopup("Full refund", selectedMovieTicket, null);
+                } else if (now.plusHours(1).isBefore(startTime)) {
+                    showConfirmationPopup("50% refund", selectedMovieTicket, null);
+                } else {
+                    showAlert("No refund", "There is no refund available for this purchase.");
+                }
+            } else {
+                showAlert("Invalid Ticket", "The ticket is invalid.");
+            }
+            movieTicketTableView.getSelectionModel().clearSelection();
+        } else if (selectedMovieLink != null) {
+            Purchase purchase = localCustomer.getPurchases().stream()
+                    .filter(p -> p.getPurchasedMovieLink() != null && p.getPurchasedMovieLink().equals(selectedMovieLink))
+                    .findFirst().orElse(null);
+
+            if (purchase != null && purchase.isCancelled()) {
+                showAlert("Purchase already cancelled", "This movie link has already been cancelled.");
+                moviePackageTableView.getSelectionModel().clearSelection();
+                return;
+            }
+
+            LocalDateTime startTime = selectedMovieLink.getCreationTime();
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(startTime)) {
+                if (now.plusHours(1).isBefore(startTime)) {
+                    showConfirmationPopup("50% refund", null, selectedMovieLink);
+                } else {
+                    showAlert("No refund", "There is no refund available for this purchase.");
+                }
+            } else {
+                showAlert("Invalid Link", "The link is invalid.");
+            }
+        } else {
+            showAlert("No selection", "No selection to cancel.");
+        }
+        moviePackageTableView.getSelectionModel().clearSelection();
+    }
+
+    private void showConfirmationPopup(String refundMessage, MovieTicket movieTicket, MovieLink movieLink) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Cancellation");
+        alert.setHeaderText("You are about to cancel a purchase");
+        alert.setContentText("Refund: " + refundMessage + ". Are you sure you want to proceed?");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                if (movieTicket != null) {
+                    System.out.println("Movie Ticket canceled with " + refundMessage);
+                    updateMovieTicket(movieTicket);
+                    showAlert("Purchase successfully cancelled", "Your movie ticket has been successfully cancelled with " + refundMessage);
+                } else if (movieLink != null) {
+                    System.out.println("Movie Link canceled with " + refundMessage);
+                    updateMovieLink(movieLink);
+                    showAlert("Purchase successfully cancelled", "Your movie link has been successfully cancelled with " + refundMessage);
+                }
+                // Refresh the table views to reflect the cancellation
+                movieTicketTableView.refresh();
+                moviePackageTableView.refresh();
+            } else {
+                System.out.println("Cancellation aborted.");
+            }
+        });
+    }
+
+    private void updateMovieTicket(MovieTicket ticket) {
+        Purchase purchase = localCustomer.getPurchases().stream()
+                .filter(p -> p.getPurchasedMovieTicket() != null && p.getPurchasedMovieTicket().equals(ticket))
+                .findFirst().orElse(null);
+        if (purchase != null) {
+            purchase.setCancelled(true);
+            updatePurchase(purchase);
+        }
+    }
+
+    private void updateMovieLink(MovieLink link) {
+        Purchase purchase = localCustomer.getPurchases().stream()
+                .filter(p -> p.getPurchasedMovieLink() != null && p.getPurchasedMovieLink().equals(link))
+                .findFirst().orElse(null);
+        if (purchase != null) {
+            purchase.setCancelled(true);
+            updatePurchase(purchase);
+        }
+    }
+
+    private void updatePurchase(Purchase purchase) {
+        Message message = new Message();
+        message.setMessage("UPDATE PURCHASE");
+        message.setPurchase(purchase);
+        message.setCustomerID(localCustomer.getPersonalID()); // Ensure the customer ID is set correctly
+        client.sendMessage(message);
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+
 
     private void loggedInButtons(){
         connectedFlag = true;
@@ -505,7 +724,6 @@ public class CustomerController implements ClientDependent {
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Purchases", "There are no purchases to display.");
         }
     }
-
 
 
     @Override

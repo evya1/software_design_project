@@ -370,7 +370,9 @@ public class DataCommunicationDB
             MovieLink link2 = new MovieLink(movie2, "The Matrix", "http://example.com/matrix", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
             MovieLink link3 = new MovieLink(movie3, "Interstellar", "http://example.com/interstellar", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
             MovieLink link4 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-            List<MovieLink> movieLinks = Arrays.asList(link1, link2, link3, link4);
+            MovieLink link5 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
+
+            List<MovieLink> movieLinks = Arrays.asList(link1, link2, link3, link4, link5);
             for (MovieLink movieLink : movieLinks) {
                 session.save(movieLink);
             }
@@ -379,6 +381,8 @@ public class DataCommunicationDB
             assignLinkToCustomer(session.get(Customer.class, customer2.getId()), link2, session);
             assignLinkToCustomer(session.get(Customer.class, customer3.getId()), link3, session);
             assignLinkToCustomer(session.get(Customer.class, customer4.getId()), link4, session);
+            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link5, session);
+
 
             //create and assign Booklets
             Booklet booklet1 = new Booklet();

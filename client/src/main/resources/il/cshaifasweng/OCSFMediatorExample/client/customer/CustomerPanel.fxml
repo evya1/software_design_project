@@ -67,6 +67,12 @@
                         <String fx:value="hover-button" />
                      </styleClass>
                   </Button>
+                  <Button fx:id="cancelPurchaseBtn" layoutX="42.0" layoutY="301.0" mnemonicParsing="false" onAction="#cancelAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Cancel Purchase" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
+                  </Button>
                </children></AnchorPane>
          </left>
          <center>
@@ -107,8 +113,9 @@
                                           <TableColumn fx:id="theaterNumMovieTicketCol" prefWidth="108.66668701171875" text="Theater Number" />
                                           <TableColumn fx:id="rowNumMovieTicketCol" minWidth="6.0" prefWidth="109.33331298828125" text="Row Number" />
                                           <TableColumn fx:id="seatNumMovieTicketCol" prefWidth="102.00006103515625" text="Seat Number" />
-                                          <TableColumn fx:id="movieSlotMovieTicketCol" prefWidth="214.66668701171875" text="Screening Time" />
-                                          <TableColumn fx:id="branchNameMovieTicketCol" prefWidth="152.0" text="Branch " />
+                                          <TableColumn fx:id="movieSlotMovieTicketCol" prefWidth="148.0" text="Screening Time" />
+                                          <TableColumn fx:id="branchNameMovieTicketCol" prefWidth="144.2220458984375" text="Branch " />
+                                          <TableColumn fx:id="cancelledMovieTicketCol" prefWidth="87.7779541015625" text="Cancelled" />
                                       </columns>
                                     </TableView>
                                  </children></AnchorPane>
@@ -134,10 +141,12 @@
                                     <TableView fx:id="moviePackageTableView" prefHeight="316.0" prefWidth="934.0">
                                       <columns>
                                         <TableColumn fx:id="idNumMovieLinkCol" prefWidth="38.888885498046875" text="ID" />
-                                        <TableColumn fx:id="movieNameMovieLinkCol" prefWidth="175.33331298828125" text="Movie Name" />
-                                          <TableColumn fx:id="linkMovieLinkCol" prefWidth="272.0" text="Movie Link" />
-                                          <TableColumn fx:id="activationTimeMovieLinkCol" prefWidth="226.2222900390625" text="Activation Time" />
-                                          <TableColumn fx:id="expirationTimeMovieLinkCol" minWidth="0.0" prefWidth="221.7777099609375" text="Expiration Time" />
+                                        <TableColumn fx:id="movieNameMovieLinkCol" prefWidth="147.99996948242188" text="Movie Name" />
+                                          <TableColumn fx:id="linkMovieLinkCol" prefWidth="236.88885498046875" text="Movie Link" />
+                                          <TableColumn fx:id="activationTimeMovieLinkCol" prefWidth="172.22222900390625" text="Activation Time" />
+                                          <TableColumn fx:id="expirationTimeMovieLinkCol" minWidth="0.0" prefWidth="169.11102294921875" text="Expiration Time" />
+                                          <TableColumn fx:id="activeMovieLinkCol" prefWidth="81.5556640625" text="Status" />
+                                          <TableColumn fx:id="cancelledMovieLinkCol" prefWidth="83.1109619140625" text="Cancelled" />
                                       </columns>
                                     </TableView>
                                  </children></AnchorPane>
