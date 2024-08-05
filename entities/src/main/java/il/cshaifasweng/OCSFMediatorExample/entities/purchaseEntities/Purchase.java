@@ -50,6 +50,8 @@ public class Purchase implements Serializable {
     @JoinColumn(name = "branch_id", nullable = true)
     private Branch branch;
 
+    @Column(name = "cancelled_purchase")
+    private boolean cancelled = false;
 
 
     public int getId() { return id; }
@@ -116,4 +118,10 @@ public class Purchase implements Serializable {
     public Branch getBranch() { return branch; }
 
     public void setBranch(Branch branch) { this.branch = branch; }
+
+    public boolean isCancelled() {return cancelled;}
+
+    public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
+    }
 }
