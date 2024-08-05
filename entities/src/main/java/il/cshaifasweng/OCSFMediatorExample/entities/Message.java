@@ -50,7 +50,8 @@ public class Message implements Serializable {
     private Booklet booklet;
     private PriceConstants prices;
 
-
+    //Movie Ticket related messages
+    private MovieTicket movieTicket;
 
     private String customerID;
 
@@ -213,4 +214,7 @@ public class Message implements Serializable {
 
     public PriceConstants getPrices() {return prices;}
 
+    public void setMovieTicket(MovieTicket ticket) {this.movieTicket = ticket;}
+
+    public MovieTicket getMovieTicket() {return movieTicket;}
 }
