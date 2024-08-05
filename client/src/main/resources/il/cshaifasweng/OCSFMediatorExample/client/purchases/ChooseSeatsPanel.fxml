@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <VBox styleClass="PanelBackground" stylesheets="@../catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PurchaseFiles.ChooseSeatsController">
    <children>
@@ -36,6 +37,398 @@
                <BorderPane.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </BorderPane.margin>
+               <children>
+                  <ImageView fx:id="row7seat1" fitHeight="65.0" fitWidth="43.0" layoutX="160.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat1" fitHeight="65.0" fitWidth="43.0" layoutX="160.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat1" fitHeight="65.0" fitWidth="43.0" layoutX="161.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat1" fitHeight="65.0" fitWidth="43.0" layoutX="162.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat1" fitHeight="65.0" fitWidth="43.0" layoutX="162.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat1" fitHeight="65.0" fitWidth="43.0" layoutX="162.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat1" fitHeight="65.0" fitWidth="43.0" layoutX="163.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat2" fitHeight="65.0" fitWidth="43.0" layoutX="218.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat2" fitHeight="65.0" fitWidth="43.0" layoutX="218.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat2" fitHeight="65.0" fitWidth="43.0" layoutX="219.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat2" fitHeight="65.0" fitWidth="43.0" layoutX="220.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat2" fitHeight="65.0" fitWidth="43.0" layoutX="220.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat2" fitHeight="65.0" fitWidth="43.0" layoutX="220.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat2" fitHeight="65.0" fitWidth="43.0" layoutX="221.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat3" fitHeight="65.0" fitWidth="43.0" layoutX="277.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat3" fitHeight="65.0" fitWidth="43.0" layoutX="277.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat3" fitHeight="65.0" fitWidth="43.0" layoutX="278.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat3" fitHeight="65.0" fitWidth="43.0" layoutX="279.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat3" fitHeight="65.0" fitWidth="43.0" layoutX="279.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat3" fitHeight="65.0" fitWidth="43.0" layoutX="279.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat3" fitHeight="65.0" fitWidth="43.0" layoutX="280.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat4" fitHeight="65.0" fitWidth="43.0" layoutX="431.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat4" fitHeight="65.0" fitWidth="43.0" layoutX="431.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat4" fitHeight="65.0" fitWidth="43.0" layoutX="432.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat4" fitHeight="65.0" fitWidth="43.0" layoutX="433.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat4" fitHeight="65.0" fitWidth="43.0" layoutX="433.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat4" fitHeight="65.0" fitWidth="43.0" layoutX="433.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat4" fitHeight="65.0" fitWidth="43.0" layoutX="434.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat5" fitHeight="65.0" fitWidth="43.0" layoutX="489.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat5" fitHeight="65.0" fitWidth="43.0" layoutX="489.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat5" fitHeight="65.0" fitWidth="43.0" layoutX="490.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat5" fitHeight="65.0" fitWidth="43.0" layoutX="491.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat5" fitHeight="65.0" fitWidth="43.0" layoutX="491.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat5" fitHeight="65.0" fitWidth="43.0" layoutX="491.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat5" fitHeight="65.0" fitWidth="43.0" layoutX="492.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat6" fitHeight="65.0" fitWidth="43.0" layoutX="548.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat6" fitHeight="65.0" fitWidth="43.0" layoutX="548.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat6" fitHeight="65.0" fitWidth="43.0" layoutX="549.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat6" fitHeight="65.0" fitWidth="43.0" layoutX="550.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat6" fitHeight="65.0" fitWidth="43.0" layoutX="550.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat6" fitHeight="65.0" fitWidth="43.0" layoutX="550.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat6" fitHeight="65.0" fitWidth="43.0" layoutX="551.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat7" fitHeight="65.0" fitWidth="43.0" layoutX="606.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat7" fitHeight="65.0" fitWidth="43.0" layoutX="606.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat7" fitHeight="65.0" fitWidth="43.0" layoutX="607.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat7" fitHeight="65.0" fitWidth="43.0" layoutX="608.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat7" fitHeight="65.0" fitWidth="43.0" layoutX="608.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat7" fitHeight="65.0" fitWidth="43.0" layoutX="608.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat7" fitHeight="65.0" fitWidth="43.0" layoutX="609.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat8" fitHeight="65.0" fitWidth="43.0" layoutX="759.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat8" fitHeight="65.0" fitWidth="43.0" layoutX="759.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat8" fitHeight="65.0" fitWidth="43.0" layoutX="760.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat8" fitHeight="65.0" fitWidth="43.0" layoutX="761.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat8" fitHeight="65.0" fitWidth="43.0" layoutX="761.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat8" fitHeight="65.0" fitWidth="43.0" layoutX="761.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat8" fitHeight="65.0" fitWidth="43.0" layoutX="762.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat9" fitHeight="65.0" fitWidth="43.0" layoutX="817.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat9" fitHeight="65.0" fitWidth="43.0" layoutX="817.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat9" fitHeight="65.0" fitWidth="43.0" layoutX="818.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat9" fitHeight="65.0" fitWidth="43.0" layoutX="819.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat9" fitHeight="65.0" fitWidth="43.0" layoutX="819.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat9" fitHeight="65.0" fitWidth="43.0" layoutX="819.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat9" fitHeight="65.0" fitWidth="43.0" layoutX="820.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row7seat10" fitHeight="65.0" fitWidth="43.0" layoutX="876.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row6seat10" fitHeight="65.0" fitWidth="43.0" layoutX="876.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row5seat10" fitHeight="65.0" fitWidth="43.0" layoutX="877.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row4seat10" fitHeight="65.0" fitWidth="43.0" layoutX="878.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row3seat10" fitHeight="65.0" fitWidth="43.0" layoutX="878.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row2seat10" fitHeight="65.0" fitWidth="43.0" layoutX="878.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="row1seat10" fitHeight="65.0" fitWidth="43.0" layoutX="879.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../theaters/AvailableSeat.png" />
+                     </image>
+                  </ImageView>
+                  <Text fx:id="screenTitle" layoutX="206.0" layoutY="440.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Screen" textAlignment="CENTER" wrappingWidth="673.1864013671875">
+                     <font>
+                        <Font name="System Italic" size="45.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="118.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="7">
+                     <font>
+                        <Font name="System Italic" size="18.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="118.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="6">
+                     <font>
+                        <Font name="System Italic" size="18.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="118.0" layoutY="148.0" strokeType="OUTSIDE" strokeWidth="0.0" text="5">
+                     <font>
+                        <Font name="System Italic" size="18.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="119.0" layoutY="201.0" strokeType="OUTSIDE" strokeWidth="0.0" text="4">
+                     <font>
+                        <Font name="System Italic" size="18.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="117.0" layoutY="253.0" strokeType="OUTSIDE" strokeWidth="0.0" text="3">
+                     <font>
+                        <Font name="System Italic" size="18.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="117.0" layoutY="306.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2">
+                     <font>
+                        <Font name="System Italic" size="18.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="115.0" layoutY="362.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1">
+                     <font>
+                        <Font name="System Italic" size="18.0" />
+                     </font>
+                  </Text>
+               </children>
             </AnchorPane>
          </center>
          <right>
