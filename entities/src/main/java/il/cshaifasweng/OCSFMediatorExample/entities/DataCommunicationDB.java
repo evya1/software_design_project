@@ -584,6 +584,11 @@ public class DataCommunicationDB
         query.setParameter("personalID", personalID);
         return query.uniqueResult();
     }
+    public static Purchase getPurchaseByID(int id){
+        Query<Purchase> query = session.createQuery("FROM Purchase WHERE id = :id", Purchase.class);
+        query.setParameter("id", id);
+        return query.uniqueResult();
+    }
     public static List<Employee> getAllEmployees(){
         //Assume Transaction is already open
         return (List<Employee>) session.createQuery("FROM Employee").list();

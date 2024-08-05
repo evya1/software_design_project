@@ -99,7 +99,7 @@ public class Branch implements Serializable {
         return branchName;
     }
 
-    public List<Employee> getEmployeesList() {
+    public List<Employee> getEmployees() {
         return employees;
     }
 

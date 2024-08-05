@@ -31,7 +31,8 @@ public class RequestTypes {
     public static final String GET_ALL_BRANCH_MANAGERS = "Get all branch managers";
     public static final String CREATE_NEW_BRANCH = "create a new branch";
     public static final String GET_ALL_THEATERS = "get all the theaters";
-
+    public static final String UPDATE_PURCHASE = "UPDATE PURCHASE";
+    public static final String PURCHASE_NOT_FOUND = "PURCHASE NOT FOUND";
 
 
 }

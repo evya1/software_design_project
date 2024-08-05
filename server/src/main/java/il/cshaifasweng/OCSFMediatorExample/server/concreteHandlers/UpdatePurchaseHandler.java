@@ -11,54 +11,47 @@ import org.hibernate.SessionFactory;
 
 import java.io.IOException;
 
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.PURCHASE_NOT_FOUND;
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.UPDATE_PURCHASE;
+
 public class UpdatePurchaseHandler implements RequestHandler {
 
     @Override
     public void handle(Message message, ConnectionToClient client) throws IOException {
         SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
-        try (Session session = sessionFactory.openSession()) {
+        Session session = sessionFactory.openSession();
+        Message answer = new Message();
+        try {
             DataCommunicationDB.setSession(session);
-            Message answer = new Message();
-            Customer customer;
             session.beginTransaction();
-            try {
-                switch (message.getData()) {
-                    case "UPDATE PURCHASE":
-                        answer.setMessage(message.getMessage());
-                        answer.setData(message.getData());
-                        customer = DataCommunicationDB.getCustomerByPersonalID(session, message.getCustomerID());
-                        Purchase updatedPurchase = message.getPurchase();
-                        Purchase purchase = customer.getPurchases().stream()
-                                .filter(p -> p.getId() == updatedPurchase.getId())
-                                .findFirst()
-                                .orElse(null);
 
-                        if (purchase != null) {
-                            // Update the purchase's cancelled status
-                            purchase.setCancelled(updatedPurchase.isCancelled());
+            if (message.getMessage().equals(UPDATE_PURCHASE)) {
+                answer.setMessage(message.getMessage());
+                Purchase updatePurchase = message.getPurchase();
 
-                            // Save the updated purchase
-                            session.update(purchase);
-                            session.getTransaction().commit();
-                            session.flush(); // Ensure changes are flushed to the database
+                Purchase oldPurchase = DataCommunicationDB.getPurchaseByID(updatePurchase.getId());
+                if (oldPurchase != null) {
+                    // Update the purchase's cancelled status
+                    oldPurchase.setCancelled(updatePurchase.isCancelled());
+                    // Save the updated purchase
+                    session.update(oldPurchase);
+                    session.getTransaction().commit();
+                    session.flush(); // Ensure changes are flushed to the database
 
-                            answer.setPurchase(purchase);
-                            client.sendToClient(answer);
-                        } else {
-                            answer.setMessage("PURCHASE NOT FOUND");
-                            client.sendToClient(answer);
-                        }
-                        break;
-                    default:
-                        break;
+                    answer.setPurchase(oldPurchase);
+                    System.out.println(answer.getMessage());
+                } else {
+                    answer.setMessage(PURCHASE_NOT_FOUND);
                 }
-            } catch (Exception e) {
-                session.getTransaction().rollback();
-                System.out.println("An error occurred while handling the request");
-                e.printStackTrace();
-                answer.setMessage("ERROR");
-                client.sendToClient(answer);
             }
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            System.out.println("An error occurred while handling the request");
+            e.printStackTrace();
         }
+        finally {
+            client.sendToClient(answer);
+        }
+
     }
 }

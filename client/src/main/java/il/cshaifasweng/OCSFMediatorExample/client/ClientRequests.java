@@ -29,5 +29,8 @@ public class ClientRequests {
     public static final String GET_MOVIE_SLOT_BY_MOVIE_ID_AND_BRANCH_ID = "Get screening by movie and branch id";
     public static final String GET_ALL_BRANCH_MANAGERS = "Get all branch managers";
     public static final String CREATE_NEW_BRANCH = "create a new branch";
+    public static final String UPDATE_PURCHASE = "UPDATE PURCHASE";
+
+
 
 }
