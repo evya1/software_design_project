@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.client.Utility.CheckComboBoxTableCell;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
@@ -9,6 +10,7 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -21,7 +23,9 @@ import javafx.util.Duration;
 import org.controlsfx.control.CheckComboBox;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
@@ -56,8 +60,6 @@ public class AdminPanelController implements ClientDependent {
     public Button createEmployeeBtn;
     @FXML
     public Button createBranchBtn;
-
-
 
     @FXML
     private TitledPane newEmployeeAccordion;
@@ -112,15 +114,15 @@ public class AdminPanelController implements ClientDependent {
     public TableColumn<Employee, Branch> branchCol;
 
     @FXML
-    public TableColumn<Branch,Integer> branchIDCol;
+    public TableColumn<Branch, Integer> branchIDCol;
     @FXML
     public TableColumn<Branch, String> branchNameCol;
     @FXML
-    public TableColumn<Branch,List<Employee>> branchManagersCol;
+    public TableColumn<Branch, Employee> branchManagersCol;
     @FXML
-    public TableColumn<Branch,List<Employee>> employeesCol;
+    public TableColumn<Branch, ObservableList<Employee>> employeesCol;
     @FXML
-    public TableColumn<Branch,List<Theater>> theatersCol;
+    public TableColumn<Branch, ObservableList<Theater>> theatersCol;
 
     @FXML
     private Label branchManagerLabel;
@@ -135,6 +137,7 @@ public class AdminPanelController implements ClientDependent {
     private Message localMessage;
     private List<Branch> branches;
     private List<Employee> employees;
+    private List<Employee> managers;
 
     //endregion
 
@@ -144,6 +147,14 @@ public class AdminPanelController implements ClientDependent {
         Message request = new Message();
         request.setMessage(BRANCH_THEATER_INFORMATION);
         request.setData(GET_BRANCHES);
+        client.sendMessage(request);
+
+        request.setData(GET_ALL_THEATERS);
+        client.sendMessage(request);
+
+        // Sending a message to get the current list of Employees.
+        request.setMessage(GET_EMPLOYEES);
+        request.setData(GET_ALL_EMPLOYEES);
         client.sendMessage(request);
 
         // Adding listeners to the fields to check if they're empty
@@ -179,6 +190,17 @@ public class AdminPanelController implements ClientDependent {
         lastNameCol.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         branchCol.setCellValueFactory(new PropertyValueFactory<>("branch"));
 
+        // Initialize Branch modify table columns
+        branchIDCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        branchNameCol.setCellValueFactory(new PropertyValueFactory<>("branchName"));
+        branchManagerCol.setCellValueFactory(new PropertyValueFactory<>("branchInCharge"));
+        employeesCol.setCellValueFactory(new PropertyValueFactory<>("employees"));
+        theatersCol.setCellValueFactory(new PropertyValueFactory<>("theaterList"));
+
+        // Setting the Branch fields to be editable
+
+        branchNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
         // Setting the fields to be editable.
         firstNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         lastNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -194,6 +216,8 @@ public class AdminPanelController implements ClientDependent {
         emailCol.setOnEditCommit(this::handleEditCommit);
         passwordCol.setOnEditCommit(this::handleEditCommit);
         employeeTypeCol.setOnEditCommit(this::handleEditCommit);
+        branchManagerCol.setOnEditCommit(this::handleEditCommit);
+
 
         // Adding right-click context menu for row deletion
         ContextMenu contextMenu = new ContextMenu();
@@ -228,10 +252,10 @@ public class AdminPanelController implements ClientDependent {
             editItem.setText(isEditable ? "Edit" : "Disable Edit");
         });
 
-        //reset an employee activity in the system.
-        forceDisconnect.setOnAction(event ->{
+        // Reset an employee activity in the system.
+        forceDisconnect.setOnAction(event -> {
             Employee selectedEmployee = employeeTableView.getSelectionModel().getSelectedItem();
-            if(selectedEmployee != null && selectedEmployee.isActive()){
+            if (selectedEmployee != null && selectedEmployee.isActive()) {
                 Message message = new Message();
                 message.setMessage(EMPLOYEE_INFORMATION);
                 message.setData(RESET_EMPLOYEE_ACTIVITY);
@@ -243,9 +267,8 @@ public class AdminPanelController implements ClientDependent {
 
     //region Helper Methods
 
-
     // Show label information for 5 seconds.
-    private void pauseTransitionLabelUpdate(String string){
+    private void pauseTransitionLabelUpdate(String string) {
         notificationLabel.setText(string);
 
         // Create a pause transition of 5 seconds
@@ -360,15 +383,28 @@ public class AdminPanelController implements ClientDependent {
     @Subscribe
     public void handleMessageFromServer(MessageEvent event) {
         Message msgFromServer = event.getMessage();
-        if (msgFromServer.getMessage().equals(BRANCH_THEATER_INFORMATION) && msgFromServer.getData().equals(GET_BRANCHES)) {
-            Platform.runLater(() -> {
-                branches = msgFromServer.getBranches();
-                branchWorkerCombobox.getItems().addAll(branches);
-                branchManagerCol.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(branches)));
-                branchManagerCol.setOnEditCommit(this::handleEditCommit);
-                branchCol.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(branches)));
-                branchCol.setOnEditCommit(this::handleEditCommit);
-            });
+        if (msgFromServer.getMessage().equals(BRANCH_THEATER_INFORMATION)) {
+            switch (msgFromServer.getData()){
+                case GET_BRANCHES:
+                    Platform.runLater(() -> {
+                        branches = msgFromServer.getBranches();
+                        branchWorkerCombobox.getItems().addAll(branches);
+                        branchManagerCol.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(branches)));
+                        branchManagerCol.setOnEditCommit(this::handleEditCommit);
+                        branchCol.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(branches)));
+                        branchCol.setOnEditCommit(this::handleEditCommit);
+                    });
+                    break;
+                case GET_ALL_THEATERS:
+                    Platform.runLater(()->{
+                        ObservableList<Theater> theaters = FXCollections.observableArrayList(msgFromServer.getTheaters());
+                        theatersCol.setCellFactory(CheckComboBoxTableCell.forTableColumn(
+                                theaters,
+                                theater -> handleTheaterChecked(theater),
+                                theater -> handleTheaterUnchecked(theater)));
+                    });
+            }
+
         }
         if (msgFromServer.getMessage().equals(GET_EMPLOYEES) && msgFromServer.getData().equals(GET_ALL_EMPLOYEES)) {
             Platform.runLater(() -> {
@@ -377,6 +413,21 @@ public class AdminPanelController implements ClientDependent {
                     employeeTableView.getItems().clear();
                     employeeTableView.getItems().addAll(employees);
                     employeeTableView.refresh();
+
+                    //Setting up the managers Column in the Branch Modify section
+                    managers = employees.stream()
+                            .filter(employee -> employee.getEmployeeType() == EmployeeType.BRANCH_MANAGER)
+                            .collect(Collectors.toList());
+
+                    //Setting up the employees Column in the Branch Modify section
+                    ObservableList<Employee> newEmployees = FXCollections.observableArrayList(employees); // Replace with your actual data source
+                    employeesCol.setCellFactory(CheckComboBoxTableCell.forTableColumn(
+                            newEmployees,
+                            employee -> handleEmployeeChecked(employee),
+                            employee -> handleEmployeeUnchecked(employee)
+                    ));
+                    branchManagersCol.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(managers)));
+
                 } else {
                     SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Employees", "There are no employees to display.");
                 }
@@ -388,15 +439,32 @@ public class AdminPanelController implements ClientDependent {
                     clearFields();
                     SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Employee Created", "Employee has been created.");
                 });
-                case UPDATE_EMPLOYEE -> Platform.runLater(()->
+                case UPDATE_EMPLOYEE -> Platform.runLater(() ->
                         pauseTransitionLabelUpdate("Employee Information Updated Successfully."));
-                case RESET_EMPLOYEE_ACTIVITY -> Platform.runLater(()->
+                case RESET_EMPLOYEE_ACTIVITY -> Platform.runLater(() ->
                         pauseTransitionLabelUpdate("Employee Activity Reset Successfully."));
-                case GET_ALL_BRANCH_MANAGERS -> Platform.runLater(()->
-                    branchManagerCB.getItems().addAll(msgFromServer.getEmployeeList()));
+                case GET_ALL_BRANCH_MANAGERS -> Platform.runLater(() ->
+                        branchManagerCB.getItems().addAll(msgFromServer.getEmployeeList()));
                 default -> System.out.println("Unknown EMPLOYEE_INFORMATION SUB CATEGORY");
             }
         }
+    }
+
+    private void handleEmployeeChecked(Employee employee) {
+        System.out.println("Checked employee: " + employee);
+        // Add your custom logic for when an employee is checked
+    }
+
+    private void handleEmployeeUnchecked(Employee employee) {
+        System.out.println("Unchecked employee: " + employee);
+        // Add your custom logic for when an employee is unchecked
+    }
+
+    private void handleTheaterChecked(Theater theater){
+
+    }
+    private void handleTheaterUnchecked(Theater theater){
+
     }
 
     @FXML
@@ -417,6 +485,12 @@ public class AdminPanelController implements ClientDependent {
         message.setMessage(EMPLOYEE_INFORMATION);
         message.setData(GET_ALL_BRANCH_MANAGERS);
         client.sendMessage(message);
+
+        // Assuming branches list is populated from the server response
+        if (branches != null && !branches.isEmpty()) {
+            ObservableList<Branch> branchList = FXCollections.observableArrayList(branches);
+            branchTableView.setItems(branchList);
+        }
     }
 
     @FXML
@@ -515,16 +589,17 @@ public class AdminPanelController implements ClientDependent {
     public void workerBranchAction(ActionEvent actionEvent) {
         changeControlBorderColor(branchWorkerCombobox, null);
     }
+
     @FXML
     public void createBranchAction(ActionEvent event) {
         Employee employee = null;
         Branch newBranch = null;
         String branchName = branchNameTF.getText();
-        if(branchManagerCB.getSelectionModel().getSelectedItem() != null){
+        if (branchManagerCB.getSelectionModel().getSelectedItem() != null) {
             employee = branchManagerCB.getSelectionModel().getSelectedItem();
         }
-        if(!branchName.isEmpty() && employee != null) {
-            newBranch = new Branch(branchName,employee,null);
+        if (!branchName.isEmpty() && employee != null) {
+            newBranch = new Branch(branchName, employee, null);
         }
         Message msg = new Message();
         msg.setMessage(BRANCH_THEATER_INFORMATION);
@@ -536,6 +611,7 @@ public class AdminPanelController implements ClientDependent {
     @FXML
     public void selectionBranchManager(ActionEvent event) {
     }
+
     //endregion
 
     //region Interface Methods
@@ -548,7 +624,5 @@ public class AdminPanelController implements ClientDependent {
     public void setMessage(Message message) {
         this.localMessage = message;
     }
-
-
     //endregion
 }

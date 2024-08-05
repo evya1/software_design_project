@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
@@ -67,6 +68,10 @@ public class Message implements Serializable {
     private List<Branch> branches;
     private Branch branch;
 
+
+
+    private List<Theater> theaters;
+
     //Complaint related
     private Complaint complaint;
     private String complaintTitle;
@@ -74,7 +79,13 @@ public class Message implements Serializable {
     private List<Complaint> complaints;
 
 
+    public List<Theater> getTheaters() {
+        return theaters;
+    }
 
+    public void setTheaters(List<Theater> theaters) {
+        this.theaters = theaters;
+    }
     public List<Complaint> getComplaints() { return complaints; }
 
     public void setComplaints(List<Complaint> complaints) { this.complaints = complaints; }

@@ -62,6 +62,12 @@ public class BranchTheaterHandler implements RequestHandler {
                     DataCommunicationDB.setSession(session);
                     DataCommunicationDB.createNewBranch(message.getBranch());
                     client.sendToClient(answer);
+                case GET_ALL_THEATERS:
+                    answer.setData(GET_ALL_THEATERS);
+                    session.beginTransaction();
+                    DataCommunicationDB.setSession(session);
+                    answer.setTheaters(DataCommunicationDB.getAllTheaters());
+                    client.sendToClient(answer);
                 default:
                     break;
 

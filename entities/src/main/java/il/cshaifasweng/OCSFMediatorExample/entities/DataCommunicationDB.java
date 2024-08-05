@@ -584,6 +584,10 @@ public class DataCommunicationDB
         //Assume Transaction is already open
         return (List<Employee>) session.createQuery("FROM Employee").list();
     }
+
+    public static List<Theater> getAllTheaters(){
+        return (List<Theater>) session.createQuery("From Theater").list();
+    }
     public static List<Employee> getAllBranchManagersEmployees(){
         //Assume transaction is already open.
         String hql = "FROM Employee WHERE employeeType = :employeeType";
