@@ -151,7 +151,10 @@ public class EmployeeController implements ClientDependent {
                         errorDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
                         errorDialog.showAndWait();
                     } else {
-                        emp();
+                        if(employee.isActive())
+                            SimpleClient.showAlert(Alert.AlertType.ERROR,"Employee Error","Employee is already active");
+                        else
+                            emp();
                     }
                 });
             } else if (message.getData().equals("prices")) {

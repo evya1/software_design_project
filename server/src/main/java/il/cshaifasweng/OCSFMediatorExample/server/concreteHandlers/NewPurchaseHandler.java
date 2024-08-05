@@ -2,11 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieTicket;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
@@ -29,14 +25,14 @@ public class NewPurchaseHandler implements RequestHandler {
             // All requests are to be within the try block -- START HERE
             Message answer = new Message();
             answer.setMessage("New Purchase");
-
+            PriceConstants price = DataCommunicationDB.getPrices();
             // Checking if the request is to create a new purchase.
             if ("New Booklet".equals(message.getMessage().toString())) {
-                handleNewPurchase(message, PurchaseType.BOOKLET, session);
+                handleNewPurchase(message, PurchaseType.BOOKLET, session,price);
             } else if ("New MovieLink".equals(message.getMessage().toString())) {
-                handleNewPurchase(message, PurchaseType.MOVIE_LINK, session);
+                handleNewPurchase(message, PurchaseType.MOVIE_LINK, session,price);
             } else if ("New MovieTicket".equals(message.getMessage().toString())) {
-                handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session);
+                handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session,price);
             }
 
             answer.setData(message.getPurchase().getPurchaseType().toString());
@@ -53,12 +49,13 @@ public class NewPurchaseHandler implements RequestHandler {
         }
     }
 
-    private void handleNewPurchase(Message message, PurchaseType purchaseType, Session session) {
+    private void handleNewPurchase(Message message, PurchaseType purchaseType, Session session, PriceConstants price) {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
 
             Purchase purchase = new Purchase();
+            purchase.SetPrice(price);
             purchase.setPurchaseType(purchaseType);
             purchase.setDateOfPurchase(LocalDateTime.now());
             purchase.setPriceByItem(purchaseType);
