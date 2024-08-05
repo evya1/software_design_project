@@ -45,7 +45,7 @@ public class EmployeesListHandler implements RequestHandler {
             } else if (message.getData().equals("set employee as active")) {
                 session.beginTransaction();
                 Employee employee = session.get(Employee.class, message.getEmployee().getId());
-                employee.setActive(true);
+                employee.setActive(message.getEmployee().isActive());
                 session.getTransaction().commit();
                 answer.setData("employee is active");
                 answer.setEmployee(employee);

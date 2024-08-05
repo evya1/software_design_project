@@ -48,6 +48,8 @@ public class ComplaintsHandler implements RequestHandler {
                 session.beginTransaction();
                 Complaint complaint = session.get(Complaint.class, message.getComplaint().getId());
                 complaint.setComplaintStatus(message.getComplaint().getComplaintStatus());
+                complaint.setComplaintContent(message.getComplaint().getComplaintContent());
+                complaint.setMoneyToReturn(message.getComplaint().getMoneyToReturn());
                 session.getTransaction().commit();
                 answer.setData("change complaint status");
                 server.sendToAllClients(answer);
