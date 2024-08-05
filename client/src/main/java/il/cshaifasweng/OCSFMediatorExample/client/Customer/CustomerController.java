@@ -326,20 +326,31 @@ public class CustomerController implements ClientDependent {
 
     @Subscribe
     public void dataReceived(MessageEvent event) {
-        Platform.runLater(() -> {
-            Message message = event.getMessage();
-            String displayMessage = "Customer wasn't found";
-            if (message.getCustomer() != null) {
-                localCustomer = message.getCustomer();
-                displayMessage = message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName();
-                welcomeLabel.setText("Welcome " + message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName() + " Choose the information you wish to view from the side menu");
-                loggedInButtons();
-                SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Customer connected", displayMessage);
-            } else {
-                connectedFlag = false;
-                SimpleClient.showAlert(Alert.AlertType.ERROR, "Wrong information", displayMessage);
-            }
-        });
+        Message message = event.getMessage();
+
+        if(message.getMessage().equals(GET_CUSTOMER_INFO)){
+            Platform.runLater(() -> {
+                String displayMessage = "Customer wasn't found";
+                if (message.getCustomer() != null) {
+                    localCustomer = message.getCustomer();
+                    displayMessage = message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName();
+                    welcomeLabel.setText("Welcome " + message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName() + " Choose the information you wish to view from the side menu");
+                    loggedInButtons();
+                    SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Customer connected", displayMessage);
+                } else {
+                    connectedFlag = false;
+                    SimpleClient.showAlert(Alert.AlertType.ERROR, "Wrong information", displayMessage);
+                }
+            });
+        }
+        if(message.getMessage().equals(UPDATE_PURCHASE)){
+            Platform.runLater(()->{
+                showAlert("Purchase Cancellation","The Purchase was cancelled successfully.");
+                System.out.println("Enetered");
+            });
+
+        }
+
     }
 
     @FXML
@@ -487,11 +498,9 @@ public class CustomerController implements ClientDependent {
                 if (movieTicket != null) {
                     System.out.println("Movie Ticket canceled with " + refundMessage);
                     updateMovieTicket(movieTicket);
-                    showAlert("Purchase successfully cancelled", "Your movie ticket has been successfully cancelled with " + refundMessage);
                 } else if (movieLink != null) {
                     System.out.println("Movie Link canceled with " + refundMessage);
                     updateMovieLink(movieLink);
-                    showAlert("Purchase successfully cancelled", "Your movie link has been successfully cancelled with " + refundMessage);
                 }
                 // Refresh the table views to reflect the cancellation
                 movieTicketTableView.refresh();
@@ -524,7 +533,7 @@ public class CustomerController implements ClientDependent {
 
     private void updatePurchase(Purchase purchase) {
         Message message = new Message();
-        message.setMessage("UPDATE PURCHASE");
+        message.setMessage(UPDATE_PURCHASE);
         message.setPurchase(purchase);
         message.setCustomerID(localCustomer.getPersonalID()); // Ensure the customer ID is set correctly
         client.sendMessage(message);

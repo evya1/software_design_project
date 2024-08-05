@@ -215,7 +215,7 @@
                                                 </AnchorPane>
                                           </content>
                                         </Tab>
-                                        <Tab text="Modify Existing Branch">
+                                        <Tab text="View Existing Branch">
                                           <content>
                                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                    <children>
