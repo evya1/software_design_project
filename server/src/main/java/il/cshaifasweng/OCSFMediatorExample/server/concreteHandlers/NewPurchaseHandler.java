@@ -31,7 +31,7 @@ public class NewPurchaseHandler implements RequestHandler {
                 handleNewPurchase(message, PurchaseType.BOOKLET, session,price);
             } else if ("New MovieLink".equals(message.getMessage().toString())) {
                 handleNewPurchase(message, PurchaseType.MOVIE_LINK, session,price);
-            } else if ("New MovieTicket".equals(message.getMessage().toString())) {
+            } else if ("New Movie Ticket".equals(message.getMessage().toString())) {
                 handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session,price);
             }
 

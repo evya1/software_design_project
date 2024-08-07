@@ -26,6 +26,7 @@ public class HandlerFactory {
         handlers.put(RequestTypes.UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
         handlers.put(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST, new GetTimeSlotByMovieID());
         handlers.put(RequestTypes.GET_PURCHASE_REQUEST, new NewPurchaseHandler());
+        handlers.put(RequestTypes.GET_MOVIE_TICKET_REQUEST, new NewPurchaseHandler());
         handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler());
         handlers.put(RequestTypes.BRANCH_THEATER_INFORMATION, new BranchTheaterHandler());
         handlers.put(RequestTypes.GET_COMPLAINT_REQUEST, new ComplaintSubmissionHandler());
