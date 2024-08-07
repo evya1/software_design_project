@@ -2,7 +2,10 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Seat;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
@@ -33,6 +36,20 @@ public class UpdatePurchaseHandler implements RequestHandler {
                 if (oldPurchase != null) {
                     // Update the purchase's cancelled status
                     oldPurchase.setCancelled(updatePurchase.isCancelled());
+
+                    //releasing the purchased seat
+                    if(oldPurchase.getPurchaseType() == PurchaseType.MOVIE_TICKET){
+                        int freeSeatNum = oldPurchase.getPurchasedMovieTicket().getSeatNum();
+                        Theater theater = oldPurchase.getPurchasedMovieTicket().getMovieSlot().getTheater();
+                        theater.setAvailableSeats(theater.getAvailableSeats() + 1);
+                        Seat freeSeat = theater.getSeatList().get(freeSeatNum);
+                        freeSeat.setTaken(false);
+
+                        // Save the Theater and Seat
+                        session.update(freeSeat);
+                        session.update(theater);
+                    }
+
                     // Save the updated purchase
                     session.update(oldPurchase);
                     session.getTransaction().commit();

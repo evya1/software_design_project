@@ -7,6 +7,7 @@ public class RequestTypes {
     public static final String UPDATE_MOVIES_LIST_REQUEST = "update movies list";
     public static final String GET_TIMESLOT_BY_MOVIEID_REQUEST = "get movie slot by movie ID";
     public static final String GET_PURCHASE_REQUEST = "New Booklet";
+    public static final String GET_MOVIE_TICKET_REQUEST = "New Movie Ticket";
     public static final String CREATE_NEW_MOVIE = "Content Change";
     public static final String SHOW_ALL_MOVIES = "show all movies";
     public static final String DELETE_MOVIE_BY_MOVIE_ID = "delete movie by movie ID";

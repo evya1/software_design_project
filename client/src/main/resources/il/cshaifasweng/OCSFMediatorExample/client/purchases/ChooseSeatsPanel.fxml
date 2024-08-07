@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -30,7 +32,27 @@
             </AnchorPane>
          </top>
          <left>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="purchaseTicketBtn" layoutX="43.0" layoutY="106.0" mnemonicParsing="false" onAction="#purchaseTicketAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Purchase Ticket" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
+                  </Button>
+                  <Button fx:id="homeScreenBtn" layoutX="43.0" layoutY="58.0" mnemonicParsing="false" onAction="#returnHomeAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Home Screen" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
+                  </Button>
+                  <Button fx:id="returnBtn" layoutX="43.0" layoutY="433.0" mnemonicParsing="false" onAction="#returnBtnAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Return" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
+                  </Button>
+               </children></AnchorPane>
          </left>
          <center>
             <AnchorPane prefHeight="200.0" prefWidth="1148.0" style="-fx-background-color: #ffff;" styleClass="text-area" stylesheets="@../catalogM/TextArea.css" BorderPane.alignment="CENTER">
