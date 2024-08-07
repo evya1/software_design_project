@@ -4,11 +4,17 @@ import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
@@ -33,7 +39,9 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -48,6 +56,39 @@ public class MovieAdditionController implements ClientDependent {
     private static final String clientNotInit = "Client is not initialized!\n";
     private static final Logger logger = LoggerFactory.getLogger(MovieAdditionController.class);
 
+    @FXML
+    public ComboBox<Branch> branchModifyComboBox;
+    @FXML
+    public ComboBox<Theater> theaterModifyComboBox;
+    @FXML
+    public Tab ModifyScreeningTimeTab;
+    @FXML
+    public Tab modifyMovieTab;
+    @FXML
+    public TabPane tabPane;
+    @FXML
+    public DatePicker datePickerScreening;
+    @FXML
+    public TextField hourTextField;
+    @FXML
+    public Button submitNewBtn;
+    @FXML
+    public Tooltip hourToolTip;
+    @FXML
+    public TableView<MovieSlot> screeningTableView;
+    @FXML
+    public TableColumn<MovieSlot,Branch> branchNameCol;
+    @FXML
+    public TableColumn<MovieSlot,Theater> theaterNumCol;
+    @FXML
+    public TableColumn<MovieSlot,LocalDateTime> dateCol;
+    @FXML
+    public TableColumn<MovieSlot, LocalDateTime> startHourCol;
+    @FXML
+    public TableColumn<MovieSlot,LocalDateTime> endHourCol;
+    @FXML
+    public Label informationLabel;
+
 
     private List<Movie> movies;
     private List<MovieSlot> slots;
@@ -57,6 +98,7 @@ public class MovieAdditionController implements ClientDependent {
     private SimpleClient client;
     private Message localMessage;
     private List<Branch> branches;
+    private PauseTransition pause;
 
     @FXML
     private Button browseBtn;
@@ -129,11 +171,12 @@ public class MovieAdditionController implements ClientDependent {
 
     private final String errorColor = "red";
     private final String normalColor = "black";
-    private final String borderDefault = null;
+
 
 
     @FXML
     public void initialize() {
+        EventBus.getDefault().register(this);
         chooseGenreComboBox.getItems().addAll(MovieGenre.values());
 
         if (localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)) {
@@ -146,19 +189,20 @@ public class MovieAdditionController implements ClientDependent {
             movie = new Movie();
             movieType = new TypeOfMovie();
             movie.setMovieType(movieType);
-            addTextInputListener(descriptionTextArea, borderDefault);
-            addTextInputListener(englishTitleTextField, borderDefault);
-            addTextInputListener(filePathTextField, borderDefault);
-            addTextInputListener(hebrewTitleTextField, borderDefault);
-            addTextInputListener(producerTextField, borderDefault);
-            addTextInputListener(castTextField, borderDefault);
-            addTextInputListener(movieDurationTextField, borderDefault);
+            addTextInputListener(descriptionTextArea, null);
+            addTextInputListener(englishTitleTextField, null);
+            addTextInputListener(filePathTextField, null);
+            addTextInputListener(hebrewTitleTextField, null);
+            addTextInputListener(producerTextField, null);
+            addTextInputListener(castTextField, null);
+            addTextInputListener(movieDurationTextField, null);
+            ModifyScreeningTimeTab.setDisable(true);
         }
         //Loading an existing movie.
         else {
-            filePathTextField.setDisable(true);
-            browseBtn.setDisable(true);
-            previewImageButton.setDisable(true);
+            filePathTextField.setDisable(false);
+            browseBtn.setDisable(false);
+            previewImageButton.setDisable(false);
             chooseMovieComboBox.setVisible(true);
             backBtn1.setVisible(false);
             backBtn1.setDisable(true);
@@ -166,8 +210,12 @@ public class MovieAdditionController implements ClientDependent {
             deleteMovieBtn.setVisible(true);
             deleteMovieBtn.setDisable(false);
             submitMovieBtn.setText("Update Movie");
-
         }
+        addTextInputListener(hourTextField,null);
+        addTextInputListener(branchModifyComboBox,null);
+        addTextInputListener(datePickerScreening,null);
+        addTextInputListener(theaterModifyComboBox, null);
+
         Message message = new Message();
         message.setMessage(MOVIE_REQUEST);
         message.setData(SHOW_ALL_MOVIES);
@@ -175,9 +223,8 @@ public class MovieAdditionController implements ClientDependent {
         message.setMessage(BRANCH_THEATER_INFORMATION);
         message.setData(GET_BRANCHES);
         client.sendMessage(message);
-        EventBus.getDefault().register(this);
 
-
+        screeningTableView.setEditable(true);
     }
 
     @Subscribe
@@ -198,6 +245,8 @@ public class MovieAdditionController implements ClientDependent {
             if (message.getData().equals(GET_BRANCHES)) {
                 Platform.runLater(() -> {
                     this.branches = message.getBranches();
+                    branchModifyComboBox.getItems().addAll(branches);
+                    setupTableColumns(); // Re-setup columns after getting branches
                 });
             }
             if (message.getData().equals("time slots for specific movie")) {
@@ -214,10 +263,171 @@ public class MovieAdditionController implements ClientDependent {
                     ObservableList<String> stList = FXCollections.observableArrayList(slotsNames);
                     Collections.sort(stList);
                     screeningTimesListView.setItems(stList);
-
+                });
+                Platform.runLater(()->{
+                    setupTableColumns();
+                    screeningTableView.getItems().clear();
+                    screeningTableView.refresh();
+                    screeningTableView.getItems().addAll(slots);
                 });
             }
         }
+    }
+
+    // Show label information for 5 seconds.
+    private void pauseTransitionLabelUpdate(String string) {
+        informationLabel.setText(string);
+
+        // Create a pause transition of 5 seconds
+        if (pause != null) {
+            pause.setOnFinished(null);
+            pause.stop();
+        }
+
+        pause = new PauseTransition(Duration.seconds(5));
+
+        // Set what to do after the pause
+        pause.setOnFinished(event -> informationLabel.setText(""));
+
+        // Start the pause
+        pause.play();
+    }
+
+
+    private void setupTableColumns() {
+        Message message = new Message();
+        message.setMessage(CONTENT_CHANGE);
+        branchNameCol.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getBranch()));
+        branchNameCol.setCellFactory(column -> {
+            ComboBoxTableCell<MovieSlot, Branch> cell = new ComboBoxTableCell<>(FXCollections.observableArrayList(branches));
+            cell.setComboBoxEditable(true);
+            return cell;
+        });
+        branchNameCol.setOnEditCommit(event -> {
+            MovieSlot movieSlot = event.getRowValue();
+            Branch newBranch = event.getNewValue();
+            movieSlot.setBranch(newBranch);
+
+            // Update the theater column to reflect the new branch
+            theaterNumCol.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(newBranch.getTheaterList())));
+            theaterNumCol.setEditable(true); // Make the theater column editable
+            movieSlot.setTheater(null); // Reset the theater selection when the branch changes
+            screeningTableView.refresh();
+        });
+
+        theaterNumCol.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getTheater()));
+        theaterNumCol.setCellFactory(column -> {
+            ComboBoxTableCell<MovieSlot, Theater> cell = new ComboBoxTableCell<>(FXCollections.observableArrayList());
+            cell.setComboBoxEditable(true);
+            return cell;
+        });
+        theaterNumCol.setOnEditCommit(event -> {
+            MovieSlot movieSlot = event.getRowValue();
+            movieSlot.setTheater(event.getNewValue());
+            message.setData(UPDATE_MOVIE_SLOT);
+            message.setMovieSlot(movieSlot);
+            theaterNumCol.setEditable(false); // Initially set this column to be non-editable
+        });
+        theaterNumCol.setEditable(false); // Initially set this column to be non-editable
+
+        dateCol.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getStartDateTime()));
+        dateCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDateTime>() {
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+            @Override
+            public String toString(LocalDateTime dateTime) {
+                return dateTime != null ? dateTime.format(formatter) : "";
+            }
+
+            @Override
+            public LocalDateTime fromString(String string) {
+                try {
+                    LocalDate date = LocalDate.parse(string, formatter);
+                    return LocalDateTime.of(date, LocalTime.MIN); // Use existing time component
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
+            }
+        }));
+        dateCol.setOnEditCommit(event -> {
+            MovieSlot movieSlot = event.getRowValue();
+            LocalDateTime newDateTime = event.getNewValue();
+            if (newDateTime != null) {
+                LocalDate currentDate = newDateTime.toLocalDate();
+                LocalTime currentTime = movieSlot.getStartDateTime().toLocalTime();
+                movieSlot.setStartDateTime(LocalDateTime.of(currentDate, currentTime));
+                movieSlot.setEndDateTime(LocalDateTime.of(currentDate, movieSlot.getEndDateTime().toLocalTime()));
+            } else {
+                pauseTransitionLabelUpdate("Invalid date format. Use dd-MM-yyyy.");
+                screeningTableView.refresh();
+            }
+        });
+
+        startHourCol.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getStartDateTime()));
+        startHourCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDateTime>() {
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            @Override
+            public String toString(LocalDateTime dateTime) {
+                return dateTime != null ? dateTime.format(formatter) : "";
+            }
+
+            @Override
+            public LocalDateTime fromString(String string) {
+                try {
+                    LocalTime time = LocalTime.parse(string, formatter);
+                    return LocalDateTime.of(LocalDate.MIN, time); // Use existing date component
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
+            }
+        }));
+        startHourCol.setOnEditCommit(event -> {
+            MovieSlot movieSlot = event.getRowValue();
+            LocalDateTime newDateTime = event.getNewValue();
+            if (newDateTime != null) {
+                LocalDate currentDate = movieSlot.getStartDateTime().toLocalDate();
+                LocalTime newTime = newDateTime.toLocalTime();
+                movieSlot.setStartDateTime(LocalDateTime.of(currentDate, newTime));
+            } else {
+                pauseTransitionLabelUpdate("Invalid time format. Use HH:mm.");
+                screeningTableView.refresh();
+            }
+        });
+
+        endHourCol.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getEndDateTime()));
+        endHourCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDateTime>() {
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            @Override
+            public String toString(LocalDateTime dateTime) {
+                return dateTime != null ? dateTime.format(formatter) : "";
+            }
+
+            @Override
+            public LocalDateTime fromString(String string) {
+                try {
+                    LocalTime time = LocalTime.parse(string, formatter);
+                    return LocalDateTime.of(LocalDate.MIN, time); // Use existing date component
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
+            }
+        }));
+        endHourCol.setOnEditCommit(event -> {
+            MovieSlot movieSlot = event.getRowValue();
+            LocalDateTime newDateTime = event.getNewValue();
+            if (newDateTime != null) {
+                LocalDate currentDate = movieSlot.getEndDateTime().toLocalDate();
+                LocalTime newTime = newDateTime.toLocalTime();
+                movieSlot.setEndDateTime(LocalDateTime.of(currentDate, newTime));
+            } else {
+                pauseTransitionLabelUpdate("Invalid time format. Use HH:mm.");
+                screeningTableView.refresh();
+            }
+        });
+
+        screeningTableView.setEditable(true); // Enable table editing
     }
 
     @FXML
@@ -556,7 +766,18 @@ public class MovieAdditionController implements ClientDependent {
     void chooseGenre(ActionEvent event) {
         MovieGenre genreSelection = chooseGenreComboBox.getValue();
         movie.setMovieGenre(genreSelection);
-        changeControlBorderColor(chooseGenreComboBox, borderDefault);
+        changeControlBorderColor(chooseGenreComboBox, null);
+    }
+
+    private void loadNewImage(){
+        try {
+            File file = new File(filePathTextField.getText());
+            Image image = new Image(file.toURI().toString());
+            movieImageView.setImage(image);
+        } catch (Exception e) {
+            e.printStackTrace();
+            SimpleClient.showAlert(Alert.AlertType.ERROR, "File path", "File location is incorrect");
+        }
     }
 
     @FXML
@@ -564,23 +785,21 @@ public class MovieAdditionController implements ClientDependent {
         //Loading movie image from local path given by the user or from Movie.
         if (localMessage.getMessage().equals(NEW_MOVIE_TEXT_REQUEST)) {
             if (!filePathTextField.getText().isEmpty()) {
-                try {
-                    File file = new File(filePathTextField.getText());
-                    Image image = new Image(file.toURI().toString());
-                    movieImageView.setImage(image);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    SimpleClient.showAlert(Alert.AlertType.ERROR, "File path", "File location is incorrect");
-                }
+               loadNewImage();
             } else {
                 SimpleClient.showAlert(Alert.AlertType.ERROR, "File path", "The file path is empty.");
             }
 
         } else {
-            if (movie.getImage() != null) {
-                InputStream imageStream = new ByteArrayInputStream(movie.getImage());
-                Image image = new Image(imageStream);
-                movieImageView.setImage(image);
+            if(!filePathTextField.getText().isEmpty()){
+                loadNewImage();
+            }
+            else{
+                if (movie.getImage() != null) {
+                    InputStream imageStream = new ByteArrayInputStream(movie.getImage());
+                    Image image = new Image(imageStream);
+                    movieImageView.setImage(image);
+                }
             }
         }
     }
@@ -656,16 +875,16 @@ public class MovieAdditionController implements ClientDependent {
 
     private void copyMovieDetails(boolean newMovie) throws IOException {
         try {
-        movie.setHebrewMovieName(hebrewTitleTextField.getText());
-        movie.setMovieName(englishTitleTextField.getText());
-        movie.setMovieDescription(descriptionTextArea.getText());
-        movie.setMainCast(castTextField.getText());
-        movie.setMovieDuration(Integer.parseInt(movieDurationTextField.getText()));
-        movie.setProducer(producerTextField.getText());
-        movie.setMovieGenre(chooseGenreComboBox.getValue());
-        movie.getMovieType().setUpcoming(soonCheckBox.isSelected());
-        movie.getMovieType().setCurrentlyRunning(inTheatersCheckBox.isSelected());
-        movie.getMovieType().setPurchasable(packageCheckBox.isSelected());
+            movie.setHebrewMovieName(hebrewTitleTextField.getText());
+            movie.setMovieName(englishTitleTextField.getText());
+            movie.setMovieDescription(descriptionTextArea.getText());
+            movie.setMainCast(castTextField.getText());
+            movie.setMovieDuration(Integer.parseInt(movieDurationTextField.getText()));
+            movie.setProducer(producerTextField.getText());
+            movie.setMovieGenre(chooseGenreComboBox.getValue());
+            movie.getMovieType().setUpcoming(soonCheckBox.isSelected());
+            movie.getMovieType().setCurrentlyRunning(inTheatersCheckBox.isSelected());
+            movie.getMovieType().setPurchasable(packageCheckBox.isSelected());
 
             //If it's a new movie or if there was a new image loaded for the movie during edit.
             if (newMovie || !filePathTextField.getText().isEmpty()) {
@@ -728,12 +947,12 @@ public class MovieAdditionController implements ClientDependent {
 
     //Resets the fields color to be null - the transparent border by default.
     private void resetFieldsColor() {
-        changeControlBorderColor(descriptionTextArea, borderDefault);
-        changeControlBorderColor(hebrewTitleTextField, borderDefault);
-        changeControlBorderColor(englishTitleTextField, borderDefault);
-        changeControlBorderColor(castTextField, borderDefault);
-        changeControlBorderColor(producerTextField, borderDefault);
-        changeControlBorderColor(chooseGenreComboBox, borderDefault);
+        changeControlBorderColor(descriptionTextArea, null);
+        changeControlBorderColor(hebrewTitleTextField, null);
+        changeControlBorderColor(englishTitleTextField, null);
+        changeControlBorderColor(castTextField, null);
+        changeControlBorderColor(producerTextField, null);
+        changeControlBorderColor(chooseGenreComboBox, null);
         changeControlTextColor(soonCheckBox, normalColor);
         changeControlTextColor(inTheatersCheckBox, normalColor);
         changeControlTextColor(packageCheckBox, normalColor);
@@ -742,7 +961,7 @@ public class MovieAdditionController implements ClientDependent {
 
     @FXML
     public void browseLocation(ActionEvent actionEvent) {
-        changeControlBorderColor(filePathTextField, borderDefault);
+        changeControlBorderColor(filePathTextField, null);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Image File");
         fileChooser.getExtensionFilters().addAll(
@@ -784,5 +1003,105 @@ public class MovieAdditionController implements ClientDependent {
         this.localMessage = message;
     }
 
+    @FXML
+    public void branchModifyChangeAction(ActionEvent event) {
+        changeControlBorderColor(branchModifyComboBox, null);
+        Branch selectedBranch = branchModifyComboBox.getSelectionModel().getSelectedItem();
+        if(selectedBranch != null){
+            theaterModifyComboBox.getItems().addAll(selectedBranch.getTheaterList());
+        }
+    }
 
+    @FXML
+    public void theaterModifyAction(ActionEvent event) {
+        changeControlBorderColor(theaterModifyComboBox, null);
+    }
+
+    @FXML
+    public void submitNewAction(ActionEvent event) {
+
+        //Checking the fields if they're set correctly.
+        boolean hasError = false;
+        if(branchModifyComboBox.getValue() == null){
+            changeControlBorderColor(branchModifyComboBox, errorColor);
+            hasError = true;
+        }
+        if(theaterModifyComboBox.getValue() == null) {
+            changeControlBorderColor(theaterModifyComboBox, errorColor);
+            hasError = true;
+        }
+        if(datePickerScreening.getValue() == null){
+            changeControlBorderColor(datePickerScreening, errorColor);
+            hasError = true;
+        }
+        if(hourTextField.getText().isEmpty()){
+            changeControlBorderColor(hourTextField, errorColor);
+            hasError = true;
+        }
+        // Regular expression to match HH:MM format
+        String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+        if(!hourTextField.getText().matches(regex)){
+            changeControlBorderColor(hourTextField,errorColor);
+            showTooltip(hourTextField,hourToolTip);
+            hasError = true;
+        }
+
+        //If the fields are set correctly, verify the date and send a new MovieSlot message to server.
+        if(!hasError){
+            try{
+                LocalDate date = datePickerScreening.getValue();
+                LocalTime time = LocalTime.parse(hourTextField.getText(), DateTimeFormatter.ofPattern("HH:mm"));
+                LocalDateTime dateTime = LocalDateTime.of(date,time);
+
+                if(date.isBefore(LocalDate.now())){
+                    String prevText = hourToolTip.getText();
+                    hourToolTip.setText("Please pick a date after today.");
+                    showTooltip(hourTextField,hourToolTip);
+                    hourToolTip.setText(prevText);
+                    return;
+                }
+
+                MovieSlot slot = new MovieSlot();
+                slot.setMovie(movie);
+                slot.setBranch(branchModifyComboBox.getValue());
+                slot.setMovieTitle(movie.getMovieName());
+                slot.setTheater(theaterModifyComboBox.getValue());
+                slot.setStartDateTime(dateTime);
+                slot.setEndDateTime(dateTime.plusHours(3).plusMinutes(30));
+                Message message = new Message();
+                message.setMessage(CONTENT_CHANGE);
+                message.setData(NEW_SCREENING_TIME);
+                message.setMovieSlot(slot);
+                client.sendMessage(message);
+                System.out.println(slot);
+                //TODO: Add to the server side to send the timeslots for the movie to all clients.
+            }
+            catch(DateTimeParseException e){
+                changeControlBorderColor(hourTextField,errorColor);
+                showTooltip(hourTextField,hourToolTip);
+            }
+
+        }
+
+
+    }
+
+
+    private void showTooltip(Control control, Tooltip tooltip) {
+        // Calculate the position of the tooltip
+        double x = control.getScene().getWindow().getX() + control.getLocalToSceneTransform().getTx() + control.getWidth() / 2;
+        double y = control.getScene().getWindow().getY() + control.getLocalToSceneTransform().getTy() + control.getHeight();
+
+        // Show the tooltip
+        tooltip.show(control, x, y);
+
+        // Create a PauseTransition to hide the tooltip after 2 seconds
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        pause.setOnFinished(event -> tooltip.hide());
+        pause.play();
+    }
+
+    public void selectedDateAction(ActionEvent event) {
+        changeControlBorderColor(datePickerScreening,null);
+    }
 }

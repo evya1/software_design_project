@@ -10,12 +10,14 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -93,9 +95,7 @@ public class EmployeeController implements ClientDependent {
         confirmChangeBtn.setDisable(true);
         complaintsListView.setVisible(false);
         Message message = new Message();
-//        message.setMessage(MOVIE_REQUEST);
-//        message.setData(SHOW_ALL_MOVIES);
-//        client.sendMessage(message);
+
         message.setMessage("get prices");
         message.setData("show all prices");
         client.sendMessage(message);
@@ -107,7 +107,7 @@ public class EmployeeController implements ClientDependent {
     }
 
     private void checkMsg() {
-        if (localMessage.getSourceFXML() == ADD_EDIT_MOVIE) {
+        if (localMessage.getSourceFXML().equals(ADD_EDIT_MOVIE)) {
             logINBtn.setVisible(false);
             logOUTBtn.setVisible(true);
             homeScreenBtn.setDisable(true);
@@ -119,7 +119,7 @@ public class EmployeeController implements ClientDependent {
             System.out.println(employee.getUsername());
             System.out.println(employee.getPassword());
         }
-        else if (localMessage.getSourceFXML() == COMPLAINT_HANDLER_SCREEN)
+        else if (localMessage.getSourceFXML().equals(COMPLAINT_HANDLER_SCREEN))
         {
             logINBtn.setVisible(false);
             logOUTBtn.setVisible(true);
@@ -134,8 +134,8 @@ public class EmployeeController implements ClientDependent {
     public void dataReceived(MessageEvent event) {
         if (event != null) {
             Message message = event.getMessage();
-            if (message.getData().equals("password check")) {
-                Platform.runLater(() -> {
+            switch (message.getData()) {
+                case "password check" -> Platform.runLater(() -> {
                     this.employee = message.getEmployee();
                     if (employee == null) {
                         Dialog<String> errorDialog = new Dialog<>();
@@ -144,18 +144,16 @@ public class EmployeeController implements ClientDependent {
                         errorDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
                         errorDialog.showAndWait();
                     } else {
-                        if(employee.isActive())
-                            SimpleClient.showAlert(Alert.AlertType.ERROR,"Employee Error","Employee is already active");
+                        if (employee.isActive())
+                            SimpleClient.showAlert(Alert.AlertType.ERROR, "Employee Error", "Employee is already active");
                         else
                             emp();
                     }
                 });
-            } else if (message.getData().equals("prices")) {
-                Platform.runLater(() -> {
+                case "prices" -> Platform.runLater(() -> {
                     this.prices = message.getPrices();
                 });
-            } else if (message.getData().equals("show all complaints")) {
-                Platform.runLater(() -> {
+                case "show all complaints" -> Platform.runLater(() -> {
                     this.complaints = message.getComplaints();
                     List<String> comps = new ArrayList<>();
                     for (Complaint comp : complaints) {
@@ -164,13 +162,11 @@ public class EmployeeController implements ClientDependent {
                     }
                     complaintsListView.setItems(FXCollections.observableArrayList(comps));
                 });
-            } else if (message.getData().equals("employee is active")) {
-                Platform.runLater(() -> {
+                case "employee is active" -> Platform.runLater(() -> {
                     employee = message.getEmployee();
                     System.out.println(employee.isActive());
                 });
-            } else if (message.getData().equals("change complaint status")) {
-                Platform.runLater(() -> {
+                case "change complaint status" -> Platform.runLater(() -> {
                     Message msg = new Message();
                     msg.setMessage("get complaints");
                     msg.setData("show all complaints");
@@ -283,6 +279,27 @@ public class EmployeeController implements ClientDependent {
 
     @FXML
     void logIn(ActionEvent event) {
+
+        //region Setting up a logout for the existing Employee.
+        Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
+        EventHandler<WindowEvent> existingHandler = stage.getOnCloseRequest();
+
+        stage.setOnCloseRequest(eventLogout -> {
+            // Perform additional action
+            employee.setActive(false);
+            Message message = new Message();
+            message.setMessage(GET_EMPLOYEES);
+            message.setData("set employee as active");
+            message.setEmployee(employee);
+            client.sendMessage(message);
+
+            // Call the existing handler if it exists
+            if (existingHandler != null) {
+                existingHandler.handle(eventLogout);
+            }
+        });
+        //endregion
+
         try {
             Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Sign In");
@@ -382,7 +399,6 @@ public class EmployeeController implements ClientDependent {
         message.setData("set employee as active");
         message.setEmployee(employee);
         client.sendMessage(message);
-
     }
 
     @FXML
