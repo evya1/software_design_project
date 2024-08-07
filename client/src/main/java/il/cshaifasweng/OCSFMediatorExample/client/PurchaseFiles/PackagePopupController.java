@@ -10,13 +10,17 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class PackagePopupController implements ClientDependent {
+    private Stage stage;
+    private SimpleClient client;
+    private Message localMessage;
     public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
-    public void setMessage(Message message){
-    }
+    public void setMessage(Message message){this.localMessage = message;}
 
     public void setClient(SimpleClient client) {
+        this.client = client;
     }
 
 
@@ -25,7 +29,6 @@ public class PackagePopupController implements ClientDependent {
 
     @FXML
     public void initialize() {
-
         okayBtn.setOnAction(this::okayBtnControl);
     }
     @FXML
