@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.InputMethodEvent;
@@ -21,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -67,6 +69,8 @@ public class PrimaryController implements ClientDependent {
     private Button submitComplaintBtn;
     @FXML
     private TextField searchTextField;
+    @FXML
+    public Button viewReportsBtn;
 
     //endregion
 
@@ -453,5 +457,25 @@ public class PrimaryController implements ClientDependent {
             }
         });
     }
+
+    @FXML
+    void handleViewReportsAction(ActionEvent event) {
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) viewReportsBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("View Reports Clicked");
+            message.setSourceFXML(PRIMARY_SCREEN);
+
+            Parent root = FXMLUtils.loadFXML(REPORTS_SCREEN, client, message);
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     //endregion
 }

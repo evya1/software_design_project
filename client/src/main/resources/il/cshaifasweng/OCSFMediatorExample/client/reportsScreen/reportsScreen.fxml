@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox styleClass="PanelBackground" stylesheets="@../catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox styleClass="PanelBackground" stylesheets="@../catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenController">
    <children>
       <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1400.0">
          <top>
@@ -34,7 +34,7 @@
 
             <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button id="exitBtn" fx:id="ExitBtn" layoutX="41.0" layoutY="31.0" mnemonicParsing="false" onAction="#prevScreen" prefHeight="40.0" prefWidth="118.0" stylesheets="@../catalogM/styleColor.css" text="Exit" textFill="WHITE" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0">
+                  <Button id="exitBtn" fx:id="ExitBtn" layoutX="41.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleBackAction" prefHeight="40.0" prefWidth="118.0" stylesheets="@../catalogM/styleColor.css" text="Back" textFill="WHITE" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0">
                      <font>
                         <Font size="21.0" />
                      </font>

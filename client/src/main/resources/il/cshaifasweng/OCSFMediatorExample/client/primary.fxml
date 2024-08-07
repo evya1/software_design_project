@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="650.0" prefWidth="1400.0" spacing="20.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PrimaryController">
+<VBox alignment="CENTER" prefHeight="650.0" prefWidth="1400.0" spacing="20.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PrimaryController">
    <children>
       <BorderPane prefHeight="805.0" prefWidth="1354.0">
          <center>
@@ -118,6 +118,11 @@
                         <String fx:value="hover-button" />
                      </styleClass></Button>
                   <Button fx:id="bookletPurchaseBtn" layoutX="61.0" layoutY="340.0" mnemonicParsing="false" onAction="#purchaseBookletControl" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="Purchase Booklet" textFill="#222831">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass></Button>
+                  <Button fx:id="viewReportsBtn" layoutX="61.0" layoutY="413.0" mnemonicParsing="false" onAction="#handleViewReportsAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@catalogM/styleColor.css" text="View Reports" textFill="#222831">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />

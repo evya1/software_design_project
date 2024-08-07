@@ -15,4 +15,5 @@ public class FilePathController {
     public static final String COMPLAINT_HANDLER_SCREEN = "employeeFX/handleComplaintPanel";
     public static final String ADMIN_SCREEN = "employeeFX/AdminPanel";
     public static final String CHOOSE_SEATS_SCREEN = "purchases/ChooseSeatsPanel";
+    public static final String REPORTS_SCREEN = "reportsScreen/reportsScreen";
 }
