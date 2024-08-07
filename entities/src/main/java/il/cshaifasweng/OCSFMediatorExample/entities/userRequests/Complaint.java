@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.userRequests;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 
@@ -29,6 +30,10 @@ public class Complaint implements Serializable {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @ManyToOne
+    @JoinColumn(name = "branch_id", nullable = true)
+    private Branch branch;
+
     public double getMoneyToReturn() {
         return moneyToReturn;
     }
@@ -55,7 +60,20 @@ public class Complaint implements Serializable {
         this.moneyToReturn = money;
     }
 
+    public Complaint(String complaintTitle, String complaintContent, LocalDateTime dateOfComplaint, String complaintStatus, PurchaseType purchaseType, String customerPId, Customer customer, double money, Branch branch) {
+        this(complaintTitle, complaintContent, dateOfComplaint, complaintStatus, purchaseType, customerPId, customer, money);
+        setBranch(branch);
+    }
+
     public Complaint() {}
+
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
 
     public String getComplaintTitle() {
         return complaintTitle;
