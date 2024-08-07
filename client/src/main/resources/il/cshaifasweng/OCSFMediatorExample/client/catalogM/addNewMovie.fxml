@@ -2,59 +2,147 @@
 
 <?import java.lang.String?>
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="650.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ContentChange.MovieAdditionController">
    <center>
-      <AnchorPane fx:id="movieToDoChangeOn" prefHeight="425.0" prefWidth="1126.0" style="-fx-background-color: #ffff;">
+      <AnchorPane fx:id="movieToDoChangeOn" prefHeight="478.0" prefWidth="1100.0" style="-fx-background-color: #ffff;" styleClass="text-area" stylesheets="@TextArea.css">
          <children>
-            <TextField fx:id="castTextField" layoutX="110.0" layoutY="62.0" prefHeight="28.0" prefWidth="465.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <TextField fx:id="englishTitleTextField" layoutX="110.0" layoutY="22.0" prefHeight="28.0" prefWidth="173.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <TextField fx:id="producerTextField" layoutX="110.0" layoutY="102.0" prefHeight="25.0" prefWidth="211.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <TextArea fx:id="descriptionTextArea" layoutX="110.0" layoutY="150.0" prefHeight="204.0" prefWidth="379.0" promptText="Write the movie description" stylesheets="@styleColor.css" wrapText="true" />
-            <Button fx:id="previewImageButton" layoutX="680.0" layoutY="373.0" mnemonicParsing="false" onAction="#previewImage" prefHeight="26.0" prefWidth="123.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Preview Image" />
-            <Label layoutX="30.0" layoutY="25.0" style="-fx-font-weight: bold;" text="English Title" />
-            <Label layoutX="30.0" layoutY="65.0" style="-fx-font-weight: bold;" text="Main Cast" />
-            <Label layoutX="30.0" layoutY="105.0" style="-fx-font-weight: bold;" text="Producer" />
-            <Label layoutX="30.0" layoutY="145.0" style="-fx-font-weight: bold;" text="Description" />
-            <ImageView fx:id="movieImageView" fitHeight="349.0" fitWidth="228.0" layoutX="636.0" layoutY="19.0" pickOnBounds="true">
-               <image>
-                  <Image url="@BlankImage.jpg" />
-               </image></ImageView>
-            <Label layoutX="342.0" layoutY="103.0" prefHeight="17.0" prefWidth="49.0" style="-fx-font-weight: bold;" text="Genre" />
-            <ComboBox fx:id="chooseGenreComboBox" layoutX="385.0" layoutY="100.0" onAction="#chooseGenre" prefWidth="150.0" promptText="Choose Genre" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <TextField fx:id="filePathTextField" layoutX="162.0" layoutY="373.0" prefHeight="26.0" prefWidth="355.0" promptText="Set the path to the file or use the browse option" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <Label layoutX="30.0" layoutY="378.0" style="-fx-font-weight: bold;" text="Movie Picture Path" />
-            <CheckBox fx:id="soonCheckBox" layoutX="515.0" layoutY="185.0" mnemonicParsing="false" onAction="#checkComingSoon" text="Coming Soon" />
-            <CheckBox fx:id="inTheatersCheckBox" layoutX="515.0" layoutY="215.0" mnemonicParsing="false" onAction="#checkInTheaters" text="In Theaters" />
-            <CheckBox fx:id="packageCheckBox" layoutX="515.0" layoutY="245.0" mnemonicParsing="false" onAction="#checkViewingPackage" text="Viewing Package" />
-            <Label layoutX="497.0" layoutY="154.0" style="-fx-font-weight: bold;" text="Movie Viewing Options" />
-            <Label layoutX="321.0" layoutY="25.0" style="-fx-font-weight: bold;" text="Hebrew Title" />
-            <TextField fx:id="hebrewTitleTextField" layoutX="404.0" layoutY="22.0" prefHeight="28.0" prefWidth="185.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
-            <Button fx:id="browseBtn" layoutX="523.0" layoutY="373.0" mnemonicParsing="false" onAction="#browseLocation" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Browse" />
-            <Label layoutX="938.0" layoutY="81.0" prefHeight="18.0" prefWidth="110.0" style="-fx-font-weight: bold;" text="Screening Times" />
-            <Button fx:id="addScreenTimeBtn" layoutX="914.0" layoutY="373.0" mnemonicParsing="false" onAction="#addScreenTime" prefHeight="26.0" prefWidth="135.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Add Screen Time" />
-            <ListView fx:id="screeningTimesListView" fixedCellSize="0.0" layoutX="871.0" layoutY="110.0" onMouseClicked="#ModifyScreening" prefHeight="256.0" prefWidth="222.0" />
-            <Label layoutX="938.0" layoutY="16.0" prefHeight="18.0" prefWidth="110.0" style="-fx-font-weight: bold;" text="Movie Duration" />
-            <TextField fx:id="movieDurationTextField" layoutX="918.0" layoutY="36.0" prefHeight="28.0" prefWidth="127.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+            <TabPane fx:id="tabPane" layoutX="14.0" layoutY="7.0" prefHeight="452.0" prefWidth="1083.0" stylesheets="@TextArea.css" tabClosingPolicy="UNAVAILABLE">
+              <tabs>
+                <Tab fx:id="modifyMovieTab" text="Modify Movie">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="302.0" prefWidth="1099.0" style="-fx-background-color: #E2DFD0;" styleClass="text-area" stylesheets="@TextArea.css">
+                           <children>
+                              <Group layoutX="21.0" layoutY="20.0">
+                                 <children>
+                                    <TextField fx:id="castTextField" layoutX="80.0" layoutY="46.0" prefHeight="28.0" prefWidth="465.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                                    <TextField fx:id="englishTitleTextField" layoutX="80.0" layoutY="6.0" prefHeight="28.0" prefWidth="173.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                                    <TextField fx:id="producerTextField" layoutX="80.0" layoutY="86.0" prefHeight="25.0" prefWidth="211.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                                    <TextArea fx:id="descriptionTextArea" layoutX="80.0" layoutY="134.0" prefHeight="204.0" prefWidth="462.0" promptText="Write the movie description" stylesheets="@styleColor.css" wrapText="true" />
+                                    <Label layoutY="9.0" style="-fx-font-weight: bold;" text="English Title" />
+                                    <Label layoutY="49.0" style="-fx-font-weight: bold;" text="Main Cast" />
+                                    <Label layoutY="89.0" style="-fx-font-weight: bold;" text="Producer" />
+                                    <Label layoutY="129.0" style="-fx-font-weight: bold;" text="Description" />
+                                    <Label layoutX="312.0" layoutY="87.0" prefHeight="17.0" prefWidth="49.0" style="-fx-font-weight: bold;" text="Genre" />
+                                    <ComboBox fx:id="chooseGenreComboBox" layoutX="355.0" layoutY="84.0" onAction="#chooseGenre" prefHeight="25.0" prefWidth="187.0" promptText="Choose Genre" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                                    <TextField fx:id="filePathTextField" layoutX="132.0" layoutY="357.0" prefHeight="26.0" prefWidth="355.0" promptText="Set the path to the file or use the browse option" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                                    <Label layoutX="1.0" layoutY="362.0" style="-fx-font-weight: bold;" text="Movie Picture Path" />
+                                    <Label layoutX="276.0" layoutY="9.0" style="-fx-font-weight: bold;" text="Hebrew Title" />
+                                    <TextField fx:id="hebrewTitleTextField" layoutX="361.0" layoutY="4.0" prefHeight="28.0" prefWidth="185.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                                    <Button fx:id="browseBtn" layoutX="493.0" layoutY="357.0" mnemonicParsing="false" onAction="#browseLocation" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Browse" />
+                                 </children>
+                              </Group>
+                              <Button fx:id="previewImageButton" layoutX="868.0" layoutY="375.0" mnemonicParsing="false" onAction="#previewImage" prefHeight="26.0" prefWidth="123.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Preview Image" />
+                              <ImageView fx:id="movieImageView" fitHeight="349.0" fitWidth="228.0" layoutX="824.0" layoutY="21.0" pickOnBounds="true">
+                                 <image>
+                                    <Image url="@BlankImage.jpg" />
+                                 </image>
+                              </ImageView>
+                              <CheckBox fx:id="soonCheckBox" layoutX="632.0" layoutY="69.0" mnemonicParsing="false" onAction="#checkComingSoon" text="Coming Soon" />
+                              <CheckBox fx:id="inTheatersCheckBox" layoutX="632.0" layoutY="99.0" mnemonicParsing="false" onAction="#checkInTheaters" text="In Theaters" />
+                              <CheckBox fx:id="packageCheckBox" layoutX="632.0" layoutY="129.0" mnemonicParsing="false" onAction="#checkViewingPackage" text="Viewing Package" />
+                              <Label layoutX="614.0" layoutY="38.0" style="-fx-font-weight: bold;" text="Movie Viewing Options" />
+                              <Label layoutX="621.0" layoutY="165.0" prefHeight="18.0" prefWidth="110.0" style="-fx-font-weight: bold;" text="Movie Duration" />
+                              <TextField fx:id="movieDurationTextField" layoutX="624.0" layoutY="186.0" prefHeight="28.0" prefWidth="127.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                              <Separator layoutX="593.0" layoutY="35.0" orientation="VERTICAL" prefHeight="350.0" prefWidth="8.0" />
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                <Tab fx:id="ModifyScreeningTimeTab" text="Modify Screening Time">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="1083.0" style="-fx-background-color: #E2DFD0;" styleClass="text-area">
+                           <children>
+                              <Group disable="true" layoutX="248.0" layoutY="45.0" opacity="0.0">
+                                 <children>
+                                    <Label layoutX="67.0" prefHeight="18.0" prefWidth="110.0" style="-fx-font-weight: bold;" text="Screening Times" />
+                                    <ListView fx:id="screeningTimesListView" fixedCellSize="0.0" layoutY="29.0" onMouseClicked="#ModifyScreening" prefHeight="256.0" prefWidth="222.0" />
+                                    <Button fx:id="addScreenTimeBtn" layoutX="53.0" layoutY="295.0" mnemonicParsing="false" onAction="#addScreenTime" prefHeight="26.0" prefWidth="135.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Add Screen Time" />
+                                 </children>
+                              </Group>
+                              <ComboBox fx:id="branchModifyComboBox" layoutX="169.0" layoutY="127.0" onAction="#branchModifyChangeAction" prefHeight="25.0" prefWidth="190.0" styleClass="rounded-corners" stylesheets="@styleColor.css">
+                                 <tooltip>
+                                    <Tooltip text="Select a Branch" />
+                                 </tooltip></ComboBox>
+                              <Label layoutX="54.0" layoutY="131.0" style="-fx-font-weight: bold;" text="Choose Branch" />
+                              <ComboBox fx:id="theaterModifyComboBox" layoutX="169.0" layoutY="174.0" onAction="#theaterModifyAction" prefHeight="25.0" prefWidth="190.0" styleClass="rounded-corners" stylesheets="@styleColor.css" />
+                              <Label layoutX="54.0" layoutY="178.0" style="-fx-font-weight: bold;" text="Choose Theater" />
+                              <DatePicker fx:id="datePickerScreening" layoutX="169.0" layoutY="221.0" onAction="#selectedDateAction" prefHeight="25.0" prefWidth="190.0" />
+                              <Label layoutX="54.0" layoutY="225.0" style="-fx-font-weight: bold;" text="Choose Date" />
+                              <TextField fx:id="hourTextField" layoutX="169.0" layoutY="264.0" prefHeight="25.0" prefWidth="190.0" promptText="Format HH:MM" styleClass="rounded-corners" stylesheets="@styleColor.css">
+                                 <tooltip>
+                                    <Tooltip fx:id="hourToolTip" text="The Accepted Format is HH:MM" />
+                                 </tooltip>
+                              </TextField>
+                              <Label layoutX="53.0" layoutY="268.0" style="-fx-font-weight: bold;" text="Choose Hour" />
+                              <Separator layoutX="409.0" layoutY="22.0" orientation="VERTICAL" prefHeight="380.0" />
+                              <Label layoutX="53.0" layoutY="41.0" text="Create New Screening Time">
+                                 <font>
+                                    <Font size="21.0" />
+                                 </font>
+                              </Label>
+                              <Label layoutX="438.0" layoutY="41.0" text="Modify Screening Time">
+                                 <font>
+                                    <Font size="21.0" />
+                                 </font>
+                              </Label>
+                              <Separator layoutX="59.0" layoutY="92.0" prefWidth="250.0" />
+                              <Button fx:id="submitNewBtn" layoutX="116.0" layoutY="316.0" mnemonicParsing="false" onAction="#submitNewAction" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Submit New Screening" />
+                              <TableView fx:id="screeningTableView" layoutX="438.0" layoutY="79.0" prefHeight="309.0" prefWidth="623.0">
+                                <columns>
+                                  <TableColumn fx:id="branchNameCol" prefWidth="149.333251953125" text="Branch Name" />
+                                  <TableColumn fx:id="theaterNumCol" prefWidth="59.3333740234375" text="Theater" />
+                                    <TableColumn fx:id="dateCol" prefWidth="124.0001220703125" text="Date" />
+                                    <TableColumn fx:id="startHourCol" prefWidth="133.333251953125" text="Starting Hour" />
+                                    <TableColumn fx:id="endHourCol" prefWidth="138.0" text="Ending Hour" />
+                                </columns>
+                              </TableView>
+                              <VBox alignment="CENTER" layoutX="441.0" layoutY="395.0" prefHeight="17.0" prefWidth="619.0">
+                                 <children>
+                                    <Label fx:id="informationLabel" alignment="CENTER" style="-fx-font-weight: bold;" textFill="#32012f" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+              </tabs>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets bottom="10.0" right="10.0" />
+               </padding>
+            </TabPane>
          </children>
       </AnchorPane>
    </center>
    <top>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="PanelBackground" stylesheets="@style.css" BorderPane.alignment="CENTER">
          <children>
-            <Label layoutX="540.0" layoutY="76.0" text="Welcome to Cinema12" textFill="WHITE">
+            <Label layoutX="540.0" layoutY="76.0" text="Content Change Screen" textFill="WHITE">
                <font>
                   <Font size="32.0" />
                </font>
@@ -72,7 +160,8 @@
                <stylesheets>
                   <URL value="@styleColor.css" />
                   <URL value="@ComboBox.css" />
-               </stylesheets></ComboBox>
+               </stylesheets>
+            </ComboBox>
          </children>
       </AnchorPane>
    </top>

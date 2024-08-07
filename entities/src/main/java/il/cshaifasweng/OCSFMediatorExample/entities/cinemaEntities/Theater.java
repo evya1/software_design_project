@@ -104,6 +104,6 @@ public class Theater implements Serializable {
 
     @Override
     public String toString() {
-        return "Theater ID: " + theaterNum;
+        return "" + theaterNum;
     }
 }
