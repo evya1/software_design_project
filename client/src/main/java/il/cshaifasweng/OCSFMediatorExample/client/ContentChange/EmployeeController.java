@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client.ContentChange;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
+import il.cshaifasweng.OCSFMediatorExample.client.FXMLUtils;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
@@ -12,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -29,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_EMPLOYEES;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
 public class EmployeeController implements ClientDependent {
@@ -435,7 +437,21 @@ public class EmployeeController implements ClientDependent {
 
     @FXML
     void showReports(ActionEvent event) {
+        if (client == null) {
+            System.err.println("Client is not initialized!\n");
+            return;
+        }
+        try {
+            Stage stage = (Stage) showReportsBtn.getScene().getWindow();
+            Message message = new Message();
+            message.setMessage("View Reports Button Clicked");
+            message.setSourceFXML(EMPLOYEE_SCREEN);
 
+            Parent root = FXMLUtils.loadFXML(REPORTS_SCREEN, client, message);
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setClient(SimpleClient client) {
