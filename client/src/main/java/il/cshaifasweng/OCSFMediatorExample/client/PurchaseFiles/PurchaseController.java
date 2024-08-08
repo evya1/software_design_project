@@ -22,9 +22,11 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.BOOKLET_POP_UP_MESSAGE;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PACKAGE_POP_UP_MESSAGE;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
 
@@ -138,9 +140,14 @@ public class PurchaseController implements ClientDependent {
                 if (message.getPurchase() != null) {
                     Purchase purchase = message.getPurchase();
                     System.out.println("Purchase received: " + purchase);
+                    System.out.println(purchase.getPurchaseType().toString());
                     switch (purchase.getPurchaseType().toString()) {
                         case "Booklet":
                             loadBookletPopupScreen();
+                            break;
+                        case "Movie Link":
+                            loadPackagePopupScreen();
+                            break;
                     }
                 }
             });
@@ -153,6 +160,12 @@ public class PurchaseController implements ClientDependent {
     private void loadBookletPopupScreen() {
         Stage stage = new Stage();
         client.moveScene(BOOKLET_POP_UP_MESSAGE,stage ,null);
+        Stage newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
+        client.moveScene(PRIMARY_SCREEN,newStage,null);
+    }
+    private void loadPackagePopupScreen() {
+        Stage stage = new Stage();
+        client.moveScene(PACKAGE_POP_UP_MESSAGE,stage ,null);
         Stage newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
         client.moveScene(PRIMARY_SCREEN,newStage,null);
     }
@@ -181,7 +194,9 @@ public class PurchaseController implements ClientDependent {
 
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
+        message.setSpecificMovie(localMessage.getSpecificMovie());
 
+        System.out.println("localMessage:+ " + message.getMessage());
         if(flag == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");
 

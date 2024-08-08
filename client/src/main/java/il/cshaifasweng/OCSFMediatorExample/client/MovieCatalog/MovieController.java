@@ -7,6 +7,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -145,6 +146,7 @@ public class MovieController implements ClientDependent {
         screeningTableView.setVisible(false);
         screeningTableView.setDisable(true);
         movieTicketBtn.setVisible(false);
+
         if(!movie.getMovieType().isPurchasable()){
             viewPackageBtn.setDisable(true);
             viewPackageBtn.setVisible(false);
@@ -229,6 +231,18 @@ public class MovieController implements ClientDependent {
     }
 
     public void purchasePackageAction(ActionEvent actionEvent) {
+        try {
+            EventBus.getDefault().unregister(this);
+            Message message = new Message();
+            message.setSpecificMovie(movie);
+            message.setPurchaseType(PurchaseType.MOVIE_LINK);
+            message.setMessage("New Movielink");
+
+            Stage stage = (Stage) viewPackageBtn.getScene().getWindow();
+            client.moveScene(PAYMENT_SCREEN,stage,message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void selectBranchAction(ActionEvent actionEvent) {

@@ -6,6 +6,7 @@ public class FilePathController {
     public static final String MOVIE_INFORMATION = "catalogM/Movie";
     public static final String MOVIE_GRID_ENTITY = "catalogM/movieGrid";
     public static final String BOOKLET_POP_UP_MESSAGE = "purchases/bookletPopupMessage";
+    public static final String PACKAGE_POP_UP_MESSAGE = "purchases/packagePopupMessage";
     public static final String PAYMENT_SCREEN = "purchases/paymentScreen";
     public static final String CLIENT_CONFIG = "ServerLogin";
     public static final String COMPLAINT_SCREEN = "complaints/complaintSubmission";
