@@ -49,25 +49,31 @@
                         <String fx:value="hover-button" />
                      </styleClass>
                   </Button>
-                  <Button fx:id="submitComplaintBtn" layoutX="42.0" layoutY="110.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Submit Complaint" textFill="WHITE">
+                  <Button fx:id="submitComplaintBtn" layoutX="42.0" layoutY="104.0" mnemonicParsing="false" onAction="#complaintController" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Submit Complaint" textFill="WHITE">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass>
                   </Button>
-                  <Button fx:id="viewComplaintsBtn" layoutX="42.0" layoutY="153.0" mnemonicParsing="false" onAction="#viewComplaintsAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="View Complaints" textFill="WHITE">
+                  <Button fx:id="viewComplaintsBtn" layoutX="42.0" layoutY="145.0" mnemonicParsing="false" onAction="#viewComplaintsAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="View Complaints" textFill="WHITE">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass>
                   </Button>
-                  <Button fx:id="viewPurchasesBtn" layoutX="42.0" layoutY="192.0" mnemonicParsing="false" onAction="#viewPurchasesAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="View Purchases" textFill="WHITE">
+                  <Button fx:id="viewPurchasesBtn" layoutX="42.0" layoutY="186.0" mnemonicParsing="false" onAction="#viewPurchasesAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="View Purchases" textFill="WHITE">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass>
                   </Button>
                   <Button fx:id="cancelPurchaseBtn" layoutX="42.0" layoutY="301.0" mnemonicParsing="false" onAction="#cancelAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Cancel Purchase" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
+                  </Button>
+                  <Button fx:id="inboxBtn" layoutX="42.0" layoutY="227.0" mnemonicParsing="false" onAction="#viewInboxAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Inbox" textFill="WHITE">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
@@ -154,6 +160,13 @@
                       </TitledPane>
                     </panes>
                   </Accordion>
+                  <TableView fx:id="tableViewInbox" layoutX="82.0" layoutY="85.0" prefHeight="397.0" prefWidth="951.0">
+                    <columns>
+                      <TableColumn fx:id="idInboxCol" prefWidth="75.0" text="ID" />
+                      <TableColumn fx:id="inboxMessageTitleCol" prefWidth="297.7778625488281" text="Title" />
+                        <TableColumn fx:id="inboxMessageContentCol" prefWidth="578.2221069335938" text="Content" />
+                    </columns>
+                  </TableView>
                </children>
             </AnchorPane>
          </center>

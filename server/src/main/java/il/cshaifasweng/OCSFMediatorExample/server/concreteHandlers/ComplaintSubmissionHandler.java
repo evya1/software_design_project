@@ -5,6 +5,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
@@ -39,6 +40,10 @@ public class ComplaintSubmissionHandler implements RequestHandler {
                 complaint.setPurchaseType(message.getPurchaseType());
                 complaint.setDateOfComplaint(LocalDateTime.now());
 
+                InboxMessage inboxMessage = new InboxMessage();
+                inboxMessage.setMessageTitle("New Complaint");
+                inboxMessage.setMessageContent("Your complaint has been submitted. You will receive an answer within 24 hours.");
+
                 Customer customer = message.getCustomer();
                 Customer existingCustomer = DataCommunicationDB.getCustomerByPersonalID(session, customer.getPersonalID());
 
@@ -46,8 +51,11 @@ public class ComplaintSubmissionHandler implements RequestHandler {
                     System.out.println("Customer exists with ID: " + existingCustomer.getId());
                     complaint.setCustomer(existingCustomer);
                     complaint.setCustomerPId(existingCustomer.getPersonalID());
+                    inboxMessage.setCustomer(existingCustomer);
+                    existingCustomer.getInboxMessages().add(inboxMessage);
                     //TODO: AFTER UPDATING CUSTOMER ENTITY MAKE SURE IT WORKS:
                     //existingCustomer.getComplaints().add(complaint);
+                    session.save(inboxMessage);
                     session.save(complaint);
                     session.update(existingCustomer);
                     System.out.println("Customer's complaints have been updated successfully");
@@ -56,6 +64,8 @@ public class ComplaintSubmissionHandler implements RequestHandler {
                     complaint.setCustomer(customer);
                     complaint.setCustomerPId(customer.getPersonalID());
                     complaint.setDateOfComplaint(LocalDateTime.now());
+                    inboxMessage.setCustomer(customer);
+                    customer.getInboxMessages().add(inboxMessage);
                     //TODO: AFTER UPDATING CUSTOMER ENTITY MAKE SURE IT WORKS:
                     //customer.getComplaints().add(complaint);
                     session.save(customer); // Save customer first to generate ID

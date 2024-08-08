@@ -5,6 +5,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -36,7 +37,11 @@ public class Customer implements Serializable {
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Complaint> complaints = new ArrayList<>();
 
-    public Customer(String firstName, String lastName, String email, String personalID, List<Purchase> purchases, Payment payment, List<Complaint> complaints) {
+    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<InboxMessage> inboxMessages = new ArrayList<>();
+
+    public Customer(String firstName, String lastName, String email, String personalID, List<Purchase> purchases, Payment payment, List<Complaint> complaints, List<InboxMessage> inboxMessages) {
 
         this.firstName = firstName;
         this.lastName = lastName;
@@ -45,6 +50,7 @@ public class Customer implements Serializable {
         this.purchases = purchases;
         this.payment = payment;
         this.complaints = complaints;
+        this.inboxMessages = inboxMessages;
     }
 
     public Customer() {}
@@ -98,6 +104,10 @@ public class Customer implements Serializable {
     public List<Complaint> getComplaints() {return complaints;}
 
     public void setComplaints(List<Complaint> complaints) {this.complaints = complaints;}
+
+    public List<InboxMessage> getInboxMessages() {return inboxMessages;}
+
+    public void setInboxMessages(List<InboxMessage> inboxMessages) {this.inboxMessages = inboxMessages;}
 
     @Override
     public String toString() {

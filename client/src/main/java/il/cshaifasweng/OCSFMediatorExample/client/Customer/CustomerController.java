@@ -8,9 +8,12 @@ import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -158,6 +161,21 @@ public class CustomerController implements ClientDependent {
     private TableColumn<MovieTicket, Boolean> cancelledMovieTicketCol;
 
     @FXML
+    private Button inboxBtn;
+
+    @FXML
+    private TableColumn<InboxMessage, Integer> idInboxCol;
+
+    @FXML
+    private TableColumn<InboxMessage, String> inboxMessageContentCol;
+
+    @FXML
+    private TableColumn<InboxMessage, String> inboxMessageTitleCol;
+
+    @FXML
+    private TableView<InboxMessage> tableViewInbox;
+
+    @FXML
     void initialize() {
         loggedOutButtons();
         EventBus.getDefault().register(this);
@@ -188,6 +206,12 @@ public class CustomerController implements ClientDependent {
         });
         dateOfComplaintCol.setCellValueFactory(new PropertyValueFactory<>("dateOfComplaint"));
         // endregion
+
+        //region Inbox Columns
+        idInboxCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        inboxMessageTitleCol.setCellValueFactory(new PropertyValueFactory<>("messageTitle"));
+        inboxMessageContentCol.setCellValueFactory(new PropertyValueFactory<>("messageContent"));
+        //endregion
 
         // region Booklet Columns
         idBookletCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -429,7 +453,6 @@ public class CustomerController implements ClientDependent {
         });
     }
 
-    //TODO: check why it doesn't update the database and also why the clearing isn't working
     @FXML
     void cancelAction(ActionEvent event) {
         MovieTicket selectedMovieTicket = movieTicketTableView.getSelectionModel().getSelectedItem();
@@ -547,16 +570,16 @@ public class CustomerController implements ClientDependent {
         alert.showAndWait();
     }
 
-
-
     private void loggedInButtons(){
         connectedFlag = true;
         loginLogoutBtn.setText("Logout");
         homeScreenBtn.setDisable(true);
         viewComplaintsBtn.setDisable(false);
         viewPurchasesBtn.setDisable(false);
+        inboxBtn.setDisable(false);
         viewComplaintsBtn.setVisible(true);
         viewPurchasesBtn.setVisible(true);
+        inboxBtn.setVisible(true);
     }
 
     private void addPopUpToTitledPane(TitledPane pane){
@@ -590,8 +613,10 @@ public class CustomerController implements ClientDependent {
         homeScreenBtn.setDisable(false);
         viewComplaintsBtn.setDisable(true);
         viewPurchasesBtn.setDisable(true);
+        inboxBtn.setDisable(true);
         viewComplaintsBtn.setVisible(false);
         viewPurchasesBtn.setVisible(false);
+        inboxBtn.setVisible(false);
         loginLogoutBtn.setText("Login");
         welcomeLabel.setText("Welcome to the customer panel, login to view your information");
         disableElements();
@@ -601,6 +626,7 @@ public class CustomerController implements ClientDependent {
         movieTicketTableView.getItems().clear();
         moviePackageTableView.getItems().clear();
         tableViewComplaints.getItems().clear();
+        tableViewInbox.getItems().clear();
 
         //Checking if the panes are not null and then setting them to not expend.
         if(movieTicketsTitlePane != null) {
@@ -620,7 +646,10 @@ public class CustomerController implements ClientDependent {
         tableViewComplaints.setDisable(true);
         PurchasesAccordion.setVisible(false);
         PurchasesAccordion.setDisable(true);
+        tableViewInbox.setVisible(false);
+        tableViewInbox.setDisable(true);
     }
+
     @FXML
     void returnHomeAction(ActionEvent event) {
         if (client == null) {
@@ -661,23 +690,19 @@ public class CustomerController implements ClientDependent {
 
     @FXML
     void viewPurchasesAction(ActionEvent event) {
-        // Disable and hide the complaints table
-        tableViewComplaints.setDisable(true);
-        tableViewComplaints.setVisible(false);
 
-        // Enable and show the purchases accordion
+        disableElements();
+
+        // Enable and show the purchases accordion and tables
         PurchasesAccordion.setVisible(true);
         PurchasesAccordion.setDisable(false);
 
-        // Ensure the booklet table view is visible and enabled
         bookletTableView.setVisible(true);
         bookletTableView.setDisable(false);
 
-        // Ensure the movie ticket table view is visible and enabled
         movieTicketTableView.setVisible(true);
         movieTicketTableView.setDisable(false);
 
-        // Ensure the movie package table view is visible and enabled
         moviePackageTableView.setVisible(true);
         moviePackageTableView.setDisable(false);
 
@@ -735,6 +760,31 @@ public class CustomerController implements ClientDependent {
         }
     }
 
+    @FXML
+    void viewInboxAction(ActionEvent event) {
+        disableElements();
+
+        tableViewInbox.setVisible(true);
+        tableViewInbox.setDisable(false);
+
+        // Fetch and display the messages from inbox
+        if (localCustomer == null) {
+            SimpleClient.showAlert(Alert.AlertType.ERROR, "No Customer", "You must be logged in to view purchases.");
+            return;
+        }
+
+        // Assuming messages are fetched and stored in the localCustomer object correctly
+        if (localCustomer.getInboxMessages() != null && !localCustomer.getInboxMessages().isEmpty()) {
+            List<InboxMessage> messages = localCustomer.getInboxMessages();
+            ObservableList<InboxMessage> inboxMessages = FXCollections.observableArrayList(messages);
+
+            // Assuming the tableViewInbox has been set up with the appropriate columns
+            tableViewInbox.setItems(inboxMessages);
+        } else {
+            SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Messages", "Your inbox is empty.");
+        }
+
+    }
 
     @Override
     public void setClient(SimpleClient client) {

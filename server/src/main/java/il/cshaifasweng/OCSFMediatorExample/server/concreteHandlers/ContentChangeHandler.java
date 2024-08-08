@@ -8,6 +8,7 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
@@ -32,6 +33,10 @@ public class ContentChangeHandler implements RequestHandler {
                     movie = message.getSpecificMovie();
                     DataCommunicationDB.createNewMovie(movie);
                     System.out.println("New movie was created successfully");
+                    if(movie.getMovieType().isCurrentlyRunning()){
+                        DataCommunicationDB.getSession().beginTransaction();
+                        DataCommunicationDB.addMessageToCustomers();
+                    }
                     answer.setData("New Movie");
                     client.sendToClient(answer);
                     break;
