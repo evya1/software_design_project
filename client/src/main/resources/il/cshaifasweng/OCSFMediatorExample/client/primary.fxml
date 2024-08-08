@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="650.0" prefWidth="1400.0" spacing="20.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PrimaryController">
+<VBox alignment="CENTER" prefHeight="650.0" prefWidth="1400.0" spacing="20.0" styleClass="PanelBackground" stylesheets="@catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PrimaryController">
    <children>
       <BorderPane prefHeight="805.0" prefWidth="1354.0">
          <center>
