@@ -139,4 +139,9 @@ public class Movie implements Serializable {
     public void setMovieType(TypeOfMovie movieType) {
         this.movieType = movieType;
     }
+
+    @Override
+    public String toString(){
+        return movieName;
+    }
 }

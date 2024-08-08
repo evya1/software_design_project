@@ -35,6 +35,7 @@ public class ContentChangeHandler implements RequestHandler {
                     answer.setData("New Movie");
                     client.sendToClient(answer);
                     break;
+
                 case UPDATE_MOVIE_REQUEST:
                     movie = message.getSpecificMovie();
                     DataCommunicationDB.updateMovieDetails(movie);
@@ -42,13 +43,37 @@ public class ContentChangeHandler implements RequestHandler {
                     answer.setData("Movie Updated");
                     client.sendToClient(answer);
                     break;
+
                 case DELETE_MOVIE_BY_MOVIE_ID:
                     DataCommunicationDB.deleteMovieById(message.getMovieID());
                     System.out.println("Movie was deleted successfully");
                     answer.setData("Movie Deleted");
                     client.sendToClient(answer);
-                default:
 
+                case NEW_MOVIE_SLOT:
+                    DataCommunicationDB.createMovieSlot(message.getMovieSlot());
+                    DataCommunicationDB.createMovieSlotForMovieID(message.getSpecificMovie().getId(), message.getMovieSlot());
+                    System.out.println("New movie slot was created successfully");
+                    answer.setData(NEW_MOVIE_SLOT);
+                    client.sendToClient(answer);
+                    //TODO: Send to all clients?
+                    break;
+
+                case UPDATE_MOVIE_SLOT:
+                    DataCommunicationDB.updateMovieSlot(message.getMovieSlot());
+                    System.out.println("Movie slot was updated successfully");
+                    answer.setData(UPDATE_MOVIE_SLOT);
+                    client.sendToClient(answer);
+                    break;
+                case DELETE_MOVIE_SLOT:
+                    DataCommunicationDB.removeSlotFromMovie(message.getMovieSlot());
+                    DataCommunicationDB.deleteMovieSlot(message.getMovieSlot());
+                    System.out.println("Movie slot was removed successfully");
+                    answer.setData(DELETE_MOVIE_SLOT);
+                    client.sendToClient(answer);
+                    //TODO: send to all clients?
+                    break;
+                default:
             }
             // All requests are to be within the try block -- END HERE
         } catch (Exception e) {

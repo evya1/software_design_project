@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Consumer;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
 
@@ -450,7 +449,7 @@ public class DataCommunicationDB
 
     //endregion
 
-    //region Getters
+    //region Public Getters
     public static List<MovieSlot> getScreeningTimesByMovie(Session session, int movieId) {
         return session.createQuery(
                         "SELECT ms FROM MovieSlot ms " +
@@ -606,7 +605,7 @@ public class DataCommunicationDB
     }
     //endregion
 
-    //region Delete and Update methods
+    //region Public Delete and Update methods
     public static void updateMovieDetails(Movie source) {
         Transaction transaction = null;
         try {
@@ -692,9 +691,104 @@ public class DataCommunicationDB
             session.getTransaction().commit();
         }
     }
+    public static void updateMovieSlot(MovieSlot slot){
+        try{
+            session.beginTransaction();
+            MovieSlot slotToUpdate = getMovieSlotByID(slot.getId());
+
+            slotToUpdate.setBranch(slot.getBranch());
+            slotToUpdate.setTheater(slot.getTheater());
+            slotToUpdate.setStartDateTime(slot.getStartDateTime());
+            slotToUpdate.setEndDateTime(slot.getEndDateTime());
+            session.saveOrUpdate(slotToUpdate);
+            session.getTransaction().commit();
+        }
+        catch(Exception e){
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            e.printStackTrace();
+        }
+    }
+    public static void removeSlotFromMovie(MovieSlot slot){
+        try {
+            session.beginTransaction();
+            Movie movie = getMovieByID(slot.getMovie().getId());
+            movie.getMovieScreeningTime().remove(slot);
+            session.update(movie);
+            session.getTransaction().commit();
+
+        } catch (Exception e) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteMovieSlot(MovieSlot slot){
+        try {
+            session.beginTransaction();
+            //TODO: Break the associations
+            MovieSlot slotToDelete = getMovieSlotByID(slot.getId());
+            slotToDelete.setMovie(null);
+            slotToDelete.setTheater(null);
+            slotToDelete.setBranch(null);
+
+            session.delete(slotToDelete);
+            session.getTransaction().commit();
+
+        } catch (Exception e) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            e.printStackTrace();
+        }
+    }
     //endregion
 
-    //region Creation Methods
+    //region Public Creation Methods
+    public static void createMovieSlotForMovieID(int movieID, MovieSlot slot){
+
+        try {
+            session.beginTransaction();
+            Movie movie = getMovieByID(movieID);
+
+            if (movie.getMovieScreeningTime() == null) {
+                movie.setMovieScreeningTime(new ArrayList<>());
+            }
+            movie.getMovieScreeningTime().add(slot);
+            session.update(movie);
+            session.getTransaction().commit();
+
+        } catch (Exception e) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void createMovieSlot(MovieSlot slot){
+        try {
+            session.beginTransaction();
+            session.save(slot);
+            session.getTransaction().commit();
+            System.out.println("Movie Slot was created successfully. Movie Slot ID is " + slot.getId());
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
     public static void createNewMovie(Movie movieToAdd) {
         try {
             session.beginTransaction();
@@ -741,6 +835,11 @@ public class DataCommunicationDB
         session.save(branch);
         session.getTransaction().commit();
     }
+
+
+    //endregion
+
+    //region Private Methods
     private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username) {
         Employee employee = new Employee();
         employee.setEmployeeType(employeeType);
