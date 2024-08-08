@@ -4,6 +4,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
@@ -60,6 +61,9 @@ public class NewPurchaseHandler implements RequestHandler {
             purchase.setDateOfPurchase(LocalDateTime.now());
             purchase.setPriceByItem(purchaseType);
 
+            InboxMessage inboxMessage = new InboxMessage();
+            inboxMessage = setInboxMessage(inboxMessage, purchaseType, purchase);
+
             Customer customer = message.getCustomer();
             Customer existingCustomer = DataCommunicationDB.getCustomerByPersonalID(session, customer.getPersonalID());
 
@@ -68,6 +72,9 @@ public class NewPurchaseHandler implements RequestHandler {
                 purchase.setCustomer(existingCustomer);
                 purchase.setCustomerPID(existingCustomer.getPersonalID());
                 existingCustomer.getPurchases().add(purchase);
+                inboxMessage.setCustomer(existingCustomer);
+                existingCustomer.getInboxMessages().add(inboxMessage);
+                session.save(inboxMessage);
                 session.save(purchase);
                 session.update(existingCustomer);
                 System.out.println("Customer's purchases have been updated successfully");
@@ -77,6 +84,9 @@ public class NewPurchaseHandler implements RequestHandler {
                 purchase.setCustomerPID(customer.getPersonalID());
                 purchase.setDateOfPurchase(LocalDateTime.now());
                 customer.getPurchases().add(purchase);
+                inboxMessage.setCustomer(customer);
+                customer.getInboxMessages().add(inboxMessage);
+                session.save(inboxMessage);
                 session.save(customer); // Save customer first to generate ID
                 session.save(purchase); // Then save purchase to link it to customer
                 System.out.println("Successfully created new customer.");
@@ -124,5 +134,21 @@ public class NewPurchaseHandler implements RequestHandler {
             default:
                 throw new IllegalArgumentException("Unknown purchase type: " + purchaseType);
         }
+    }
+
+    public InboxMessage setInboxMessage (InboxMessage inboxMessage, PurchaseType purchaseType, Purchase purchase){
+        inboxMessage.setMessageTitle("New purchase");
+        switch (purchaseType) {
+            case BOOKLET:
+                inboxMessage.setMessageContent("New Booklet purchased with 20 entries.");
+                break;
+            case MOVIE_LINK:
+                inboxMessage.setMessageContent("New Movie Package purchased. We'll notify you before activating the link.");
+                break;
+            case MOVIE_TICKET:
+                inboxMessage.setMessageContent("New Movie Ticket Purchased for " + purchase.getPurchasedMovieTicket().getMovieName());
+                break;
+        }
+        return inboxMessage;
     }
 }

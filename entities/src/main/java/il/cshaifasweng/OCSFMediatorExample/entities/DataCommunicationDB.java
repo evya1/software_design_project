@@ -59,6 +59,7 @@ public class DataCommunicationDB
         configuration.addAnnotatedClass(MovieTicket.class);
         configuration.addAnnotatedClass(Complaint.class);
         configuration.addAnnotatedClass(PriceConstants.class);
+        configuration.addAnnotatedClass(InboxMessage.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
@@ -219,13 +220,13 @@ public class DataCommunicationDB
 
             //customer
             Customer customer1 = new Customer("cust1","smith","csm@gmail.com","123456789",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
             Customer customer2 = new Customer("cust2","freeman","free@gmail.com","345345345",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
             Customer customer3 = new Customer("cust3","fox","cfox@gmail.com","888888888",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
             Customer customer4 = new Customer("cust4","al pacino","godfather@gmail.com","000000001",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>());
+                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
             List<Customer> customers = Arrays.asList(customer1, customer2, customer3, customer4);
             for (Customer customer : customers) {
                 session.save(customer);
@@ -396,6 +397,18 @@ public class DataCommunicationDB
             assignBookletToCustomer(session.get(Customer.class, customer2.getId()), booklet2, session);
             assignBookletToCustomer(session.get(Customer.class, customer3.getId()), booklet3, session);
             assignBookletToCustomer(session.get(Customer.class, customer4.getId()), booklet4, session);
+
+
+            //create Inbox Messages
+            InboxMessage in1 = new InboxMessage();
+            in1.setMessageTitle("Ticket Purchased Successfully");
+            in1.setMessageContent("Here's your ticket info");
+            in1.setCustomer(customer1);
+            session.save(in1);
+            customer1.getInboxMessages().add(in1);
+            session.save(customer1);
+            session.flush();
+
 
             session.getTransaction().commit();
         } catch (Exception exception) {
@@ -623,6 +636,9 @@ public class DataCommunicationDB
                 System.out.println("LOG: Movie with ID " + source.getId() + " was found.");
             }
 
+            if(!movie.getMovieType().isCurrentlyRunning() && source.getMovieType().isCurrentlyRunning()){
+                addMessageToCustomers();
+            }
             // Copy details from source to the managed entity
             copyMovieDetails(movie, source);
 
@@ -774,6 +790,34 @@ public class DataCommunicationDB
 
     }
 
+
+    public static void addMessageToCustomers(){
+        try {
+            List<Customer> customers = session.createQuery(
+                    "SELECT c FROM Customer c " +
+                            "JOIN c.purchases p " +
+                            "WHERE p.purchaseType = il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.BOOKLET " +
+                            "AND p.purchasedBooklet.numOfEntries > 0",
+                    Customer.class
+            ).getResultList();
+
+            //Going over the customers and adding messages to their inbox.
+            for(Customer customer : customers){
+                addInboxMessageForMovie(customer);
+                session.update(customer);
+            }
+
+            session.getTransaction().commit();
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
+
     public static void createMovieSlot(MovieSlot slot){
         try {
             session.beginTransaction();
@@ -840,6 +884,21 @@ public class DataCommunicationDB
     //endregion
 
     //region Private Methods
+    private static void addInboxMessageForMovie(Customer customer){
+        InboxMessage newContent = new InboxMessage();
+        newContent.setMessageContent("New movie was added to the theaters");
+        newContent.setMessageTitle("New Movie");
+        newContent.setCustomer(customer);
+        if(customer.getInboxMessages() == null){
+            List<InboxMessage> messages = new ArrayList<>();
+            messages.add(newContent);
+            customer.setInboxMessages(messages);
+        }
+        else{
+            customer.getInboxMessages().add(newContent);
+        }
+    }
+
     private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username) {
         Employee employee = new Employee();
         employee.setEmployeeType(employeeType);
