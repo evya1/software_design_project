@@ -12,7 +12,10 @@ import org.hibernate.Transaction;
 
 import java.util.List;
 
-public class GetTimeSlotByMovieID implements RequestHandler {
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_MOVIE_SLOT_BY_MOVIE_ID;
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.MOVIE_SLOT_INFORMATION;
+
+public class MovieSlotInfoHandler implements RequestHandler {
     private static Session session;
 
     @Override
@@ -33,16 +36,15 @@ public class GetTimeSlotByMovieID implements RequestHandler {
                 movieSlot.getBranch().getBranchName();
                 }
             }
-
+            transaction.commit();
 
             Message answer = new Message();
             answer.setMovieSlots(screeningTimes);
             answer.setSpecificMovie(movie);
-            answer.setMessage("time slots for specific movie");
-            answer.setData("time slots for specific movie");
-
+            answer.setMessage(MOVIE_SLOT_INFORMATION);
+            answer.setData(GET_MOVIE_SLOT_BY_MOVIE_ID);
             client.sendToClient(answer);
-            transaction.commit();
+
         } catch (Exception e) {
             if (session != null) {
                 session.getTransaction().rollback();

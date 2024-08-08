@@ -24,7 +24,7 @@ public class HandlerFactory {
         handlers.put(RequestTypes.MOVIES_REQUEST, new MovieRequestHandler(server));
         handlers.put(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
         handlers.put(RequestTypes.UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
-        handlers.put(RequestTypes.GET_TIMESLOT_BY_MOVIEID_REQUEST, new GetTimeSlotByMovieID());
+        handlers.put(RequestTypes.MOVIE_SLOT_INFORMATION, new MovieSlotInfoHandler());
         handlers.put(RequestTypes.GET_PURCHASE_REQUEST, new NewPurchaseHandler());
         handlers.put(RequestTypes.GET_MOVIE_TICKET_REQUEST, new NewPurchaseHandler());
         handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler());

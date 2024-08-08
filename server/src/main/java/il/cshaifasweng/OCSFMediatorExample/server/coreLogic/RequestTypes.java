@@ -5,7 +5,8 @@ public class RequestTypes {
     public static final String MOVIES_REQUEST = "Movie Request";
     public static final String CHANGE_SCREENING_TIMES_REQUEST = "change screening times of the movie";
     public static final String UPDATE_MOVIES_LIST_REQUEST = "update movies list";
-    public static final String GET_TIMESLOT_BY_MOVIEID_REQUEST = "get movie slot by movie ID";
+    public static final String MOVIE_SLOT_INFORMATION = "Movie Slot Information";
+    public static final String GET_MOVIE_SLOT_BY_MOVIE_ID = "get movie slot by movie ID";
     public static final String GET_PURCHASE_REQUEST = "New Booklet";
     public static final String GET_MOVIE_TICKET_REQUEST = "New Movie Ticket";
     public static final String CREATE_NEW_MOVIE = "Content Change";
@@ -34,6 +35,12 @@ public class RequestTypes {
     public static final String GET_ALL_THEATERS = "get all the theaters";
     public static final String UPDATE_PURCHASE = "UPDATE PURCHASE";
     public static final String PURCHASE_NOT_FOUND = "PURCHASE NOT FOUND";
+
+    public static final String DELETE_MOVIE_SLOT = "Delete movie slot";
+    public static final String UPDATE_MOVIE_SLOT = "Update movie slot";
+    public static final String NEW_MOVIE_SLOT = "New Movie Slot";
+
+
 
 
 }

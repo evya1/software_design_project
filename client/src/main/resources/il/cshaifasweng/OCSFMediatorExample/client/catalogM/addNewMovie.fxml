@@ -9,7 +9,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -75,13 +74,6 @@
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="1083.0" style="-fx-background-color: #E2DFD0;" styleClass="text-area">
                            <children>
-                              <Group disable="true" layoutX="248.0" layoutY="45.0" opacity="0.0">
-                                 <children>
-                                    <Label layoutX="67.0" prefHeight="18.0" prefWidth="110.0" style="-fx-font-weight: bold;" text="Screening Times" />
-                                    <ListView fx:id="screeningTimesListView" fixedCellSize="0.0" layoutY="29.0" onMouseClicked="#ModifyScreening" prefHeight="256.0" prefWidth="222.0" />
-                                    <Button fx:id="addScreenTimeBtn" layoutX="53.0" layoutY="295.0" mnemonicParsing="false" onAction="#addScreenTime" prefHeight="26.0" prefWidth="135.0" styleClass="rounded-corners" stylesheets="@styleColor.css" text="Add Screen Time" />
-                                 </children>
-                              </Group>
                               <ComboBox fx:id="branchModifyComboBox" layoutX="169.0" layoutY="127.0" onAction="#branchModifyChangeAction" prefHeight="25.0" prefWidth="190.0" styleClass="rounded-corners" stylesheets="@styleColor.css">
                                  <tooltip>
                                     <Tooltip text="Select a Branch" />
@@ -91,9 +83,9 @@
                               <Label layoutX="54.0" layoutY="178.0" style="-fx-font-weight: bold;" text="Choose Theater" />
                               <DatePicker fx:id="datePickerScreening" layoutX="169.0" layoutY="221.0" onAction="#selectedDateAction" prefHeight="25.0" prefWidth="190.0" />
                               <Label layoutX="54.0" layoutY="225.0" style="-fx-font-weight: bold;" text="Choose Date" />
-                              <TextField fx:id="hourTextField" layoutX="169.0" layoutY="264.0" prefHeight="25.0" prefWidth="190.0" promptText="Format HH:MM" styleClass="rounded-corners" stylesheets="@styleColor.css">
+                              <TextField fx:id="hourTextField" layoutX="169.0" layoutY="264.0" prefHeight="25.0" prefWidth="190.0" promptText="Format HH:mm" styleClass="rounded-corners" stylesheets="@styleColor.css">
                                  <tooltip>
-                                    <Tooltip fx:id="hourToolTip" text="The Accepted Format is HH:MM" />
+                                    <Tooltip fx:id="hourToolTip" text="The Accepted Format is HH:mm" />
                                  </tooltip>
                               </TextField>
                               <Label layoutX="53.0" layoutY="268.0" style="-fx-font-weight: bold;" text="Choose Hour" />
