@@ -38,7 +38,6 @@ public class RequestTypes {
     public static final String GET_ALL_THEATERS = "get all the theaters";
     public static final String UPDATE_PURCHASE = "UPDATE PURCHASE";
     public static final String PURCHASE_NOT_FOUND = "PURCHASE NOT FOUND";
-
     public static final String DELETE_MOVIE_SLOT = "Delete movie slot";
     public static final String UPDATE_MOVIE_SLOT = "Update movie slot";
     public static final String NEW_MOVIE_SLOT = "New Movie Slot";

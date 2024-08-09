@@ -1,11 +1,16 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.ExpiredLinksChecker;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Scanner;
 
 public class SimpleChatServer {
@@ -37,11 +42,11 @@ public class SimpleChatServer {
         server = new SimpleServer(port);
         System.out.println("Server is listening");
         server.listen();
-
+        SessionFactory sessionFactory;
         while (true) {
             try {
                 String password = promptForDatabasePassword();
-                SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(password);
+                sessionFactory = DataCommunicationDB.getSessionFactory(password);
                 session = sessionFactory.openSession();
 
                 DataCommunicationDB.setSession(session);
@@ -56,9 +61,13 @@ public class SimpleChatServer {
         }
 
         try {
-//             DataCommunicationDB.generateMovieList();
+            DataCommunicationDB.generateMovieList();
 //             DataCommunicationDB.createMockData();
             DataCommunicationDB.printAllEntities();
+
+            Thread expiredLinksCheckerThread = new Thread(new ExpiredLinksChecker(sessionFactory));
+            expiredLinksCheckerThread.start();
+
 
         } catch (Exception exception) {
             System.err.println("An error occurred: " + exception.getMessage());

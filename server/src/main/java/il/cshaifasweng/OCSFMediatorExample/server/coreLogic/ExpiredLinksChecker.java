@@ -1,11 +1,17 @@
 package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 
 public class ExpiredLinksChecker implements Runnable {
@@ -29,15 +35,18 @@ public class ExpiredLinksChecker implements Runnable {
                         .setParameter("currentTime", LocalDateTime.now())
                         .list();
 
-                for (MovieLink link : expiredLinks) {
-                    System.out.println("Expired MovieLink ID: " + link.getId() + ", Movie Name: " + link.getMovieName());
-                    session.delete(link);
+                for (MovieLink movieLink : expiredLinks) {
+                    movieLink.setInactive();
+                    session.update(movieLink);
                 }
+
+
+
 
                 tx.commit();
 
                 //This will erase all expired links every 30 seconds
-                Thread.sleep(60000);
+                Thread.sleep(30000);
             } catch (Exception e) {
                 if (tx != null) {
                     tx.rollback();

@@ -1081,6 +1081,7 @@ public class DataCommunicationDB
         purchase.setDateOfPurchase(LocalDateTime.now());
         purchase.setCustomer(customer);
         customer.addPurchase(purchase);
+
         session.save(purchase);
     }
 
