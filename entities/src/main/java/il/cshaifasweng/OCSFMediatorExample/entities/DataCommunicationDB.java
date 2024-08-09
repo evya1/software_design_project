@@ -870,7 +870,6 @@ public class DataCommunicationDB
         createCustomersWithPurchases(theaters);
 
         session.getTransaction().commit();
-        session.close();
     }
 
     public static void createEmployee(Employee newEmployee){
