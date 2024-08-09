@@ -145,7 +145,7 @@ public class DataCommunicationDB
             System.out.println(employee);
 
             // Print Branch In Charge if Theater Manager
-            if (employee.getEmployeeType() == EmployeeType.BRANCH_MANAGER) {
+            if (employee.getEmployeeType() == BRANCH_MANAGER) {
                 Branch branchInCharge = employee.getBranchInCharge();
                 if (branchInCharge != null) {
                     System.out.println("\tBranch In Charge: " + branchInCharge.getBranchName());
@@ -273,7 +273,7 @@ public class DataCommunicationDB
 
                 // Create Branch Manager
                 Employee branchManager = new Employee();
-                branchManager.setEmployeeType(EmployeeType.BRANCH_MANAGER);
+                branchManager.setEmployeeType(BRANCH_MANAGER);
                 branchManager.setEmail("manager" + (i + 1) + "@branch.com");
                 branchManager.setFirstName("Manager" + (i + 1));
                 branchManager.setLastName("Branch " + (i + 1));
@@ -614,7 +614,7 @@ public class DataCommunicationDB
         //Assume transaction is already open.
         String hql = "FROM Employee WHERE employeeType = :employeeType";
         Query query = session.createQuery(hql);
-        query.setParameter("employeeType", EmployeeType.BRANCH_MANAGER);
+        query.setParameter("employeeType", BRANCH_MANAGER);
         return query.list();
     }
     //endregion
@@ -903,6 +903,13 @@ public class DataCommunicationDB
         }
     }
 
+    private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username, String password) {
+        Employee emp = createEmployee(firstName,lastName,employeeType,email,username);
+        emp.setPassword(password);
+        session.save(emp);
+        return emp;
+    }
+
     private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username) {
         Employee employee = new Employee();
         employee.setEmployeeType(employeeType);
@@ -911,7 +918,7 @@ public class DataCommunicationDB
         employee.setEmail(email);
         employee.setUsername(username);
         employee.setPassword("password");
-        employee.setActive(true);
+        employee.setActive(false);
 
         session.save(employee);
         return employee;
@@ -966,7 +973,7 @@ public class DataCommunicationDB
     }
 
     private static Branch createBranchWithManager(String branchName, String firstName, String lastName, String email, String username) {
-        Employee branchManager = createEmployee(firstName, lastName, EmployeeType.BRANCH_MANAGER, email, username);
+        Employee branchManager = createEmployee(firstName, lastName, BRANCH_MANAGER, email, username, "1");
 
         Branch branch = new Branch();
         branch.setBranchName(branchName);
@@ -995,14 +1002,14 @@ public class DataCommunicationDB
     }
 
     private static void createAdditionalEmployees(List<Branch> branches) {
-        addEmployeeToBranch(branches.get(0), "Joe", "Black", EmployeeType.SERVICE, "joe.black@example.com", "joeblack");
-        addEmployeeToBranch(branches.get(1), "Anna", "Blue", EmployeeType.CONTENT_MANAGER, "anna.blue@example.com", "annablue");
-        addEmployeeToBranch(branches.get(2), "Mark", "Red", EmployeeType.BASE, "mark.red@example.com", "markred");
-        addEmployeeToBranch(branches.get(3), "Nina", "Yellow", EmployeeType.BASE, "nina.yellow@example.com", "ninayellow");
+        addEmployeeToBranch(branches.get(0), "Joe", "Black", SERVICE, "joe.black@example.com", "JB");
+        addEmployeeToBranch(branches.get(1), "Anna", "Blue", CONTENT_MANAGER, "anna.blue@example.com", "AB");
+        addEmployeeToBranch(branches.get(2), "Mark", "Red", CHAIN_MANAGER, "mark.red@example.com", "MR");
+        addEmployeeToBranch(branches.get(3), "Nina", "Yellow", BRANCH_MANAGER, "nina.yellow@example.com", "NY");
     }
 
     private static void addEmployeeToBranch(Branch branch, String firstName, String lastName, EmployeeType employeeType, String email, String username) {
-        Employee employee = createEmployee(firstName, lastName, employeeType, email, username);
+        Employee employee = createEmployee(firstName, lastName, employeeType, email, username, "1");
         branch.addEmployee(employee);
         session.save(employee);
     }
