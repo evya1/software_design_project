@@ -1,14 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Scanner;
 
 public class SimpleChatServer {
@@ -38,31 +35,39 @@ public class SimpleChatServer {
         setPort(args);
         System.out.println("The new port is : " + port);
         server = new SimpleServer(port);
-        System.out.println("server is listening");
+        System.out.println("Server is listening");
         server.listen();
 
+        while (true) {
+            try {
+                String password = promptForDatabasePassword();
+                SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(password);
+                session = sessionFactory.openSession();
+
+                DataCommunicationDB.setSession(session);
+                DataCommunicationDB.setPassword(password);
+
+                // If we get here, the password was correct
+                break;
+
+            } catch (HibernateException exception) {
+                System.err.println("Incorrect password. Please try again.");
+            }
+        }
 
         try {
-
-            String password = promptForDatabasePassword();
-            SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(password);
-            session = sessionFactory.openSession();
-
-            DataCommunicationDB.setSession(session);
-            DataCommunicationDB.setPassword(password);
-
-            DataCommunicationDB.generateMovieList();
-//            DataCommunicationDB1.createMockData();
+            // DataCommunicationDB.generateMovieList();
+            // DataCommunicationDB1.createMockData();
             DataCommunicationDB.printAllEntities();
 
-
         } catch (Exception exception) {
-            System.err.println("An error occured" + exception.getMessage());
+            System.err.println("An error occurred: " + exception.getMessage());
             exception.printStackTrace();
 
         } finally {
-            assert session != null;
-            session.close();
+            if (session != null) {
+                session.close();
+            }
         }
 
     }

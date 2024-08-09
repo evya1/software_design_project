@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
+import java.io.IOException;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
@@ -49,7 +50,12 @@ public class EmployeesListHandler implements RequestHandler {
                 session.getTransaction().commit();
                 answer.setData("employee is active");
                 answer.setEmployee(employee);
-                client.sendToClient(answer);
+                try {
+                    client.sendToClient(answer);
+                } catch (IOException e) {
+                    System.out.println("Client Disconnected.");
+                }
+
             } else if (message.getData().equals("Get all employees")) {
                 answer.setData("Get all employees");
                 answer.setEmployeeList(employees);

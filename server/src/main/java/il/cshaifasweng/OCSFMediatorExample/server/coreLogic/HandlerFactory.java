@@ -18,8 +18,8 @@ public class HandlerFactory {
     }
 
     private void initializeHandlers() {
-        handlers.put("get complaints",new ComplaintsHandler(server));
-        handlers.put("get prices",new PricesHandler());
+        handlers.put(RequestTypes.GET_COMPLAINTS,new ComplaintsHandler(server));
+        handlers.put(RequestTypes.GET_PRICES,new PricesHandler());
         handlers.put(RequestTypes.EMPTY_MESSAGE_REQUEST, new EmptyMessageHandler());
         handlers.put(RequestTypes.MOVIES_REQUEST, new MovieRequestHandler(server));
         handlers.put(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());

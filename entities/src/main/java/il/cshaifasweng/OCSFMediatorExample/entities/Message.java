@@ -78,6 +78,7 @@ public class Message implements Serializable {
     private String complaintTitle;
     private PurchaseType purchaseType;
     private List<Complaint> complaints;
+    private boolean newContentFlag = false;
 
 
     public List<Theater> getTheaters() {
@@ -235,4 +236,12 @@ public class Message implements Serializable {
     public void setMovieTicket(MovieTicket ticket) {this.movieTicket = ticket;}
 
     public MovieTicket getMovieTicket() {return movieTicket;}
+
+    public boolean isNewContentFlag() {
+        return newContentFlag;
+    }
+
+    public void setNewContentFlag(boolean newContentFlag) {
+        this.newContentFlag = newContentFlag;
+    }
 }

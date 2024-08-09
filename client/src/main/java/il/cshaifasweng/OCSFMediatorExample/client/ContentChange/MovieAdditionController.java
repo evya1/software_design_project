@@ -65,6 +65,7 @@ public class MovieAdditionController implements ClientDependent {
     private Message localMessage;
     private List<Branch> branches;
     private PauseTransition pause;
+    private boolean flag = false;
 
     private final String errorColor = "red";
     private final String normalColor = "black";
@@ -671,6 +672,11 @@ public class MovieAdditionController implements ClientDependent {
                 message.setMessage(CONTENT_CHANGE);
                 message.setData(UPDATE_MOVIE);
                 message.setSpecificMovie(movie);
+                if(!flag && movie.getMovieType().isCurrentlyRunning()) {
+                    message.setNewContentFlag(true);
+                    System.out.println("Entered");
+                }
+                flag = inTheatersCheckBox.isSelected();
                 client.sendMessage(message);
             } else {
                 SimpleClient.showAlert(Alert.AlertType.ERROR, "Updating Error", "you have not selected a movie");
@@ -848,9 +854,21 @@ public class MovieAdditionController implements ClientDependent {
         movie = chooseMovieComboBox.getValue();
 
         //Setting up checkboxes according to the movie given
+        if(movie.getMovieType().isUpcoming()) {
+            soonCheckBox.setDisable(false);
+            soonCheckBox.setSelected(true);
+            packageCheckBox.setDisable(true);
+            inTheatersCheckBox.setDisable(true);
+        }
+        else{
+            soonCheckBox.setDisable(true);
+            soonCheckBox.setSelected(false);
+            packageCheckBox.setDisable(false);
+            inTheatersCheckBox.setDisable(false);
+        }
         packageCheckBox.setSelected(movie.getMovieType().isPurchasable());
-        soonCheckBox.setSelected(movie.getMovieType().isUpcoming());
         inTheatersCheckBox.setSelected(movie.getMovieType().isCurrentlyRunning());
+        flag = inTheatersCheckBox.isSelected();
 
         //Setting up text fields.
         castTextField.setText(movie.getMainCast());
@@ -899,8 +917,11 @@ public class MovieAdditionController implements ClientDependent {
     void checkInTheaters(ActionEvent event) {
         if (inTheatersCheckBox.isSelected()) {
             movie.getMovieType().setCurrentlyRunning(true);
+            soonCheckBox.setDisable(true);
+            soonCheckBox.setSelected(false);
         } else {
             movie.getMovieType().setCurrentlyRunning(false);
+            soonCheckBox.setDisable(false);
         }
         setCheckBoxesColor(normalColor);
     }
@@ -909,8 +930,11 @@ public class MovieAdditionController implements ClientDependent {
     void checkViewingPackage(ActionEvent event) {
         if (packageCheckBox.isSelected()) {
             movie.getMovieType().setPurchasable(true);
+            soonCheckBox.setDisable(true);
+            soonCheckBox.setSelected(false);
         } else {
             movie.getMovieType().setPurchasable(false);
+            soonCheckBox.setDisable(false);
         }
         setCheckBoxesColor(normalColor);
     }

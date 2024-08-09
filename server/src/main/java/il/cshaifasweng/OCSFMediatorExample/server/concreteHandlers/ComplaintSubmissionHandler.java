@@ -15,6 +15,8 @@ import org.hibernate.Transaction;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_COMPLAINT_REQUEST;
+
 public class ComplaintSubmissionHandler implements RequestHandler {
 
     @Override
@@ -27,7 +29,7 @@ public class ComplaintSubmissionHandler implements RequestHandler {
         try {
             // All requests are to be within the try block -- START HERE
             Message answer = new Message();
-            answer.setMessage("New Complaint");
+            answer.setMessage(GET_COMPLAINT_REQUEST);
             Transaction tx = null;
 
             try {
@@ -39,6 +41,7 @@ public class ComplaintSubmissionHandler implements RequestHandler {
                 complaint.setComplaintContent(message.getData());
                 complaint.setPurchaseType(message.getPurchaseType());
                 complaint.setDateOfComplaint(LocalDateTime.now());
+                complaint.setBranch(message.getBranch());
 
                 InboxMessage inboxMessage = new InboxMessage();
                 inboxMessage.setMessageTitle("New Complaint");

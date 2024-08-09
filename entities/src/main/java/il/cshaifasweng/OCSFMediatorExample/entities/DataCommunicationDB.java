@@ -5,6 +5,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import org.hibernate.*;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -209,8 +210,8 @@ public class DataCommunicationDB
                             "12345",false,null,BASE,null);
             Employee e2 = new Employee("emp2","service","sherotlko7ot@gmail.com",
                             "sherot","sL1234",false,null,SERVICE,null);
-            Employee e3 = new Employee("emp3","content","tochen@gmail.com","co3R",
-                    "waW425",false,null,CONTENT_MANAGER,null);
+            Employee e3 = new Employee("emp3","content","tochen@gmail.com","1",
+                    "1",false,null,CONTENT_MANAGER,null);
             Employee e4 = new Employee("emp4","CEO","CHM@gmail.com",
                     "Mnkal","imCEO1",false,null,CHAIN_MANAGER,null);
             List<Employee> employees = Arrays.asList(e1, e2, e3, e4);
@@ -636,9 +637,6 @@ public class DataCommunicationDB
                 System.out.println("LOG: Movie with ID " + source.getId() + " was found.");
             }
 
-            if(!movie.getMovieType().isCurrentlyRunning() && source.getMovieType().isCurrentlyRunning()){
-                addMessageToCustomers();
-            }
             // Copy details from source to the managed entity
             copyMovieDetails(movie, source);
 
@@ -647,13 +645,11 @@ public class DataCommunicationDB
 
             // Commit the transaction to save the changes
             transaction.commit();
-            System.out.println("Movie was updated successfully. Movie ID is " + movie.getId());
         } catch (Exception exception) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
+
             System.err.println("An error occurred, changes have been rolled back.");
             exception.printStackTrace();
+            throw exception;
         }
     }
     public static void deleteMovieById(int movieId) {
@@ -792,19 +788,28 @@ public class DataCommunicationDB
 
 
     public static void addMessageToCustomers(){
+        session.beginTransaction();
         try {
             List<Customer> customers = session.createQuery(
                     "SELECT c FROM Customer c " +
                             "JOIN c.purchases p " +
+                            "JOIN p.purchasedBooklet b " +
                             "WHERE p.purchaseType = il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.BOOKLET " +
-                            "AND p.purchasedBooklet.numOfEntries > 0",
+                            "AND b.numOfEntries > 0",
                     Customer.class
             ).getResultList();
 
             //Going over the customers and adding messages to their inbox.
             for(Customer customer : customers){
-                addInboxMessageForMovie(customer);
+                InboxMessage newContent = new InboxMessage();
+                newContent.setMessageContent("New movie was added to the theaters");
+                newContent.setMessageTitle("New Movie");
+                newContent.setCustomer(customer);
+                session.save(newContent);
+                customer.getInboxMessages().add(newContent);
                 session.update(customer);
+                session.flush();  // Synchronize session state with the database
+                session.clear();  // Clear the session cache to avoid issues in the next iteration
             }
 
             session.getTransaction().commit();

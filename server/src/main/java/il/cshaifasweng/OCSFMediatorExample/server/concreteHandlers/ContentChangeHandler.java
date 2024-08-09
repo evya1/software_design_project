@@ -34,7 +34,6 @@ public class ContentChangeHandler implements RequestHandler {
                     DataCommunicationDB.createNewMovie(movie);
                     System.out.println("New movie was created successfully");
                     if(movie.getMovieType().isCurrentlyRunning()){
-                        DataCommunicationDB.getSession().beginTransaction();
                         DataCommunicationDB.addMessageToCustomers();
                     }
                     answer.setData("New Movie");
@@ -44,6 +43,9 @@ public class ContentChangeHandler implements RequestHandler {
                 case UPDATE_MOVIE_REQUEST:
                     movie = message.getSpecificMovie();
                     DataCommunicationDB.updateMovieDetails(movie);
+                    if(message.isNewContentFlag()){
+                        DataCommunicationDB.addMessageToCustomers();
+                    }
                     System.out.println("Movie was updated successfully");
                     answer.setData("Movie Updated");
                     client.sendToClient(answer);

@@ -8,7 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
+@Deprecated
 public class ComplaintSubPopUpController implements ClientDependent {
 
 

@@ -1,6 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
 public class RequestTypes {
+    public static final String GET_COMPLAINTS ="get complaints";
+    public static final String GET_PRICES = "get prices";
     public static final String EMPTY_MESSAGE_REQUEST = "blank";
     public static final String MOVIES_REQUEST = "Movie Request";
     public static final String CHANGE_SCREENING_TIMES_REQUEST = "change screening times of the movie";
