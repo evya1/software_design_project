@@ -5,32 +5,28 @@ import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.net.URL;
-import java.util.ResourceBundle;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
-import static java.awt.Color.red;
 
 public class ComplaintSubmissionController implements ClientDependent {
+    public ComboBox<Branch> branchComboBox;
+    public CheckBox branchCheckBox;
     private Message localMessage;
     private SimpleClient client;
 
@@ -87,42 +83,63 @@ public class ComplaintSubmissionController implements ClientDependent {
     public void initialize() {
 
         EventBus.getDefault().register(this);
-
-        headlineTxt.setText("Enter Your Personal Information:");
-        subHeadlineTxt.setText("How can we help?");
-        complaintTitleField.setPromptText("Enter Complaint Title");
-        complaintTxtArea.setPromptText("Enter Your Complaint Here:");
         purchasedItemCombobox.setItems(FXCollections.observableArrayList(PurchaseType.values()));
         purchasedItemCombobox.setDisable(true);
-        purchasedItemCombobox.setPromptText("Choose Purchased Item");
-        privateNameField.setPromptText("Private Name");
-        idField.setPromptText("9 Digits ID Number");
-        lastNameField.setPromptText("Last Name");
-        mailField.setPromptText("Email Address");
-        purchasedCheckbox.setText("I want to complain on a Purchased Item");
-        otherCheckbox.setText("Other");
-
+        branchComboBox.setDisable(true);
         submitComplaintBtn.setOnAction(event -> submitComplaintBtnController(event));
         returnBtn.setOnAction(event -> returnBtnController(event));
         otherCheckbox.setOnAction(event -> otherCheckController(event));
         purchasedCheckbox.setOnAction(event -> purchasedCheckController(event));
+
+        Message message = new Message();
+        message.setMessage(BRANCH_THEATER_INFORMATION);
+        message.setData(GET_BRANCHES);
+        client.sendMessage(message);
     }
 
     @Subscribe
     public void handleComplaintFromServer(MessageEvent event){
         if (event != null) {
-            Platform.runLater(() -> {
-                Message message = (Message) event.getMessage();
-                Complaint complaint = message.getComplaint();
-                System.out.println("Complaint received: " + complaint);
+            Message message = event.getMessage();
+            //Handling new Complaint from server.
+            if(message.getMessage().equals(GET_COMPLAINT_REQUEST)){
+                Platform.runLater(() -> {
 
-                loadSubmissionPopupScreen();
+                    Complaint complaint = message.getComplaint();
+                    System.out.println("Complaint received: " + complaint);
+                    //reached here?
+                    // Show confirmation dialog
+                    Alert alert = new Alert(Alert.AlertType.NONE);
+                    alert.setTitle("Confirmation");
+                    alert.setHeaderText("Your Complaint has been submitted successfully!");
+                    alert.setContentText("A response will be sent to your E-mail within 24 hours.");
 
-            });
+                    // Create a "Confirm" button and add it to the alert
+                    ButtonType confirmButton = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+                    alert.getButtonTypes().setAll(confirmButton);
+
+                    // Handle the user's response
+                    alert.showAndWait().ifPresent(response -> {
+                        if (response == confirmButton) {
+                            // User confirmed, perform the action
+                            Stage newStage = (Stage) submitComplaintBtn.getScene().getWindow();
+                            client.moveScene(PRIMARY_SCREEN, newStage, null);
+                        }
+                    });
+                });
+            }
+            //Handling Branch or Theater related information.
+            if(message.getMessage().equals(BRANCH_THEATER_INFORMATION)){
+                if(message.getData().equals(GET_BRANCHES)){
+                    Platform.runLater(()->{
+                        branchComboBox.getItems().addAll(message.getBranches());
+                    });
+                }
+            }
+
         }else {
             System.out.println("Invalid event data or not a Complaint instance");
         }
-        EventBus.getDefault().unregister(this);
     }
 
     @FXML
@@ -175,6 +192,7 @@ public class ComplaintSubmissionController implements ClientDependent {
         message.setPurchaseType(purchasedItemCombobox.getValue());
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
+        message.setBranch(branchComboBox.getSelectionModel().getSelectedItem());
 
         if(flag == 0) {
             System.out.println("Complaint Clear... Sending to Server...");
@@ -183,12 +201,7 @@ public class ComplaintSubmissionController implements ClientDependent {
 
     }
 
-    private void loadSubmissionPopupScreen() {
-        Stage stage = new Stage();
-        client.moveScene(SUBMISSION_POP_UP_MESSAGE,stage ,null);
-        Stage newStage = (Stage) submitComplaintBtn.getScene().getWindow();
-        client.moveScene(PRIMARY_SCREEN,newStage,null);
-    }
+
 
     public int checkFields(){
         colorAllTextBorders();
@@ -229,6 +242,14 @@ public class ComplaintSubmissionController implements ClientDependent {
             changeControlBorderColor(complaintTxtArea, "red");
             return 1;
         }
+        if(purchasedCheckbox.isSelected()){
+            //If the purchase type is Movie Ticket a branch is required.
+            PurchaseType type = purchasedItemCombobox.getSelectionModel().getSelectedItem();
+            if(type == PurchaseType.MOVIE_TICKET && branchCheckBox.isSelected() && branchComboBox.getSelectionModel().isEmpty()){
+                changeControlBorderColor(branchComboBox,"red");
+                return 1;
+            }
+        }
         return 0;
     }
 
@@ -242,6 +263,23 @@ public class ComplaintSubmissionController implements ClientDependent {
         changeControlBorderColor(complaintTitleField, "null");
         changeControlBorderColor(complaintTxtArea, "null");
         changeControlBorderColor(otherCheckbox, "null");
+        changeControlBorderColor(branchComboBox,"null");
     }
 
+    @FXML
+    public void selectBranchCBAction(ActionEvent event) {
+
+    }
+
+    @FXML
+    public void relatedBranchAction(ActionEvent event) {
+        boolean isChecked = branchCheckBox.isSelected();
+        if(isChecked){
+            branchComboBox.setDisable(false);
+        }
+        else{
+            branchComboBox.setDisable(true);
+            branchComboBox.getSelectionModel().clearSelection();
+        }
+    }
 }

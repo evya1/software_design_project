@@ -34,6 +34,8 @@ public class ClientRequests {
     public static final String GET_ALL_BRANCH_MANAGERS = "Get all branch managers";
     public static final String CREATE_NEW_BRANCH = "create a new branch";
     public static final String UPDATE_PURCHASE = "UPDATE PURCHASE";
+    public static final String GET_COMPLAINT_REQUEST = "New Complaint";
+
 
 
 
