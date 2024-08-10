@@ -3,7 +3,6 @@ package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,20 +10,21 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 
 public class ReportsScreenController implements ClientDependent, Initializable {
-    public static final int PIE_CHART_LABEL_LINE_LENGTH = 50;
-    public static final int PIE_CHART_START_ANGLE = 180;
     private final ChartFactory chartFactory = new ChartFactory();  // Use the ChartFactory class
     @FXML
     public Button ExitBtn;
@@ -97,8 +97,14 @@ public class ReportsScreenController implements ClientDependent, Initializable {
         // Retrieve context description (e.g., branch name, all locations) from an external source
         String contextDescription = chartFactory.getContextDescription(chartContext);  // Method or field that provides the context
 
+        // Create generic data for the charts
+        List<Pair<String, Double>> genericData = chartFactory.createGenericChartData();
+
+        // Convert generic data to BarChart data
+        ObservableList<XYChart.Data<String, Number>> barChartData = chartFactory.convertToBarChartData(genericData);
+
         // Use the ChartFactory to create and configure the bar chart
-        BarChart<String, Number> barChart = chartFactory.createBarChart(contextDescription);
+        BarChart<String, Number> barChart = chartFactory.createBarChart(barChartData, contextDescription);
 
         // Populate the bar chart with data
         chartFactory.populateBarChart(barChart, chartBorderPane);
@@ -110,8 +116,11 @@ public class ReportsScreenController implements ClientDependent, Initializable {
         // Retrieve context description (e.g., branch name, all locations) from an external source
         String contextDescription = chartFactory.getContextDescription(chartContext);
 
-        // Create data for the PieChart
-        ObservableList<PieChart.Data> pieChartData = chartFactory.createPieChartData();
+        // Create generic data for the charts
+        List<Pair<String, Double>> genericData = chartFactory.createGenericChartData();
+
+        // Convert generic data to PieChart data
+        ObservableList<PieChart.Data> pieChartData = chartFactory.convertToPieChartData(genericData);
 
         // Use the ChartFactory to create and configure the PieChart
         PieChart pieChart = chartFactory.createPieChart(pieChartData, contextDescription);

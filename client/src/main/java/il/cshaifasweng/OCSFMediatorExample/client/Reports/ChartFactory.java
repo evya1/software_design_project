@@ -4,6 +4,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.*;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Pair;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChartFactory {
 
@@ -44,15 +49,43 @@ public class ChartFactory {
     }
 
     /**
-     * Creates data for the PieChart.
+     * Creates generic data for charts, ensuring that the values are of type Double.
      *
-     * @return an ObservableList of PieChart.Data to be used in the PieChart.
+     * @return a List of Pair<String, Double> representing the data.
      */
-    public ObservableList<PieChart.Data> createPieChartData() {
+    public List<Pair<String, Double>> createGenericChartData() {
+        return Arrays.asList(
+                new Pair<>("Product A", 3000.0),
+                new Pair<>("Product B", 1500.0),
+                new Pair<>("Product C", 300.0)
+        );
+    }
+
+    /**
+     * Converts generic chart data to BarChart data.
+     *
+     * @param genericData the generic chart data.
+     * @return an ObservableList of XYChart.Data for use in BarChart.
+     */
+    public ObservableList<XYChart.Data<String, Number>> convertToBarChartData(List<Pair<String, Double>> genericData) {
         return FXCollections.observableArrayList(
-                new PieChart.Data("Product A", 3000),
-                new PieChart.Data("Product B", 1500),
-                new PieChart.Data("Product C", 300)
+                genericData.stream()
+                        .map(pair -> new XYChart.Data<String, Number>(pair.getKey(), pair.getValue()))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    /**
+     * Converts generic chart data to PieChart data.
+     *
+     * @param genericData the generic chart data.
+     * @return an ObservableList of PieChart.Data for use in PieChart.
+     */
+    public ObservableList<PieChart.Data> convertToPieChartData(List<Pair<String, Double>> genericData) {
+        return FXCollections.observableArrayList(
+                genericData.stream()
+                        .map(pair -> new PieChart.Data(pair.getKey(), pair.getValue()))
+                        .collect(Collectors.toList())
         );
     }
 
@@ -60,10 +93,11 @@ public class ChartFactory {
      * Creates and configures a BarChart based on the provided context description.
      * The chart is customized with appropriate labels, title, and appearance settings.
      *
+     * @param data               the data to be displayed in the BarChart.
      * @param contextDescription the context for which the chart is created (e.g., branch name, all locations).
      * @return a fully configured BarChart instance.
      */
-    public BarChart<String, Number> createBarChart(String contextDescription) {
+    public BarChart<String, Number> createBarChart(ObservableList<XYChart.Data<String, Number>> data, String contextDescription) {
         String chartTitle = generateTitle(contextDescription);
 
         // Initialize the axes with labels
@@ -77,11 +111,17 @@ public class ChartFactory {
         BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
         barChart.setTitle(chartTitle);
 
+        // Prepare the data series
+        XYChart.Series<String, Number> dataSeries = new XYChart.Series<>(data);
+        dataSeries.setName("Product Sold");
+
+        // Add data to the bar chart
+        barChart.getData().add(dataSeries);
+
         // Customize the appearance and behavior of the bar chart
         barChart.setLegendVisible(false);  // Hide the legend, since it's not needed for this chart.
         barChart.setAnimated(false);       // Disable animations for a static display of the chart.
-        barChart.setPrefWidth(CHART_PREF_WIDTH);
-        barChart.setPrefHeight(CHART_PREF_HEIGHT);
+        barChart.setPrefSize(CHART_PREF_WIDTH, CHART_PREF_HEIGHT);
 
         return barChart;
     }
@@ -113,39 +153,23 @@ public class ChartFactory {
         return pieChart;
     }
 
-
     /**
-     * Populates the BarChart with static data and adds it to the provided BorderPane.
-     * This method handles the addition of data series to the chart and integrates the chart into the UI.
+     * Populates the BarChart with data and adds it to the provided BorderPane.
      *
-     * @param barChart        the BarChart to which data will be added.
+     * @param barChart        the BarChart to be populated and displayed.
      * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
     public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane) {
-        // Prepare the data series
-        XYChart.Series<String, Number> dataSeries = new XYChart.Series<>();
-        dataSeries.setName("Product Sold");
-
-        // Provide static data for the chart
-        dataSeries.getData().add(new XYChart.Data<>("Product A", 3000));
-        dataSeries.getData().add(new XYChart.Data<>("Product B", 1500));
-        dataSeries.getData().add(new XYChart.Data<>("Product C", 500));
-
-        // Add data to the bar chart
-        barChart.getData().add(dataSeries);
-
-        // Add the bar chart to the BorderPane
         chartBorderPane.setCenter(barChart);
     }
 
     /**
-     * Populates the PieChart with static data and adds it to the provided BorderPane.
+     * Populates the PieChart with data and adds it to the provided BorderPane.
      *
-     * @param pieChart        the PieChart to which data will be added.
+     * @param pieChart        the PieChart to be populated and displayed.
      * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
     public void populatePieChart(PieChart pieChart, BorderPane chartBorderPane) {
         chartBorderPane.setCenter(pieChart);
     }
-
 }
