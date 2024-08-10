@@ -1,9 +1,10 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
+import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.exception.JDBCConnectionException;
+import org.hibernate.exception.SQLGrammarException;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -17,7 +18,9 @@ public class SimpleChatServer {
     private static String promptForDatabasePassword() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please enter your database password: \n");
-        return scanner.nextLine();
+        String password = scanner.nextLine().trim(); // Trims any extra whitespace
+        System.out.println("Password entered: [" + password + "]"); // Debug output
+        return password;
     }
 
     /**
@@ -50,13 +53,31 @@ public class SimpleChatServer {
                 // If we get here, the password was correct
                 break;
 
-            } catch (HibernateException exception) {
-                System.err.println("Incorrect password. Please try again.");
+            } catch (AnnotationException annotationException) {
+                System.err.println("Annotation error: " + annotationException.getMessage());
+                annotationException.printStackTrace();
+            } catch (JDBCConnectionException jdbcConnectionException) {
+                System.err.println("Database connection failed: " + jdbcConnectionException.getMessage());
+                jdbcConnectionException.printStackTrace();
+            } catch (SQLGrammarException sqlGrammarException) {
+                System.err.println("SQL syntax error: " + sqlGrammarException.getMessage());
+                sqlGrammarException.printStackTrace();
+            } catch (ConstraintViolationException constraintViolationException) {
+                System.err.println("Constraint violation: " + constraintViolationException.getMessage());
+                constraintViolationException.printStackTrace();
+            } catch (TransactionException transactionException) {
+                System.err.println("Transaction error: " + transactionException.getMessage());
+                transactionException.printStackTrace();
+            } catch (HibernateException hibernateException) {
+                // Generic HibernateException to catch other unhandled exceptions
+                System.err.println("Hibernate error: " + hibernateException.getMessage());
+                hibernateException.printStackTrace();
             }
         }
 
+
         try {
-//             DataCommunicationDB.generateMovieList();
+             DataCommunicationDB.generateMovieList();
 //             DataCommunicationDB.createMockData();
             DataCommunicationDB.printAllEntities();
 

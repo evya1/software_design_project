@@ -17,9 +17,6 @@ public class Theater implements Serializable {
     private int numOfSeats;
     private int availableSeats;
 
-    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Seat> seatList;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "branch_id")
     private Branch branch;
@@ -32,16 +29,15 @@ public class Theater implements Serializable {
 
     public Theater() {}
 
-    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, List<Seat> seatList, int rowLength) {
+    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, int rowLength) {
         setNumOfSeats(numOfSeats);
         setAvailableSeats(availableSeats);
         setSchedule(schedule);
-        setSeatList(seatList);
         setRowLength(rowLength);
     }
 
-    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, List<Seat> seatList, int rowLength, Branch branch) {
-        this(numOfSeats,availableSeats,schedule,seatList,rowLength);
+    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, int rowLength, Branch branch) {
+        this(numOfSeats,availableSeats,schedule,rowLength);
         setBranch(branch);
     }
 
@@ -68,14 +64,6 @@ public class Theater implements Serializable {
 
     public void setAvailableSeats(int availableSeats) {
         this.availableSeats = availableSeats;
-    }
-
-    public List<Seat> getSeatList() {
-        return seatList;
-    }
-
-    public void setSeatList(List<Seat> seatList) {
-        this.seatList = seatList;
     }
 
     public Branch getBranch() {

@@ -7,6 +7,7 @@ import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PriceConstants;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -37,6 +38,7 @@ import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 public class EmployeeController implements ClientDependent {
 
     private static final Logger logger = LoggerFactory.getLogger(MovieAdditionController.class);
+    public Button stampBookletBtn;
 
     @FXML
     private ListView<String> complaintsListView;
@@ -77,8 +79,6 @@ public class EmployeeController implements ClientDependent {
     //
     private Message localMessage;
     private SimpleClient client;
-    //private List<Employee> employees;
-    //private List<Movie> movies;
     private Employee employee;
     private PriceConstants prices;
     private List<Complaint> complaints;
@@ -86,6 +86,8 @@ public class EmployeeController implements ClientDependent {
 
     @FXML
     private void initialize() {
+        disableUIElements();
+        logger.info("Starting Initialization.");
         List<String> purchaseItems = Arrays.asList("Movie Ticket", "Movie Link", "Booklet");
         chooseItemComboBox.setItems(FXCollections.observableArrayList(purchaseItems));
         chooseItemComboBox.setVisible(false);
@@ -109,27 +111,45 @@ public class EmployeeController implements ClientDependent {
     }
 
     private void checkMsg() {
-        if (localMessage.getSourceFXML().equals(ADD_EDIT_MOVIE)) {
-            logINBtn.setVisible(false);
-            logOUTBtn.setVisible(true);
-            homeScreenBtn.setDisable(true);
-            changeContentBtn.setDisable(false);
-            changePriceBtn.setDisable(false);
-            employee = localMessage.getEmployee();
-            System.out.println(employee.getEmployeeType());
-            System.out.println(employee.isActive());
-            System.out.println(employee.getUsername());
-            System.out.println(employee.getPassword());
+
+        switch (localMessage.getSourceFXML()) {
+            case ADD_EDIT_MOVIE -> {
+                logINBtn.setVisible(false);
+                logOUTBtn.setVisible(true);
+                homeScreenBtn.setDisable(true);
+                changeContentBtn.setDisable(false);
+                changePriceBtn.setDisable(false);
+                employee = localMessage.getEmployee();
+                printEmplyoee(localMessage.getEmployee());
+                enableButtonsAccordingToEmployeeType(employee.getEmployeeType());
+            }
+            case COMPLAINT_HANDLER_SCREEN -> {
+                logINBtn.setVisible(false);
+                logOUTBtn.setVisible(true);
+                homeScreenBtn.setDisable(true);
+                showComplaintsBtn.setDisable(false);
+                complaintsListView.setVisible(true);
+                employee = localMessage.getEmployee();
+                printEmplyoee(localMessage.getEmployee());
+                enableButtonsAccordingToEmployeeType(employee.getEmployeeType());
+            }
+            case REPORTS_SCREEN -> {
+                logINBtn.setVisible(false);
+                logOUTBtn.setVisible(true);
+                homeScreenBtn.setDisable(true);
+                employee = localMessage.getEmployee();
+                printEmplyoee(localMessage.getEmployee());
+                enableButtonsAccordingToEmployeeType(employee.getEmployeeType());
+            }
         }
-        else if (localMessage.getSourceFXML().equals(COMPLAINT_HANDLER_SCREEN))
-        {
-            logINBtn.setVisible(false);
-            logOUTBtn.setVisible(true);
-            homeScreenBtn.setDisable(true);
-            showComplaintsBtn.setDisable(false);
-            complaintsListView.setVisible(true);
-            employee = localMessage.getEmployee();
-        }
+    }
+
+    private void printEmplyoee(Employee employee){
+        System.out.println(employee.getFirstName());
+        System.out.println(employee.getLastName());
+        System.out.println(employee.getPassword());
+        System.out.println(employee.getUsername());
+        System.out.println(employee.isActive());
     }
 
     @Subscribe
@@ -166,7 +186,7 @@ public class EmployeeController implements ClientDependent {
                 });
                 case "employee is active" -> Platform.runLater(() -> {
                     employee = message.getEmployee();
-                    System.out.println(employee.isActive());
+                    System.out.println("Incoming Message from Server, Employee status login " +employee.isActive());
                 });
                 case "change complaint status" -> Platform.runLater(() -> {
                     Message msg = new Message();
@@ -176,6 +196,99 @@ public class EmployeeController implements ClientDependent {
                 });
             }
         }
+    }
+
+    @FXML
+    void logIn(ActionEvent event) {
+
+        //region Setting up a logout for the existing Employee.
+        Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
+        EventHandler<WindowEvent> existingHandler = stage.getOnCloseRequest();
+
+        stage.setOnCloseRequest(eventLogout -> {
+            // Perform additional action
+            if(employee != null){
+                employee.setActive(false);
+                Message message = new Message();
+                message.setMessage(GET_EMPLOYEES);
+                message.setData("set employee as active");
+                message.setEmployee(employee);
+                client.sendMessage(message);
+            }
+
+            // Call the existing handler if it exists
+            if (existingHandler != null) {
+                existingHandler.handle(eventLogout);
+            }
+        });
+        //endregion
+
+        try {
+            Dialog<Pair<String, String>> dialog = new Dialog<>();
+            dialog.setTitle("Sign In");
+            ButtonType signInButtonType = new ButtonType("Sign In", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(signInButtonType, ButtonType.CANCEL);
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+
+            TextField username = new TextField();
+            username.setPromptText("Username");
+            PasswordField password = new PasswordField();
+            password.setPromptText("Password");
+
+            grid.add(new Label("Username:"), 0, 0);
+            grid.add(username, 1, 0);
+            grid.add(new Label("Password:"), 0, 1);
+            grid.add(password, 1, 1);
+
+            dialog.getDialogPane().setContent(grid);
+
+            // Set the result converter for the dialog
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == signInButtonType) {
+                    return new Pair<>(username.getText(), password.getText());
+                }
+                return null;
+            });
+
+            Optional<Pair<String, String>> result = dialog.showAndWait();
+            result.ifPresent(usernamePassword -> {
+                System.out.println(usernamePassword);
+                boolean flag = false;
+                Message message = new Message();
+                message.setMessage(GET_EMPLOYEES);
+                message.setData("check password");
+                message.setUsernamePassword(usernamePassword.toString());
+                String[] userPass = usernamePassword.toString().split("=");
+                System.out.println(userPass[0] + " " + userPass[1]);
+                client.sendMessage(message);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    void logOut(ActionEvent event) {
+        chooseItemComboBox.setVisible(false);
+        homeScreenBtn.setDisable(false);
+        logINBtn.setVisible(true);
+        logOUTBtn.setVisible(false);
+        disableUIElements();
+        employee.setActive(false);
+        Message message = new Message();
+        message.setMessage(GET_EMPLOYEES);
+        message.setData("set employee as active");
+        message.setEmployee(employee);
+        client.sendMessage(message);
+        employee = null;
+    }
+
+    @FXML
+    public void stampBookletAction(ActionEvent event) {
+
     }
 
     @FXML
@@ -279,74 +392,6 @@ public class EmployeeController implements ClientDependent {
     }
 
 
-    @FXML
-    void logIn(ActionEvent event) {
-
-        //region Setting up a logout for the existing Employee.
-        Stage stage = (Stage) homeScreenBtn.getScene().getWindow();
-        EventHandler<WindowEvent> existingHandler = stage.getOnCloseRequest();
-
-        stage.setOnCloseRequest(eventLogout -> {
-            // Perform additional action
-            employee.setActive(false);
-            Message message = new Message();
-            message.setMessage(GET_EMPLOYEES);
-            message.setData("set employee as active");
-            message.setEmployee(employee);
-            client.sendMessage(message);
-
-            // Call the existing handler if it exists
-            if (existingHandler != null) {
-                existingHandler.handle(eventLogout);
-            }
-        });
-        //endregion
-
-        try {
-            Dialog<Pair<String, String>> dialog = new Dialog<>();
-            dialog.setTitle("Sign In");
-            ButtonType signInButtonType = new ButtonType("Sign In", ButtonBar.ButtonData.OK_DONE);
-            dialog.getDialogPane().getButtonTypes().addAll(signInButtonType, ButtonType.CANCEL);
-            GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setVgap(10);
-
-            TextField username = new TextField();
-            username.setPromptText("Username");
-            PasswordField password = new PasswordField();
-            password.setPromptText("Password");
-
-            grid.add(new Label("Username:"), 0, 0);
-            grid.add(username, 1, 0);
-            grid.add(new Label("Password:"), 0, 1);
-            grid.add(password, 1, 1);
-
-            dialog.getDialogPane().setContent(grid);
-
-            // Set the result converter for the dialog
-            dialog.setResultConverter(dialogButton -> {
-                if (dialogButton == signInButtonType) {
-                    return new Pair<>(username.getText(), password.getText());
-                }
-                return null;
-            });
-
-            Optional<Pair<String, String>> result = dialog.showAndWait();
-            result.ifPresent(usernamePassword -> {
-                System.out.println(usernamePassword);
-                boolean flag = false;
-                Message message = new Message();
-                message.setMessage(GET_EMPLOYEES);
-                message.setData("check password");
-                message.setUsernamePassword(usernamePassword.toString());
-                String[] userpass = usernamePassword.toString().split("=");
-                System.out.println(userpass[0] + " " + userpass[1]);
-                client.sendMessage(message);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void emp() {
@@ -359,49 +404,66 @@ public class EmployeeController implements ClientDependent {
         message.setData("set employee as active");
         message.setEmployee(employee);
         client.sendMessage(message);
+        enableButtonsAccordingToEmployeeType(employee.getEmployeeType());
+    }
 
-        switch (employee.getEmployeeType()) {
+    private void enableButtonsAccordingToEmployeeType(EmployeeType type){
+        switch (type) {
             case BASE:
-
+                stampBookletBtn.setVisible(true);
+                stampBookletBtn.setDisable(false);
                 break;
             case SERVICE:
                 showComplaintsBtn.setDisable(false);
+                showComplaintsBtn.setVisible(true);
                 break;
             case BRANCH_MANAGER:
                 showReportsBtn.setDisable(false);
+                showReportsBtn.setVisible(true);
                 break;
             case CONTENT_MANAGER:
                 changeContentBtn.setDisable(false);
+                changeContentBtn.setVisible(true);
                 changePriceBtn.setDisable(false);
+                changePriceBtn.setVisible(true);
                 break;
             case CHAIN_MANAGER:
                 confirmChangeBtn.setDisable(false);
+                confirmChangeBtn.setVisible(true);
                 showReportsBtn.setDisable(false);
+                showReportsBtn.setVisible(true);
                 break;
             default:
+                System.out.println("Unknown Case");
+                break;
         }
-
     }
 
-    @FXML
-    void logOut(ActionEvent event) {
-        chooseItemComboBox.setVisible(false);
-        homeScreenBtn.setDisable(false);
-        logINBtn.setVisible(true);
-        complaintsListView.setVisible(false);
-        showComplaintsBtn.setDisable(true);
-        logOUTBtn.setVisible(false);
+    //Disabling all the buttons before enabling them according to the EmployeeType.
+    private void disableUIElements(){
         showReportsBtn.setDisable(true);
+        showReportsBtn.setVisible(false);
+
         changePriceBtn.setDisable(true);
+        changePriceBtn.setVisible(false);
+
+        showComplaintsBtn.setDisable(true);
+        showComplaintsBtn.setVisible(false);
+
         changeContentBtn.setDisable(true);
+        changeContentBtn.setVisible(false);
+
         confirmChangeBtn.setDisable(true);
-        employee.setActive(false);
-        Message message = new Message();
-        message.setMessage(GET_EMPLOYEES);
-        message.setData("set employee as active");
-        message.setEmployee(employee);
-        client.sendMessage(message);
+        confirmChangeBtn.setVisible(false);
+
+        stampBookletBtn.setDisable(true);
+        stampBookletBtn.setVisible(false);
+
+        complaintsListView.setVisible(false);
     }
+
+
+
 
     @FXML
     void showComplaints(ActionEvent event) {
@@ -446,9 +508,10 @@ public class EmployeeController implements ClientDependent {
             Message message = new Message();
             message.setMessage("View Reports Button Clicked");
             message.setSourceFXML(EMPLOYEE_SCREEN);
-
-            Parent root = FXMLUtils.loadFXML(REPORTS_SCREEN, client, message);
-            stage.getScene().setRoot(root);
+            message.setEmployee(employee);
+            client.moveScene(REPORTS_SCREEN,stage,message);
+            EventBus.getDefault().unregister(this);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

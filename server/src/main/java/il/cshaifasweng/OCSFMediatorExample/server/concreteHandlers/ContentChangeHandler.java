@@ -8,7 +8,6 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
@@ -59,7 +58,7 @@ public class ContentChangeHandler implements RequestHandler {
 
                 case NEW_MOVIE_SLOT:
                     DataCommunicationDB.createMovieSlot(message.getMovieSlot());
-                    DataCommunicationDB.createMovieSlotForMovieID(message.getSpecificMovie().getId(), message.getMovieSlot());
+                    DataCommunicationDB.addMovieSlotToMovie(message.getSpecificMovie().getId(), message.getMovieSlot());
                     System.out.println("New movie slot was created successfully");
                     answer.setData(NEW_MOVIE_SLOT);
                     client.sendToClient(answer);
@@ -73,7 +72,7 @@ public class ContentChangeHandler implements RequestHandler {
                     client.sendToClient(answer);
                     break;
                 case DELETE_MOVIE_SLOT:
-                    DataCommunicationDB.removeSlotFromMovie(message.getMovieSlot());
+                    //DataCommunicationDB.removeSlotFromMovie(message.getMovieSlot());
                     DataCommunicationDB.deleteMovieSlot(message.getMovieSlot());
                     System.out.println("Movie slot was removed successfully");
                     answer.setData(DELETE_MOVIE_SLOT);

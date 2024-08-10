@@ -1,10 +1,13 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "seats")
-public class Seat {
+public class Seat implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int seatNum;
@@ -13,6 +16,10 @@ public class Seat {
 
     @ManyToOne
     private Theater theater;
+
+    @ManyToOne
+    @JoinColumn(name = "movieslot_id")
+    private MovieSlot movieSlot;
 
     public Seat() {
         setTaken(false); // Default value
@@ -51,5 +58,14 @@ public class Seat {
 
     public void setTheater(Theater theater) {
         this.theater = theater;
+    }
+
+
+    public MovieSlot getMovieSlot() {
+        return movieSlot;
+    }
+
+    public void setMovieSlot(MovieSlot movieslot) {
+        this.movieSlot = movieslot;
     }
 }
