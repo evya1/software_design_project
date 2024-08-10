@@ -10,7 +10,6 @@ import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
@@ -41,6 +40,17 @@ public class ReportsScreenController implements ClientDependent, Initializable {
     private SimpleClient client;
 
     private String previousScreen;  // Store the previous screen's FXML path
+
+    /**
+     * Represents the context or scope for generating the chart.
+     * This field can be used to determine the specific data or branch context
+     * that will influence the content and title of the chart.
+     * For example, it might represent a specific branch name,
+     * a data filter criterion, or any other relevant context.
+     */
+    private Object chartContext;
+
+    private final ChartFactory chartFactory = new ChartFactory();  // Use the ChartFactory class
 
     @FXML
     public void handleBackAction(ActionEvent actionEvent) {
@@ -77,92 +87,21 @@ public class ReportsScreenController implements ClientDependent, Initializable {
     }
 
     /**
-     * Generates a title for the chart based on the given context.
-     *
-     * @param contextDescription a description of the context, such as a branch name or scope of the data.
-     * @return a dynamically generated chart title as a String.
-     */
-    private String generateChartTitle(String contextDescription) {
-        StringBuilder titleBuilder = new StringBuilder("Overview: ");
-
-        if (contextDescription == null || contextDescription.isEmpty()) {
-            titleBuilder.append("All Branches");
-        } else {
-            titleBuilder.append(contextDescription);
-        }
-
-        return titleBuilder.toString();
-    }
-
-    /**
-     * Creates and configures a BarChart with specified parameters.
-     *
-     * @param chartTitle the title of the chart, based on the data context.
-     * @return a fully configured BarChart instance.
-     */
-    private BarChart<String, Number> createBarChart(String chartTitle) {
-
-        // Initialize the axes with labels
-        CategoryAxis xAxis = new CategoryAxis();
-        xAxis.setLabel("Dates");
-
-        NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Quantity Sold");
-
-        // Create and configure the bar chart with axes and title
-        BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-        barChart.setTitle(chartTitle);
-
-        // Customize the appearance and behavior of the bar chart
-        barChart.setLegendVisible(false);  // Hide the legend, since it's not needed for this chart.
-        barChart.setAnimated(false);       // Disable animations for a static display of the chart.
-        barChart.setPrefWidth(800);
-        barChart.setPrefHeight(600);
-
-        return barChart;
-    }
-
-    /**
-     * Retrieves the context description for the chart title.
-     * This method simulates fetching the context description, such as the branch name,
-     * which could be provided by another controller or field in the application.
-     *
-     * @return the context description as a String.
-     */
-    private String getContextDescription() {
-        // Example: This could come from another controller, a field, or external logic
-        return "Specific Branch"; // Replace with actual logic to fetch context
-    }
-
-
-    /**
-     * Handles the action of displaying a bar chart in the report screen.
+     * Displays a bar chart on the report screen based on the current context.
+     * The chart is configured and populated using the provided context and displayed in the UI.
      *
      * @param actionEvent the event that triggers the bar chart display.
      */
     public void handleShowBarChart(ActionEvent actionEvent) {
 
         // Retrieve context description (e.g., branch name, all locations) from an external source
-        String contextDescription = getContextDescription();  // Method or field that provides the context
-        String chartTitle = generateChartTitle(contextDescription);
+        String contextDescription = chartFactory.getContextDescription(chartContext);  // Method or field that provides the context
 
-        // Initialize and configure the bar chart include its title
-        BarChart<String, Number> barChart = createBarChart(chartTitle);
+        // Use the ChartFactory to create and configure the bar chart
+        BarChart<String, Number> barChart = chartFactory.createBarChart(contextDescription);
 
-        // Prepare the data series
-        XYChart.Series<String, Number> data = new XYChart.Series<>();
-        data.setName("Product Sold");
-
-        // Provide static data for the chart
-        data.getData().add(new XYChart.Data<>("Product A", 3000));
-        data.getData().add(new XYChart.Data<>("Product B", 1500));
-        data.getData().add(new XYChart.Data<>("Product C", 500));
-
-        // Add data to the bar chart
-        barChart.getData().add(data);
-
-        // Add the bar chart to the BorderPane
-        ChartBorderPane.setCenter(barChart);
+        // Populate the bar chart with data
+        chartFactory.populateBarChart(barChart, ChartBorderPane);
     }
 
     public void handleShowPieChart(ActionEvent actionEvent) {
@@ -182,5 +121,13 @@ public class ReportsScreenController implements ClientDependent, Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+    }
+
+    public Object getChartContext() {
+        return chartContext;
+    }
+
+    public void setChartContext(Object chartContext) {
+        this.chartContext = chartContext;
     }
 }
