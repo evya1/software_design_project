@@ -6,15 +6,15 @@ import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Payment;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -29,6 +29,7 @@ import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.BOOK
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PACKAGE_POP_UP_MESSAGE;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
+import static il.cshaifasweng.OCSFMediatorExample.client.Utility.Dialogs.popUpAndReturnToMainScreen;
 
 
 public class PurchaseController implements ClientDependent {
@@ -109,25 +110,6 @@ public class PurchaseController implements ClientDependent {
     public void initialize() {
 
         EventBus.getDefault().register(this);
-
-        privateName.setText("Private Name:");
-        privateNameField.setPromptText("Enter Private Name");
-        lastName.setText("Last Name:");
-        surnameNameField.setPromptText("Enter Last Name");
-        id.setText("ID:");
-        idNumberField.setPromptText("Enter 9 Digits ID");
-        cardNumber.setText("Card Number:");
-        cardNumField.setPromptText("Enter 14 Digits Number");
-        cvv.setText("CVV:");
-        cvvField.setPromptText("Enter CVV");
-        email.setText("Email:");
-        emailField.setPromptText("Enter Email Address");
-        expireDate.setText("Expire Date:");
-        expireField.setPromptText("Enter Date (MM/YY)");
-
-
-        confirmPurchaseBtn.setOnAction(event -> confirmBtnControl(event));
-        returnBtn.setOnAction(event -> returnBtnControl(event));
     }
 
     @Subscribe
@@ -140,39 +122,25 @@ public class PurchaseController implements ClientDependent {
                 if (message.getPurchase() != null) {
                     Purchase purchase = message.getPurchase();
                     System.out.println("Purchase received: " + purchase);
-                    System.out.println(purchase.getPurchaseType().toString());
-                    switch (purchase.getPurchaseType().toString()) {
-                        case "Booklet":
-                            loadBookletPopupScreen();
+                    final String title = "Purchase Confirmed!";
+                    switch (purchase.getPurchaseType()) {
+                        case BOOKLET:
+                            popUpAndReturnToMainScreen(client, returnBtn,title,"Booklet Purchased Successfully!");
                             break;
-                        case "Movie Link":
-                            loadPackagePopupScreen();
+                        case MOVIE_LINK:
+                            popUpAndReturnToMainScreen(client,returnBtn,title,"Movie Link Purchased Successfully!");
                             break;
+                        case MOVIE_TICKET:
+                            popUpAndReturnToMainScreen(client,returnBtn,title,"Movie Ticket Purchased Successfully!");
+                            break;
+                        default:
+                            System.out.println("Unknown Command");
                     }
                 }
             });
 
         } else {
             System.out.println("Invalid event data or not a Purchase instance");
-        }
-    }
-
-    private void loadBookletPopupScreen() {
-        Stage newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
-        if (newStage != null) {
-            Stage stage = new Stage();
-            client.moveScene(BOOKLET_POP_UP_MESSAGE, stage, null);
-            newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
-            client.moveScene(PRIMARY_SCREEN, newStage, null);
-        }
-    }
-    private void loadPackagePopupScreen() {
-        Stage newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
-        if (newStage != null) {
-            Stage stage = new Stage();
-            client.moveScene(PACKAGE_POP_UP_MESSAGE, stage, null);
-            newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
-            client.moveScene(PRIMARY_SCREEN, newStage, null);
         }
     }
 
@@ -202,7 +170,6 @@ public class PurchaseController implements ClientDependent {
         message.setMessage(localMessage.getMessage());
         message.setSpecificMovie(localMessage.getSpecificMovie());
 
-        System.out.println("localMessage:+ " + message.getMessage());
         if(flag == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");
 

@@ -1,12 +1,17 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.movieDetails;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Seat;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "movieslot")
@@ -15,23 +20,25 @@ public class MovieSlot implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "theater_id")
     private Theater theater;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "branch_id")
     private Branch branch;
+
+    @OneToMany(mappedBy = "movieSlot", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<Seat> seatList;
 
     private String movieTitle;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
-
-
 
     public MovieSlot() {}
 
@@ -72,9 +79,14 @@ public class MovieSlot implements Serializable {
     }
 
     public void setMovie(Movie movie) {
-        this.movie = movie;
-        this.movieTitle = movie.getMovieName();
+        if (movie == null) {
+            this.movie = null;
+        } else {
+            this.movie = movie;
+            this.movieTitle = movie.getMovieName();
+        }
     }
+
 
     public String getMovieTitle() {
         return movieTitle;
@@ -116,5 +128,13 @@ public class MovieSlot implements Serializable {
                 ", startDateTime=" + startDateTime.format(formatter) +
                 ", endDateTime=" + endDateTime.format(formatter) +
                 '}';
+    }
+
+    public List<Seat> getSeatList() {
+        return seatList;
+    }
+
+    public void setSeatList(List<Seat> seatList) {
+        this.seatList = seatList;
     }
 }

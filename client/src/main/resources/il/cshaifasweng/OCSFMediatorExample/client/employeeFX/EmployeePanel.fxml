@@ -49,17 +49,17 @@
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
-                        <Button fx:id="changePriceBtn" layoutX="43.0" layoutY="340.0" mnemonicParsing="false" onAction="#changePriceAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Change Price" textFill="WHITE">
+                        <Button fx:id="changePriceBtn" layoutX="43.0" layoutY="200.0" mnemonicParsing="false" onAction="#changePriceAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Change Price" textFill="WHITE">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
-                  <Button fx:id="showComplaintsBtn" layoutX="43.0" layoutY="410.0" mnemonicParsing="false" onAction="#showComplaints" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Show Complaints" textFill="WHITE">
+                  <Button fx:id="showComplaintsBtn" layoutX="44.0" layoutY="130.0" mnemonicParsing="false" onAction="#showComplaints" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Show Complaints" textFill="WHITE">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
-                  <Button fx:id="changeContentBtn" layoutX="43.0" layoutY="270.0" mnemonicParsing="false" onAction="#changeContent" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Change Content" textFill="WHITE">
+                  <Button fx:id="changeContentBtn" layoutX="43.0" layoutY="130.0" mnemonicParsing="false" onAction="#changeContent" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Change Content" textFill="WHITE">
                      <styleClass>
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
@@ -69,6 +69,12 @@
                         <String fx:value="rounded-corners" />
                         <String fx:value="hover-button" />
                      </styleClass></Button>
+                  <Button fx:id="stampBookletBtn" layoutX="43.0" layoutY="130.0" mnemonicParsing="false" onAction="#stampBookletAction" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Stamp Booklet" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
+                  </Button>
                     </children>
                 </AnchorPane>
             </left>
@@ -85,10 +91,14 @@
                                 <Image url="@../catalogM/logo.png" />
                             </image>
                         </ImageView>
-                  <Button fx:id="logINBtn" layoutX="642.0" layoutY="113.0" mnemonicParsing="false" onAction="#logIn" prefHeight="36.0" prefWidth="116.0" styleClass="rounded-corners" stylesheets="@../catalogM/styleColor.css" text="Sign in">
+                  <Button fx:id="logINBtn" layoutX="642.0" layoutY="113.0" mnemonicParsing="false" onAction="#logIn" prefHeight="36.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Sign in">
                      <font>
                         <Font size="22.0" />
                      </font>
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
                   </Button>
                   <Button fx:id="logOUTBtn" layoutX="642.0" layoutY="113.0" mnemonicParsing="false" onAction="#logOut" prefHeight="36.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Sign out" textFill="WHITE">
                      <font>
