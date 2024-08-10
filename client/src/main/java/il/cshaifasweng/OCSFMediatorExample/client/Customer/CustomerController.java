@@ -44,7 +44,7 @@ public class CustomerController implements ClientDependent {
     private Message localMessage;
     private boolean connectedFlag = false;
     private Customer localCustomer;
-    private List<InboxMessage> customerMessages;
+    private List<MovieLink> movieLinks;
 
     @FXML
     private Button homeScreenBtn;
@@ -363,6 +363,9 @@ public class CustomerController implements ClientDependent {
                 Platform.runLater(()->{
                     System.out.println("Entered The customer messages");
                     localCustomer.setInboxMessages(message.getCustomerMessages());
+                    tableViewInbox.getItems().clear();
+                    tableViewInbox.getItems().addAll(message.getCustomerMessages());
+                    tableViewInbox.refresh();
                 });
 
             } else if (message.getData().equals(GET_CUSTOMER_ID)) {
@@ -370,6 +373,23 @@ public class CustomerController implements ClientDependent {
                     String displayMessage = "Customer wasn't found";
                     if (message.getCustomer() != null) {
                         localCustomer = message.getCustomer();
+
+                        try{
+                            // Extract movie links from purchases
+                             movieLinks = localCustomer.getPurchases().stream()
+                                    .map(Purchase::getPurchasedMovieLink)
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList());
+                        }
+                        catch (Exception e){
+                            System.out.println("Customer has no movie links");
+                        }
+                        if(movieLinks != null){
+                            this.expiredLinkChecker = new ExpiredLinkChecker(client, localCustomer.getId(), movieLinks, this);
+                            expiredLinkCheckerThread = new Thread(expiredLinkChecker);
+                            expiredLinkCheckerThread.start();
+                        }
+
                         displayMessage = message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName();
                         welcomeLabel.setText("Welcome " + message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName() + " Choose the information you wish to view from the side menu");
                         loggedInButtons();
@@ -768,19 +788,10 @@ public class CustomerController implements ClientDependent {
                 SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Movie Tickets", "There are no movie tickets to display.");
             }
 
-            // Extract movie links from purchases
-            List<MovieLink> movieLinks = localCustomer.getPurchases().stream()
-                    .map(Purchase::getPurchasedMovieLink)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
             if (!movieLinks.isEmpty()) {
                 moviePackageTableView.getItems().clear(); // Clear existing items
                 moviePackageTableView.getItems().addAll(movieLinks); // Add new items
                 moviePackageTableView.refresh(); // Refresh the table view to display new data
-                this.expiredLinkChecker = new ExpiredLinkChecker(client, localCustomer.getId(), movieLinks, this);
-                expiredLinkCheckerThread = new Thread(expiredLinkChecker);
-                expiredLinkCheckerThread.start();
             } else if (viewingPackageTilePane.isExpanded() && movieLinks.isEmpty()) {
                 SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Movie Packages", "There are no movie packages to display.");
             }
@@ -819,10 +830,7 @@ public class CustomerController implements ClientDependent {
         // Assuming messages are fetched and stored in the localCustomer object correctly
         if (localCustomer.getInboxMessages() != null && !localCustomer.getInboxMessages().isEmpty()) {
             List<InboxMessage> messages = localCustomer.getInboxMessages();
-            ObservableList<InboxMessage> inboxMessages = FXCollections.observableArrayList(messages);
-
-            // Assuming the tableViewInbox has been set up with the appropriate columns
-            tableViewInbox.setItems(inboxMessages);
+            tableViewInbox.getItems().addAll(messages);
         } else {
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Messages", "Your inbox is empty.");
         }
