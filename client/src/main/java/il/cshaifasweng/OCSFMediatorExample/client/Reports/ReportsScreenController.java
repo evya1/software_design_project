@@ -46,4 +46,7 @@ public class ReportsScreenController implements ClientDependent {
         this.localMessage = message;
         this.previousScreen = message.getSourceFXML();  // Store the previous screen's FXML path
     }
+
+    public void handleNewBtn(ActionEvent actionEvent) {
+    }
 }

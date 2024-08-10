@@ -1,0 +1,10 @@
+@import url("../catalogM/style.css");
+@import url("../catalogM/styleColor.css");
+
+.button {
+    -fx-alignment: center;
+    -fx-pref-width: auto;
+    -fx-text-fill: black;
+    -fx-font-size: 22.0;
+    -fx-padding: 10.0 16.8;
+}
