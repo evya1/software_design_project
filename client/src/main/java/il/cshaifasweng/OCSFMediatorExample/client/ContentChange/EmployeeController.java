@@ -1,7 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.ContentChange;
 
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
-import il.cshaifasweng.OCSFMediatorExample.client.FXMLUtils;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
@@ -14,7 +13,6 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -76,7 +74,6 @@ public class EmployeeController implements ClientDependent {
     @FXML
     private Button logOUTBtn;
 
-    //
     private Message localMessage;
     private SimpleClient client;
     private Employee employee;
@@ -98,8 +95,12 @@ public class EmployeeController implements ClientDependent {
         changeContentBtn.setDisable(true);
         confirmChangeBtn.setDisable(true);
         complaintsListView.setVisible(false);
-        Message message = new Message();
 
+        // Check if an employee is already logged in
+        // This should come before creating new Message objects to ensure the UI reflects the login status.
+        checkEmployeeLoginStatus();
+
+        Message message = new Message();
         message.setMessage("get prices");
         message.setData("show all prices");
         client.sendMessage(message);
@@ -509,9 +510,8 @@ public class EmployeeController implements ClientDependent {
             message.setMessage("View Reports Button Clicked");
             message.setSourceFXML(EMPLOYEE_SCREEN);
             message.setEmployee(employee);
-            client.moveScene(REPORTS_SCREEN,stage,message);
+            client.moveScene(REPORTS_SCREEN, stage, message);
             EventBus.getDefault().unregister(this);
-            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -523,5 +523,61 @@ public class EmployeeController implements ClientDependent {
 
     public void setMessage(Message message) {
         this.localMessage = message;
+        if (message != null && message.getEmployee() != null) {
+            this.employee = message.getEmployee();
+        }
+    }
+
+    /**
+     * Checks if an employee is logged in and updates the UI.
+     * <p>
+     * If the {@link Employee} is not null and active, this method adjusts the visibility
+     * of the login/logout buttons, disables the home screen button, and enables UI elements
+     * based on the employee's type.
+     * </p>
+     * <p>
+     * Call this method before creating new messages in {@code initialize()} to ensure
+     * the UI reflects the current login state.
+     * </p>
+     */
+    protected void checkEmployeeLoginStatus() {
+        if (employee != null && employee.isActive()) {
+            logINBtn.setVisible(false);
+            logOUTBtn.setVisible(true);
+            homeScreenBtn.setDisable(true);
+            enableButtonsAccordingToEmployeeType(employee.getEmployeeType());
+        }
+    }
+
+    public Button getLogINBtn() {
+        return logINBtn;
+    }
+
+    public void setLogINBtn(Button logINBtn) {
+        this.logINBtn = logINBtn;
+    }
+
+    public Button getLogOUTBtn() {
+        return logOUTBtn;
+    }
+
+    public void setLogOUTBtn(Button logOUTBtn) {
+        this.logOUTBtn = logOUTBtn;
+    }
+
+    public Button getHomeScreenBtn() {
+        return homeScreenBtn;
+    }
+
+    public void setHomeScreenBtn(Button homeScreenBtn) {
+        this.homeScreenBtn = homeScreenBtn;
+    }
+
+    public Button getShowReportsBtn() {
+        return showReportsBtn;
+    }
+
+    public void setShowReportsBtn(Button showReportsBtn) {
+        this.showReportsBtn = showReportsBtn;
     }
 }
