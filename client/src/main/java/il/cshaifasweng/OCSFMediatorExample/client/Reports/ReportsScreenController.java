@@ -104,27 +104,21 @@ public class ReportsScreenController implements ClientDependent, Initializable {
         chartFactory.populateBarChart(barChart, chartBorderPane);
     }
 
+    @FXML
     public void handleShowPieChart(ActionEvent actionEvent) {
 
-        // CREATE DATA
-        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
-                new PieChart.Data("Product A", 3000),
-                new PieChart.Data("Product B", 1500),
-                new PieChart.Data("Product c", 300)
-        );
+        // Retrieve context description (e.g., branch name, all locations) from an external source
+        String contextDescription = chartFactory.getContextDescription(chartContext);
 
-        // Create Pie Chart Obj
-        PieChart pieChart = new PieChart(pieChartData);
-        pieChart.setTitle("Products Sold");
-        pieChart.setClockwise(true);
-        pieChart.setLabelLineLength(PIE_CHART_LABEL_LINE_LENGTH);
-        pieChart.setStartAngle(PIE_CHART_START_ANGLE);
-        pieChart.setLabelsVisible(true);
-        pieChart.setLegendVisible(false);
-        pieChart.setAnimated(false);
-        pieChart.setPrefSize(800, 600);
+        // Create data for the PieChart
+        ObservableList<PieChart.Data> pieChartData = chartFactory.createPieChartData();
 
-        chartBorderPane.setCenter(pieChart);
+        // Use the ChartFactory to create and configure the PieChart
+        PieChart pieChart = chartFactory.createPieChart(pieChartData, contextDescription);
+
+        // Populate the PieChart and display it in the BorderPane
+        chartFactory.populatePieChart(pieChart, chartBorderPane);
+
     }
 
     public void handleCloseBtn(ActionEvent actionEvent) {

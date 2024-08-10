@@ -1,12 +1,14 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.chart.*;
 import javafx.scene.layout.BorderPane;
 
 public class ChartFactory {
+
+    public static final int PIE_CHART_LABEL_LINE_LENGTH = 50;
+    public static final int PIE_CHART_START_ANGLE = 180;
 
     /**
      * Retrieves the context description for the chart title based on the provided parameter.
@@ -44,6 +46,19 @@ public class ChartFactory {
     }
 
     /**
+     * Creates data for the PieChart.
+     *
+     * @return an ObservableList of PieChart.Data to be used in the PieChart.
+     */
+    public ObservableList<PieChart.Data> createPieChartData() {
+        return FXCollections.observableArrayList(
+                new PieChart.Data("Product A", 3000),
+                new PieChart.Data("Product B", 1500),
+                new PieChart.Data("Product C", 300)
+        );
+    }
+
+    /**
      * Creates and configures a BarChart based on the provided context description.
      * The chart is customized with appropriate labels, title, and appearance settings.
      *
@@ -74,6 +89,27 @@ public class ChartFactory {
     }
 
     /**
+     * Creates and configures a PieChart based on the provided data.
+     * The chart is customized with appropriate labels, title, and appearance settings.
+     *
+     * @param data the data to be displayed in the PieChart.
+     * @param title the title of the chart.
+     * @return a fully configured PieChart instance.
+     */
+    public PieChart createPieChart(ObservableList<PieChart.Data> data, String title) {
+        PieChart pieChart = new PieChart(data);
+        pieChart.setTitle(title);
+        pieChart.setClockwise(true);
+        pieChart.setLabelLineLength(PIE_CHART_LABEL_LINE_LENGTH);
+        pieChart.setStartAngle(PIE_CHART_START_ANGLE);
+        pieChart.setLabelsVisible(true);
+        pieChart.setLegendVisible(false);
+        pieChart.setAnimated(false);
+        pieChart.setPrefSize(800, 600);
+        return pieChart;
+    }
+
+    /**
      * Populates the BarChart with static data and adds it to the provided BorderPane.
      * This method handles the addition of data series to the chart and integrates the chart into the UI.
      *
@@ -97,4 +133,15 @@ public class ChartFactory {
         // Add the bar chart to the BorderPane
         chartBorderPane.setCenter(barChart);
     }
+
+    /**
+     * Populates the PieChart with static data and adds it to the provided BorderPane.
+     *
+     * @param pieChart the PieChart to which data will be added.
+     * @param chartBorderPane the BorderPane where the chart will be displayed.
+     */
+    public void populatePieChart(PieChart pieChart, BorderPane chartBorderPane) {
+        chartBorderPane.setCenter(pieChart);
+    }
+
 }
