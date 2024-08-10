@@ -3,23 +3,17 @@ package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.PieChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
@@ -87,48 +81,35 @@ public class ReportsScreenController implements ClientDependent, Initializable {
     }
 
     /**
-     * Displays a bar chart on the report screen based on the current context.
-     * The chart is configured and populated using the provided context and displayed in the UI.
+     * Handles the action event to display a BarChart in the UI.
+     * <p>
+     * This method retrieves the context description based on the current chart context (e.g., branch name or all locations)
+     * and uses the ChartFactory to create, configure, and display the BarChart in the specified BorderPane.
+     * </p>
      *
-     * @param actionEvent the event that triggers the bar chart display.
+     * @param actionEvent The action event triggered by user interaction, such as clicking a button.
      */
+    @FXML
     public void handleShowBarChart(ActionEvent actionEvent) {
-
-        // Retrieve context description (e.g., branch name, all locations) from an external source
-        String contextDescription = chartFactory.getContextDescription(chartContext);  // Method or field that provides the context
-
-        // Create generic data for the charts
-        List<Pair<String, Double>> genericData = chartFactory.createGenericChartData();
-
-        // Convert generic data to BarChart data
-        ObservableList<XYChart.Data<String, Number>> barChartData = chartFactory.convertToBarChartData(genericData);
-
-        // Use the ChartFactory to create and configure the bar chart
-        BarChart<String, Number> barChart = chartFactory.createBarChart(barChartData, contextDescription);
-
-        // Populate the bar chart with data
-        chartFactory.populateBarChart(barChart, chartBorderPane);
+        String contextDescription = chartFactory.getContextDescription(chartContext);
+        chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
     }
 
+    /**
+     * Handles the action event to display a PieChart in the UI.
+     * <p>
+     * This method retrieves the context description based on the current chart context (e.g., branch name or all locations)
+     * and uses the ChartFactory to create, configure, and display the PieChart in the specified BorderPane.
+     * </p>
+     *
+     * @param actionEvent The action event triggered by user interaction, such as clicking a button.
+     */
     @FXML
     public void handleShowPieChart(ActionEvent actionEvent) {
-
-        // Retrieve context description (e.g., branch name, all locations) from an external source
         String contextDescription = chartFactory.getContextDescription(chartContext);
-
-        // Create generic data for the charts
-        List<Pair<String, Double>> genericData = chartFactory.createGenericChartData();
-
-        // Convert generic data to PieChart data
-        ObservableList<PieChart.Data> pieChartData = chartFactory.convertToPieChartData(genericData);
-
-        // Use the ChartFactory to create and configure the PieChart
-        PieChart pieChart = chartFactory.createPieChart(pieChartData, contextDescription);
-
-        // Populate the PieChart and display it in the BorderPane
-        chartFactory.populatePieChart(pieChart, chartBorderPane);
-
+        chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
     }
+
 
     public void handleCloseBtn(ActionEvent actionEvent) {
     }
