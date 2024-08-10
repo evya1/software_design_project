@@ -9,6 +9,8 @@ public class ChartFactory {
 
     public static final int PIE_CHART_LABEL_LINE_LENGTH = 50;
     public static final int PIE_CHART_START_ANGLE = 180;
+    public static final int CHART_PREF_WIDTH = 800;
+    public static final int CHART_PREF_HEIGHT = 600;
 
     /**
      * Retrieves the context description for the chart title based on the provided parameter.
@@ -17,13 +19,9 @@ public class ChartFactory {
      * @return the context description as a String.
      */
     public String getContextDescription(Object contextParameter) {
-
-        // Example: Logic to determine context description based on the parameter
         if (contextParameter == null) {
             return "All Branches";
         }
-
-        // Example usage could be String, Integer, or any other type in the future
         return contextParameter.toString();
     }
 
@@ -82,32 +80,39 @@ public class ChartFactory {
         // Customize the appearance and behavior of the bar chart
         barChart.setLegendVisible(false);  // Hide the legend, since it's not needed for this chart.
         barChart.setAnimated(false);       // Disable animations for a static display of the chart.
-        barChart.setPrefWidth(800);
-        barChart.setPrefHeight(600);
+        barChart.setPrefWidth(CHART_PREF_WIDTH);
+        barChart.setPrefHeight(CHART_PREF_HEIGHT);
 
         return barChart;
     }
 
     /**
-     * Creates and configures a PieChart based on the provided data.
+     * Creates and configures a PieChart based on the provided context description.
      * The chart is customized with appropriate labels, title, and appearance settings.
      *
-     * @param data the data to be displayed in the PieChart.
-     * @param title the title of the chart.
+     * @param data               the data to be displayed in the PieChart.
+     * @param contextDescription the context for which the chart is created (e.g., branch name, all locations).
      * @return a fully configured PieChart instance.
      */
-    public PieChart createPieChart(ObservableList<PieChart.Data> data, String title) {
+    public PieChart createPieChart(ObservableList<PieChart.Data> data, String contextDescription) {
+        String chartTitle = generateTitle(contextDescription);
+
+        // Create and configure the pie chart with data and title
         PieChart pieChart = new PieChart(data);
-        pieChart.setTitle(title);
+        pieChart.setTitle(chartTitle);
+
+        // Customize the appearance and behavior of the pie chart
         pieChart.setClockwise(true);
         pieChart.setLabelLineLength(PIE_CHART_LABEL_LINE_LENGTH);
         pieChart.setStartAngle(PIE_CHART_START_ANGLE);
         pieChart.setLabelsVisible(true);
-        pieChart.setLegendVisible(false);
-        pieChart.setAnimated(false);
-        pieChart.setPrefSize(800, 600);
+        pieChart.setLegendVisible(false);  // Hide the legend, since it's not needed for this chart.
+        pieChart.setAnimated(false);       // Disable animations for a static display of the chart.
+        pieChart.setPrefSize(CHART_PREF_WIDTH, CHART_PREF_HEIGHT);
+
         return pieChart;
     }
+
 
     /**
      * Populates the BarChart with static data and adds it to the provided BorderPane.
@@ -117,7 +122,6 @@ public class ChartFactory {
      * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
     public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane) {
-
         // Prepare the data series
         XYChart.Series<String, Number> dataSeries = new XYChart.Series<>();
         dataSeries.setName("Product Sold");
@@ -137,7 +141,7 @@ public class ChartFactory {
     /**
      * Populates the PieChart with static data and adds it to the provided BorderPane.
      *
-     * @param pieChart the PieChart to which data will be added.
+     * @param pieChart        the PieChart to which data will be added.
      * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
     public void populatePieChart(PieChart pieChart, BorderPane chartBorderPane) {
