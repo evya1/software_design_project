@@ -46,7 +46,7 @@ public class ExpiredLinksChecker implements Runnable {
                 tx.commit();
 
                 //This will erase all expired links every 30 seconds
-                Thread.sleep(30000);
+                Thread.sleep(2000);
             } catch (Exception e) {
                 if (tx != null) {
                     tx.rollback();

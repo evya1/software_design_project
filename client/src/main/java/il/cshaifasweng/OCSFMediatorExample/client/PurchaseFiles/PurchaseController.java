@@ -158,16 +158,22 @@ public class PurchaseController implements ClientDependent {
     }
 
     private void loadBookletPopupScreen() {
-        Stage stage = new Stage();
-        client.moveScene(BOOKLET_POP_UP_MESSAGE,stage,null);
         Stage newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
-        client.moveScene(PRIMARY_SCREEN,newStage,null);
+        if (newStage != null) {
+            Stage stage = new Stage();
+            client.moveScene(BOOKLET_POP_UP_MESSAGE, stage, null);
+            newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
+            client.moveScene(PRIMARY_SCREEN, newStage, null);
+        }
     }
     private void loadPackagePopupScreen() {
-        Stage stage = new Stage();
-        client.moveScene(PACKAGE_POP_UP_MESSAGE,stage,null);
         Stage newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
-        client.moveScene(PRIMARY_SCREEN,newStage,null);
+        if (newStage != null) {
+            Stage stage = new Stage();
+            client.moveScene(PACKAGE_POP_UP_MESSAGE, stage, null);
+            newStage = (Stage) confirmPurchaseBtn.getScene().getWindow();
+            client.moveScene(PRIMARY_SCREEN, newStage, null);
+        }
     }
 
 

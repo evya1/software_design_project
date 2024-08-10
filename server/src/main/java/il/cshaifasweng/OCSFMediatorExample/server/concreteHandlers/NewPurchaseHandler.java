@@ -121,6 +121,7 @@ public class NewPurchaseHandler implements RequestHandler {
     private void setPurchaseEntity(Purchase purchase, PurchaseType purchaseType, Session session, Message message) {
         switch (purchaseType) {
             case BOOKLET:
+                System.out.println("Booklet Purchase Call Received");
                 Booklet booklet = new Booklet();
                 session.save(booklet);
                 purchase.setPurchasedBooklet(booklet);
@@ -165,7 +166,7 @@ public class NewPurchaseHandler implements RequestHandler {
 
                 movieLink.setCreationTime(currentTime);
                 //movieLink.setExpirationTime(currentTime.plusHours(24));
-                movieLink.setExpirationTime(currentTime.plusMinutes(65));
+                movieLink.setExpirationTime(currentTime.plusMinutes(1));
                 movieLink.setMovieName(movieName);
                 movieLink.setMovieLink(newLink);
                 movieLink.setId(message.getSpecificMovie().getId());

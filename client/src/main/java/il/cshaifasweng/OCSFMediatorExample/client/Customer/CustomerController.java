@@ -288,7 +288,6 @@ public class CustomerController implements ClientDependent {
         // Active column
         activeMovieLinkCol.setCellValueFactory(cellData -> {
             MovieLink movieLink = cellData.getValue();
-            LocalDateTime activationTime = movieLink.getCreationTime();
             String activeStatus = movieLink.isActive()? "Active" : "Inactive";
             return new ReadOnlyStringWrapper(activeStatus);
         });
@@ -778,10 +777,10 @@ public class CustomerController implements ClientDependent {
         }
     }
 
-    public void expiredLink(){
+    public void expiredLink(MovieLink movieLink){
         Platform.runLater(() -> {
             showAlert("Expiration Alert","A link has expired. Please log in again to view your purchases.");
-            initialize();
+            // TODO: Needs to update the current window the the movieLink to be inactive, its already set in the movieLink object itself as inactive.
         });
     }
 

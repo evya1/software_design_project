@@ -49,9 +49,8 @@ public class ExpiredLinkChecker implements Runnable {
                         long delay = Duration.between(now, expirationTime).toMillis();
 
                         if (delay < 0) {
-                            System.out.println("I'm in");
                             movieLink.setInactive();
-                            customerController.expiredLink();
+                            customerController.expiredLink(movieLink);
                         }
                     }
                 }
