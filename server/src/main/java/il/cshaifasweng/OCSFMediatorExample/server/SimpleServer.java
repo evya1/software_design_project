@@ -23,9 +23,11 @@ public class SimpleServer extends AbstractServer {
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
         Message message = (Message) msg;
         String request = message.getMessage();
+        System.out.println(message.getMessage());
+        System.out.println("Request: " + request);
         try {
             RequestHandler handler = handlerFactory.getHandlerForRequest(request);
-
+            System.out.println("Inside try request: " + request);
             if (handler != null) {
                 System.out.println("LOG: new message received from client " + message.getMessage());
                 handler.handle(message, client);

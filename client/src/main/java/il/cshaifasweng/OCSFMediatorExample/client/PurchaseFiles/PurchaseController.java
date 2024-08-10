@@ -22,6 +22,12 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
+
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.BOOKLET_POP_UP_MESSAGE;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PACKAGE_POP_UP_MESSAGE;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
 import static il.cshaifasweng.OCSFMediatorExample.client.Utility.Dialogs.popUpAndReturnToMainScreen;
 
@@ -162,6 +168,7 @@ public class PurchaseController implements ClientDependent {
 
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
+        message.setSpecificMovie(localMessage.getSpecificMovie());
 
         if(flag == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");

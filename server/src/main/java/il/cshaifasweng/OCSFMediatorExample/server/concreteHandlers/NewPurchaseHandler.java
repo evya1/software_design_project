@@ -12,7 +12,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class NewPurchaseHandler implements RequestHandler {
 
@@ -30,8 +32,9 @@ public class NewPurchaseHandler implements RequestHandler {
             // Checking if the request is to create a new purchase.
             if ("New Booklet".equals(message.getMessage().toString())) {
                 handleNewPurchase(message, PurchaseType.BOOKLET, session,price);
-            } else if ("New MovieLink".equals(message.getMessage().toString())) {
+            } else if ("New Movielink".equals(message.getMessage().toString())) {
                 handleNewPurchase(message, PurchaseType.MOVIE_LINK, session,price);
+
             } else if ("New Movie Ticket".equals(message.getMessage().toString())) {
                 handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session,price);
             }
@@ -71,6 +74,7 @@ public class NewPurchaseHandler implements RequestHandler {
                 System.out.println("Customer exists with ID: " + existingCustomer.getId());
                 purchase.setCustomer(existingCustomer);
                 purchase.setCustomerPID(existingCustomer.getPersonalID());
+                purchase.setDateOfPurchase(LocalDateTime.now());
                 existingCustomer.getPurchases().add(purchase);
                 inboxMessage.setCustomer(existingCustomer);
                 existingCustomer.getInboxMessages().add(inboxMessage);
@@ -92,7 +96,7 @@ public class NewPurchaseHandler implements RequestHandler {
                 System.out.println("Successfully created new customer.");
             }
             message.setPurchase(purchase);
-            setPurchaseEntity(purchase, purchaseType, session);
+            setPurchaseEntity(purchase, purchaseType, session, message);
             session.update(purchase); // Update the purchase with the correct entity
 
             // Log for checking IDs
@@ -114,18 +118,65 @@ public class NewPurchaseHandler implements RequestHandler {
         }
     }
 
-    private void setPurchaseEntity(Purchase purchase, PurchaseType purchaseType, Session session) {
+    private void setPurchaseEntity(Purchase purchase, PurchaseType purchaseType, Session session, Message message) {
         switch (purchaseType) {
             case BOOKLET:
+                System.out.println("Booklet Purchase Call Received");
                 Booklet booklet = new Booklet();
                 session.save(booklet);
                 purchase.setPurchasedBooklet(booklet);
                 break;
             case MOVIE_LINK:
                 MovieLink movieLink = new MovieLink();
+                LocalDateTime currentTime = LocalDateTime.now();
+                String movieName = String.valueOf(message.getSpecificMovie());
+
+                //Generating movie link, securely making a random string for the link and making sure there are no duplicates
+                SecureRandom random = new SecureRandom();
+                String hql = "FROM MovieLink";
+                List<MovieLink> movieLinks = session.createQuery(hql, MovieLink.class).list();
+                int flag = 0;
+                String randomString = "";
+                String newLink = "";
+
+                while (true) {
+                    //Making a secure random string of hexadecimal string
+                    byte[] bytes = new byte[16 / 2];
+                    random.nextBytes(bytes);
+                    StringBuilder hexString = new StringBuilder();
+                    for (byte b : bytes) {
+                        hexString.append(String.format("%02x", b));
+                    }
+                    randomString = hexString.toString();
+
+                    newLink = "http://example.com/" + movieName + "/" + randomString;
+
+                    for (MovieLink link : movieLinks) {
+                        System.out.println("MovieLink ID: " + link.getId() + ", Link: " + link.getMovieLink());
+                        if (link.getMovieLink() == newLink) {
+                            flag = 1;
+                            break;
+                        }
+                    }
+                    if (flag==0){
+                        break;
+                    }
+                    flag = 0;
+                }
+
+                movieLink.setCreationTime(currentTime);
+                //movieLink.setExpirationTime(currentTime.plusDays(1));
+                movieLink.setExpirationTime(currentTime.plusMinutes(1));
+                movieLink.setCustomer_id(purchase.getCustomer().getId());
+                movieLink.setMovieName(movieName);
+                movieLink.setMovieLink(newLink);
+                Movie movie = session.get(Movie.class, message.getSpecificMovie().getId());
+                movieLink.setMovie(movie);
+
                 session.save(movieLink);
                 purchase.setPurchasedMovieLink(movieLink);
                 break;
+
             case MOVIE_TICKET:
                 MovieTicket movieTicket = new MovieTicket();
                 session.save(movieTicket);

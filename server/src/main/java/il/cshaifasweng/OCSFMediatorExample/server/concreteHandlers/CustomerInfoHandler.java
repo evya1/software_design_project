@@ -10,8 +10,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.io.IOException;
+import java.util.List;
 
-import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_CUSTOMER_ID;
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
 
 public class CustomerInfoHandler implements RequestHandler {
     Session session;

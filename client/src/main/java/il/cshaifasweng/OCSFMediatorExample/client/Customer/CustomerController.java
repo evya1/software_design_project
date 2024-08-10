@@ -160,6 +160,9 @@ public class CustomerController implements ClientDependent {
     @FXML
     private TableColumn<MovieTicket, Boolean> cancelledMovieTicketCol;
 
+    private Thread expiredLinkCheckerThread;
+
+    private ExpiredLinkChecker expiredLinkChecker;
     @FXML
     private Button inboxBtn;
 
@@ -285,8 +288,7 @@ public class CustomerController implements ClientDependent {
         // Active column
         activeMovieLinkCol.setCellValueFactory(cellData -> {
             MovieLink movieLink = cellData.getValue();
-            LocalDateTime activationTime = movieLink.getCreationTime();
-            String activeStatus = (activationTime.plusHours(24).isAfter(LocalDateTime.now())) ? "Active" : "Inactive";
+            String activeStatus = movieLink.isActive()? "Active" : "Inactive";
             return new ReadOnlyStringWrapper(activeStatus);
         });
         cancelledMovieLinkCol.setCellValueFactory(cellData -> {
@@ -351,7 +353,8 @@ public class CustomerController implements ClientDependent {
     @Subscribe
     public void dataReceived(MessageEvent event) {
         Message message = event.getMessage();
-
+        System.out.println(message.getMessage());
+        System.out.println(message.getData());
         if(message.getMessage().equals(GET_CUSTOMER_INFO)){
             Platform.runLater(() -> {
                 String displayMessage = "Customer wasn't found";
@@ -367,9 +370,9 @@ public class CustomerController implements ClientDependent {
                 }
             });
         }
-        if(message.getMessage().equals(UPDATE_PURCHASE)){
-            Platform.runLater(()->{
-                showAlert("Purchase Cancellation","The Purchase was cancelled successfully.");
+        if(message.getMessage().equals(UPDATE_PURCHASE)) {
+            Platform.runLater(() -> {
+                showAlert("Purchase Cancellation", "The Purchase was cancelled successfully.");
                 System.out.println("Enetered");
             });
 
@@ -399,6 +402,7 @@ public class CustomerController implements ClientDependent {
     void loginLogoutAction(ActionEvent event) {
         if (connectedFlag) {
             loggedOutButtons();
+            expiredLinkChecker.stopChecker();
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Logged out", "Logged out successfully.");
 
             // Perform logout
@@ -453,6 +457,7 @@ public class CustomerController implements ClientDependent {
         });
     }
 
+    //TODO: check why it doesn't update the database and also why the clearing isn't working
     @FXML
     void cancelAction(ActionEvent event) {
         MovieTicket selectedMovieTicket = movieTicketTableView.getSelectionModel().getSelectedItem();
@@ -493,8 +498,10 @@ public class CustomerController implements ClientDependent {
                 return;
             }
 
-            LocalDateTime startTime = selectedMovieLink.getCreationTime();
+            LocalDateTime startTime = selectedMovieLink.getExpirationTime();
             LocalDateTime now = LocalDateTime.now();
+            System.out.println(now);
+            System.out.println(startTime);
             if (now.isBefore(startTime)) {
                 if (now.plusHours(1).isBefore(startTime)) {
                     showConfirmationPopup("50% refund", null, selectedMovieLink);
@@ -569,6 +576,8 @@ public class CustomerController implements ClientDependent {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+
 
     private void loggedInButtons(){
         connectedFlag = true;
@@ -690,6 +699,9 @@ public class CustomerController implements ClientDependent {
 
     @FXML
     void viewPurchasesAction(ActionEvent event) {
+        // Disable and hide the complaints table
+        tableViewComplaints.setDisable(true);
+        tableViewComplaints.setVisible(false);
 
         disableElements();
 
@@ -697,12 +709,15 @@ public class CustomerController implements ClientDependent {
         PurchasesAccordion.setVisible(true);
         PurchasesAccordion.setDisable(false);
 
+        // Ensure the booklet table view is visible and enabled
         bookletTableView.setVisible(true);
         bookletTableView.setDisable(false);
 
+        // Ensure the movie ticket table view is visible and enabled
         movieTicketTableView.setVisible(true);
         movieTicketTableView.setDisable(false);
 
+        // Ensure the movie package table view is visible and enabled
         moviePackageTableView.setVisible(true);
         moviePackageTableView.setDisable(false);
 
@@ -752,12 +767,28 @@ public class CustomerController implements ClientDependent {
                 moviePackageTableView.getItems().clear(); // Clear existing items
                 moviePackageTableView.getItems().addAll(movieLinks); // Add new items
                 moviePackageTableView.refresh(); // Refresh the table view to display new data
+                this.expiredLinkChecker = new ExpiredLinkChecker(client, localCustomer.getId(), movieLinks, this);
+                expiredLinkCheckerThread = new Thread(expiredLinkChecker);
+                expiredLinkCheckerThread.start();
             } else if (viewingPackageTilePane.isExpanded() && movieLinks.isEmpty()) {
                 SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Movie Packages", "There are no movie packages to display.");
             }
         } else {
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Purchases", "There are no purchases to display.");
         }
+    }
+
+    public void expiredLink(MovieLink movieLink){
+        Platform.runLater(() -> {
+            showAlert("Expiration Alert","A link has expired.");
+            moviePackageTableView.refresh(); // Refresh the table view to display new data
+
+            Message msg = new Message();
+            msg.setMessage(GET_CUSTOMER_INFO);
+            msg.setData(GET_CUSTOMER_MESSAGES);
+            msg.setCustomer(localCustomer);
+            client.sendMessage(msg);
+        });
     }
 
     @FXML
