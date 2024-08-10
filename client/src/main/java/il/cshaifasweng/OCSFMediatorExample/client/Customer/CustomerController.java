@@ -44,6 +44,7 @@ public class CustomerController implements ClientDependent {
     private Message localMessage;
     private boolean connectedFlag = false;
     private Customer localCustomer;
+    private List<InboxMessage> customerMessages;
 
     @FXML
     private Button homeScreenBtn;
@@ -356,19 +357,29 @@ public class CustomerController implements ClientDependent {
         System.out.println(message.getMessage());
         System.out.println(message.getData());
         if(message.getMessage().equals(GET_CUSTOMER_INFO)){
-            Platform.runLater(() -> {
-                String displayMessage = "Customer wasn't found";
-                if (message.getCustomer() != null) {
-                    localCustomer = message.getCustomer();
-                    displayMessage = message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName();
-                    welcomeLabel.setText("Welcome " + message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName() + " Choose the information you wish to view from the side menu");
-                    loggedInButtons();
-                    SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Customer connected", displayMessage);
-                } else {
-                    connectedFlag = false;
-                    SimpleClient.showAlert(Alert.AlertType.ERROR, "Wrong information", displayMessage);
-                }
-            });
+            if(message.getData().equals(GET_CUSTOMER_MESSAGES)){
+
+                //Setting the customer messages to a local variable.
+                Platform.runLater(()->{
+                    System.out.println("Entered The customer messages");
+                    localCustomer.setInboxMessages(message.getCustomerMessages());
+                });
+
+            } else if (message.getData().equals(GET_CUSTOMER_ID)) {
+                Platform.runLater(() -> {
+                    String displayMessage = "Customer wasn't found";
+                    if (message.getCustomer() != null) {
+                        localCustomer = message.getCustomer();
+                        displayMessage = message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName();
+                        welcomeLabel.setText("Welcome " + message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName() + " Choose the information you wish to view from the side menu");
+                        loggedInButtons();
+                        SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Customer connected", displayMessage);
+                    } else {
+                        connectedFlag = false;
+                        SimpleClient.showAlert(Alert.AlertType.ERROR, "Wrong information", displayMessage);
+                    }
+                });
+            }
         }
         if(message.getMessage().equals(UPDATE_PURCHASE)) {
             Platform.runLater(() -> {
@@ -794,6 +805,7 @@ public class CustomerController implements ClientDependent {
     @FXML
     void viewInboxAction(ActionEvent event) {
         disableElements();
+        tableViewInbox.getItems().clear();
 
         tableViewInbox.setVisible(true);
         tableViewInbox.setDisable(false);

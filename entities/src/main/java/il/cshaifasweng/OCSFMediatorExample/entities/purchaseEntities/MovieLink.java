@@ -84,8 +84,6 @@ public class MovieLink implements Serializable {
         return id;
     }
 
-    public void setId(int id) {this.id = id;}
-
     public boolean isActive(){return this.isActive;}
 
     public void setActive() {this.isActive = true;}

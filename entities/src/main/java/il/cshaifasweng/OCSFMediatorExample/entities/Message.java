@@ -8,6 +8,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -68,8 +69,7 @@ public class Message implements Serializable {
     private int branchID;
     private List<Branch> branches;
     private Branch branch;
-
-
+    private List<InboxMessage> customerMessages;
 
     private List<Theater> theaters;
 

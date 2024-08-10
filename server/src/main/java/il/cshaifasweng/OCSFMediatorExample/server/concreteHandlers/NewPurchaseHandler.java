@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
@@ -95,6 +96,8 @@ public class NewPurchaseHandler implements RequestHandler {
                 session.save(purchase); // Then save purchase to link it to customer
                 System.out.println("Successfully created new customer.");
             }
+            session.flush();
+
             message.setPurchase(purchase);
             setPurchaseEntity(purchase, purchaseType, session, message);
             session.update(purchase); // Update the purchase with the correct entity
@@ -129,7 +132,7 @@ public class NewPurchaseHandler implements RequestHandler {
             case MOVIE_LINK:
                 MovieLink movieLink = new MovieLink();
                 LocalDateTime currentTime = LocalDateTime.now();
-                String movieName = String.valueOf(message.getSpecificMovie());
+                String movieName = message.getSpecificMovie().getMovieName();
 
                 //Generating movie link, securely making a random string for the link and making sure there are no duplicates
                 SecureRandom random = new SecureRandom();
