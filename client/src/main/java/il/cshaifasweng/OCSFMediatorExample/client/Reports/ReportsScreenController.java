@@ -3,11 +3,14 @@ package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
@@ -20,6 +23,8 @@ import java.util.ResourceBundle;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 
 public class ReportsScreenController implements ClientDependent, Initializable {
+    public static final int PIE_CHART_LABEL_LINE_LENGTH = 50;
+    public static final int PIE_CHART_START_ANGLE = 180;
     private final ChartFactory chartFactory = new ChartFactory();  // Use the ChartFactory class
     @FXML
     public Button ExitBtn;
@@ -28,7 +33,7 @@ public class ReportsScreenController implements ClientDependent, Initializable {
     @FXML
     public MenuItem closeBtn;
     @FXML
-    public BorderPane ChartBorderPane;
+    public BorderPane chartBorderPane;
     @FXML
     public MenuItem showBarChartMenuItem;
     @FXML
@@ -96,10 +101,30 @@ public class ReportsScreenController implements ClientDependent, Initializable {
         BarChart<String, Number> barChart = chartFactory.createBarChart(contextDescription);
 
         // Populate the bar chart with data
-        chartFactory.populateBarChart(barChart, ChartBorderPane);
+        chartFactory.populateBarChart(barChart, chartBorderPane);
     }
 
     public void handleShowPieChart(ActionEvent actionEvent) {
+
+        // CREATE DATA
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
+                new PieChart.Data("Product A", 3000),
+                new PieChart.Data("Product B", 1500),
+                new PieChart.Data("Product c", 300)
+        );
+
+        // Create Pie Chart Obj
+        PieChart pieChart = new PieChart(pieChartData);
+        pieChart.setTitle("Products Sold");
+        pieChart.setClockwise(true);
+        pieChart.setLabelLineLength(PIE_CHART_LABEL_LINE_LENGTH);
+        pieChart.setStartAngle(PIE_CHART_START_ANGLE);
+        pieChart.setLabelsVisible(true);
+        pieChart.setLegendVisible(false);
+        pieChart.setAnimated(false);
+        pieChart.setPrefSize(800, 600);
+
+        chartBorderPane.setCenter(pieChart);
     }
 
     public void handleCloseBtn(ActionEvent actionEvent) {

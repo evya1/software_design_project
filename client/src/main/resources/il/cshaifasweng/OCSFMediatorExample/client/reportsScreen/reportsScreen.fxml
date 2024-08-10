@@ -64,7 +64,7 @@
             <AnchorPane prefHeight="25.0" prefWidth="1400.0" BorderPane.alignment="CENTER" />
         </bottom>
         <center>
-        <BorderPane id="ChartBorderPane" fx:id="ChartBorderPane" prefHeight="200.0" prefWidth="200.0" stylesheets="@reportsStyle.css">
+        <BorderPane id="ChartBorderPane" fx:id="chartBorderPane" prefHeight="200.0" prefWidth="200.0" stylesheets="@reportsStyle.css">
             <top>
                 <MenuBar prefWidth="1125.0" BorderPane.alignment="CENTER">
                     <menus>
