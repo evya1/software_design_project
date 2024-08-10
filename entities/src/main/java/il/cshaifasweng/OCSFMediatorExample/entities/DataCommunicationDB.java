@@ -1115,6 +1115,7 @@ public class DataCommunicationDB
     }
 
     private static void assignLinkToCustomer(Customer customer, MovieLink link, Session session) {
+        link.setCustomer_id(customer.getId());
         Purchase purchase = new Purchase();
         purchase.setCustomerPID(customer.getPersonalID());
         purchase.setPurchasedMovieLink(link);

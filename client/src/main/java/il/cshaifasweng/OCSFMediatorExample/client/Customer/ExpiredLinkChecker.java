@@ -50,6 +50,7 @@ public class ExpiredLinkChecker implements Runnable {
 
                         if (delay < 0) {
                             movieLink.setInactive();
+                            Thread.sleep(1000);
                             customerController.expiredLink(movieLink);
                         }
                     }

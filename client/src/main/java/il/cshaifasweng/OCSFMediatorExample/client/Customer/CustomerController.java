@@ -353,7 +353,8 @@ public class CustomerController implements ClientDependent {
     @Subscribe
     public void dataReceived(MessageEvent event) {
         Message message = event.getMessage();
-
+        System.out.println(message.getMessage());
+        System.out.println(message.getData());
         if(message.getMessage().equals(GET_CUSTOMER_INFO)){
             Platform.runLater(() -> {
                 String displayMessage = "Customer wasn't found";
@@ -779,8 +780,14 @@ public class CustomerController implements ClientDependent {
 
     public void expiredLink(MovieLink movieLink){
         Platform.runLater(() -> {
-            showAlert("Expiration Alert","A link has expired. Please log in again to view your purchases.");
-            // TODO: Needs to update the current window the the movieLink to be inactive, its already set in the movieLink object itself as inactive.
+            showAlert("Expiration Alert","A link has expired.");
+            moviePackageTableView.refresh(); // Refresh the table view to display new data
+
+            Message msg = new Message();
+            msg.setMessage(GET_CUSTOMER_INFO);
+            msg.setData(GET_CUSTOMER_MESSAGES);
+            msg.setCustomer(localCustomer);
+            client.sendMessage(msg);
         });
     }
 

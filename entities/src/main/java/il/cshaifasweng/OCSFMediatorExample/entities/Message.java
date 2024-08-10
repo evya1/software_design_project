@@ -244,4 +244,12 @@ public class Message implements Serializable {
     public void setNewContentFlag(boolean newContentFlag) {
         this.newContentFlag = newContentFlag;
     }
+
+    public List<InboxMessage> getCustomerMessages() {
+        return customerMessages;
+    }
+
+    public void setCustomerMessages(List<InboxMessage> customerMessages) {
+        this.customerMessages = customerMessages;
+    }
 }

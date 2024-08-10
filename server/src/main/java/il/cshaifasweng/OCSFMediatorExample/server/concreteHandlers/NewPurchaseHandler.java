@@ -165,12 +165,13 @@ public class NewPurchaseHandler implements RequestHandler {
                 }
 
                 movieLink.setCreationTime(currentTime);
-                //movieLink.setExpirationTime(currentTime.plusHours(24));
+                //movieLink.setExpirationTime(currentTime.plusDays(1));
                 movieLink.setExpirationTime(currentTime.plusMinutes(1));
+                movieLink.setCustomer_id(purchase.getCustomer().getId());
                 movieLink.setMovieName(movieName);
                 movieLink.setMovieLink(newLink);
-                movieLink.setId(message.getSpecificMovie().getId());
-                System.out.println(movieLink.getId());
+                Movie movie = session.get(Movie.class, message.getSpecificMovie().getId());
+                movieLink.setMovie(movie);
 
                 session.save(movieLink);
                 purchase.setPurchasedMovieLink(movieLink);

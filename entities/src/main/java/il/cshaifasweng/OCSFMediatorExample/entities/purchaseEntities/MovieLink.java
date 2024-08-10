@@ -18,6 +18,8 @@ public class MovieLink implements Serializable {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Movie movie;
 
+    private int customer_id;
+
 
     private String movieName;
     private String movieLink;
@@ -89,4 +91,8 @@ public class MovieLink implements Serializable {
     public void setActive() {this.isActive = true;}
 
     public void setInactive() {this.isActive = false;}
+
+    public void setCustomer_id(int customer_id) {this.customer_id = customer_id;}
+
+    public int getCustomer_id() {return customer_id;}
 }
