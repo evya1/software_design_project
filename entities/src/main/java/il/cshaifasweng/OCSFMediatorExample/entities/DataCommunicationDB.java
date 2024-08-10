@@ -584,6 +584,13 @@ public class DataCommunicationDB
         query.setParameter("personalID", personalID);
         return query.uniqueResult();
     }
+    public static List<InboxMessage> getInboxMessagesByCustomerId(int customerId) {
+        //Assuming transaction was already started.
+        String hql = "FROM InboxMessage WHERE customer.id = :customerId";
+        return session.createQuery(hql, InboxMessage.class)
+                .setParameter("customerId", customerId)
+                .getResultList();
+    }
     public static Purchase getPurchaseByID(int id){
         Query<Purchase> query = session.createQuery("FROM Purchase WHERE id = :id", Purchase.class);
         query.setParameter("id", id);

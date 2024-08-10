@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;

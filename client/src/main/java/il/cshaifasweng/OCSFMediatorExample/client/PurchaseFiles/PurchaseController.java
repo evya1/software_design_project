@@ -136,6 +136,7 @@ public class PurchaseController implements ClientDependent {
                         default:
                             System.out.println("Unknown Command");
                     }
+                    EventBus.getDefault().unregister(this);
                 }
             });
 
