@@ -80,13 +80,6 @@ public class DataCommunicationDB
         for (Theater theater : theaters) {
             System.out.println(theater);
 
-            // Print Seats
-            List<Seat> seats = theater.getSeatList();
-            for (Seat seat : seats) {
-                System.out.println("\tSeat Number: " + seat.getSeatNum() +
-                        ", Taken: " + seat.isTaken());
-            }
-
             // Print MovieSlots
             List<MovieSlot> movieSlots = theater.getSchedule();
             for (MovieSlot movieSlot : movieSlots) {
@@ -288,7 +281,7 @@ public class DataCommunicationDB
                 // Create Theaters for each Branch
                 List<Theater> theaters = new ArrayList<>();
                 for (int j = 1; j <= 3; j++) {
-                    Theater theater = new Theater(75, 75, new ArrayList<>(), new ArrayList<>(), 10);
+                    Theater theater = new Theater(70, 70, new ArrayList<>(), 10);
                     theater.setBranch(branch);
                     theaters.add(theater);
                     session.save(theater);
@@ -313,15 +306,6 @@ public class DataCommunicationDB
 
                         theater.getSchedule().addAll(movieSlots);
                     }
-
-                    // Create Seats for Theater
-                    List<Seat> seats = new ArrayList<>();
-                    for (int k = 0; k < theater.getNumOfSeats(); k++) {
-                        Seat seat = new Seat(false, theater);
-                        seats.add(seat);
-                        session.save(seat);
-                    }
-                    theater.setSeatList(seats);
                     session.save(theater);
                 }
                 branch.setTheaterList(theaters);
@@ -494,6 +478,9 @@ public class DataCommunicationDB
     }
     public static Theater getTheaterByID(int theaterID){
         return session.get(Theater.class, theaterID);
+    }
+    public static Branch getBranchByID(int branchID){
+        return session.get(Branch.class,branchID);
     }
     public static TypeOfMovie getTypeOfMovieByID(int movieTypeID){
         return session.get(TypeOfMovie.class, movieTypeID);
@@ -740,16 +727,48 @@ public class DataCommunicationDB
         }
     }
 
-    public static void deleteMovieSlot(MovieSlot slot){
+    public static void deleteMovieSlot(MovieSlot slot) {
         try {
             session.beginTransaction();
-            //TODO: Break the associations
-            MovieSlot slotToDelete = getMovieSlotByID(slot.getId());
-            slotToDelete.setMovie(null);
-            slotToDelete.setTheater(null);
-            slotToDelete.setBranch(null);
 
-            session.delete(slotToDelete);
+            int slotID = slot.getId();
+            slot = getMovieSlotByID(slotID);
+
+            if (slot == null) {
+                System.err.println("MovieSlot with ID " + slotID + " does not exist.");
+                session.getTransaction().rollback();
+                return;
+            }
+
+            // Detach the MovieSlot from Movie
+            Movie movie = slot.getMovie();
+            if (movie != null) {
+                movie.getMovieScreeningTime().remove(slot);
+                slot.setMovie(null);  // Only set to null if it's not already null
+            } else {
+                System.out.println("No associated movie found for this MovieSlot.");
+            }
+
+            // Detach the MovieSlot from Theater
+            Theater theater = slot.getTheater();
+            if (theater != null) {
+                theater.getSchedule().remove(slot);
+                slot.setTheater(null);
+            } else {
+                System.out.println("No associated theater found for this MovieSlot.");
+            }
+
+            // Detach the MovieSlot from Branch
+            Branch branch = slot.getBranch();
+            if (branch != null) {
+                slot.setBranch(null);
+            } else {
+                System.out.println("No associated branch found for this MovieSlot.");
+            }
+
+            // Finally, delete the MovieSlot
+            session.remove(session.contains(slot) ? slot : session.merge(slot));
+
             session.getTransaction().commit();
 
         } catch (Exception e) {
@@ -760,10 +779,12 @@ public class DataCommunicationDB
             e.printStackTrace();
         }
     }
+
+
     //endregion
 
     //region Public Creation Methods
-    public static void createMovieSlotForMovieID(int movieID, MovieSlot slot){
+    public static void addMovieSlotToMovie(int movieID, MovieSlot slot){
 
         try {
             session.beginTransaction();
@@ -823,20 +844,42 @@ public class DataCommunicationDB
     }
 
 
-    public static void createMovieSlot(MovieSlot slot){
+    public static void createMovieSlot(MovieSlot slot) {
         try {
             session.beginTransaction();
+
+            // Create seats and associate them with the MovieSlot
+            List<Seat> seats = new ArrayList<>();
+            for (int i = 0; i < 70; i++) {
+                Seat seat = new Seat(false, slot.getTheater());
+                seat.setMovieSlot(slot);  // Set the MovieSlot reference in Seat
+                seats.add(seat);
+            }
+
+            // Associate the seat list with the MovieSlot
+            Movie movie = getMovieByID(slot.getMovie().getId());
+            Theater theater = getTheaterByID(slot.getTheaterId());
+            Branch branch = getBranchByID(slot.getBranchId());
+            slot.setMovie(movie);
+            slot.setSeatList(seats);
+            slot.setBranch(branch);
+            slot.setTheater(theater);
+
+            // Save the MovieSlot (cascading will save the seats as well)
             session.save(slot);
+
+            session.flush();
             session.getTransaction().commit();
             System.out.println("Movie Slot was created successfully. Movie Slot ID is " + slot.getId());
         } catch (Exception exception) {
-            if (session != null) {
+            if (session != null && session.getTransaction().isActive()) {
                 session.getTransaction().rollback();
             }
             System.err.println("An error occurred, changes have been rolled back.");
             exception.printStackTrace();
         }
     }
+
 
     public static void createNewMovie(Movie movieToAdd) {
         try {
@@ -988,7 +1031,7 @@ public class DataCommunicationDB
     }
 
     private static Theater createTheaterForBranch(Branch branch) {
-        Theater theater = new Theater(100, 100, new ArrayList<>(), new ArrayList<>(), 10);
+        Theater theater = new Theater(70, 70, new ArrayList<>(), 10);
         theater.setBranch(branch);
         session.save(theater);
         return theater;

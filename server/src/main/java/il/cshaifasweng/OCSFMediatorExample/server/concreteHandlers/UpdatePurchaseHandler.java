@@ -42,11 +42,12 @@ public class UpdatePurchaseHandler implements RequestHandler {
                         int freeSeatNum = oldPurchase.getPurchasedMovieTicket().getSeatNum();
                         Theater theater = oldPurchase.getPurchasedMovieTicket().getMovieSlot().getTheater();
                         theater.setAvailableSeats(theater.getAvailableSeats() + 1);
-                        Seat freeSeat = theater.getSeatList().get(freeSeatNum);
-                        freeSeat.setTaken(false);
+                        //TODO: Need to update to MovieSlot seats and not Theater.
+                        //Seat freeSeat = theater.getSeatList().get(freeSeatNum);
+                        //freeSeat.setTaken(false);
 
                         // Save the Theater and Seat
-                        session.update(freeSeat);
+                        //session.update(freeSeat);
                         session.update(theater);
                     }
 

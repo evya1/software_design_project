@@ -27,6 +27,7 @@ public class ReportsScreenController implements ClientDependent {
             Message message = new Message();
             message.setMessage("Back to " + previousScreen.replace("_SCREEN", "").replace("_", " ").toLowerCase() + " screen");
             message.setSourceFXML(REPORTS_SCREEN);
+            message.setEmployee(localMessage.getEmployee());
             EventBus.getDefault().unregister(this);
             client.moveScene(previousScreen, stage, message);
         } catch (Exception e) {

@@ -5,11 +5,12 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "chain")
-public class Chain {
+public class Chain implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

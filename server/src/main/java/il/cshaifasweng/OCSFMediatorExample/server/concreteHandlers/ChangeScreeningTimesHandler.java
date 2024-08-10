@@ -14,7 +14,7 @@ import org.hibernate.SessionFactory;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_BRANCHES;
-
+@Deprecated
 public class ChangeScreeningTimesHandler implements RequestHandler {
     private static Session session;
 

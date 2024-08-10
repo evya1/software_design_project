@@ -23,6 +23,7 @@ import org.greenrobot.eventbus.Subscribe;
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
+import static il.cshaifasweng.OCSFMediatorExample.client.Utility.Dialogs.popUpAndReturnToMainScreen;
 
 public class ComplaintSubmissionController implements ClientDependent {
     public ComboBox<Branch> branchComboBox;
@@ -107,25 +108,10 @@ public class ComplaintSubmissionController implements ClientDependent {
 
                     Complaint complaint = message.getComplaint();
                     System.out.println("Complaint received: " + complaint);
-                    //reached here?
                     // Show confirmation dialog
-                    Alert alert = new Alert(Alert.AlertType.NONE);
-                    alert.setTitle("Confirmation");
-                    alert.setHeaderText("Your Complaint has been submitted successfully!");
-                    alert.setContentText("A response will be sent to your E-mail within 24 hours.");
-
-                    // Create a "Confirm" button and add it to the alert
-                    ButtonType confirmButton = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
-                    alert.getButtonTypes().setAll(confirmButton);
-
-                    // Handle the user's response
-                    alert.showAndWait().ifPresent(response -> {
-                        if (response == confirmButton) {
-                            // User confirmed, perform the action
-                            Stage newStage = (Stage) submitComplaintBtn.getScene().getWindow();
-                            client.moveScene(PRIMARY_SCREEN, newStage, null);
-                        }
-                    });
+                    popUpAndReturnToMainScreen(client, submitComplaintBtn,
+                            "Your Complaint has been submitted successfully!",
+                            "A response will be sent to your E-mail within 24 hours.");
                 });
             }
             //Handling Branch or Theater related information.
