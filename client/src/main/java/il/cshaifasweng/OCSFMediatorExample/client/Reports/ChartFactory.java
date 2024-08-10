@@ -77,7 +77,7 @@ public class ChartFactory {
      * Populates the BarChart with static data and adds it to the provided BorderPane.
      * This method handles the addition of data series to the chart and integrates the chart into the UI.
      *
-     * @param barChart the BarChart to which data will be added.
+     * @param barChart        the BarChart to which data will be added.
      * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
     public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane) {

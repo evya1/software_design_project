@@ -8,8 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
@@ -22,6 +20,7 @@ import java.util.ResourceBundle;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 
 public class ReportsScreenController implements ClientDependent, Initializable {
+    private final ChartFactory chartFactory = new ChartFactory();  // Use the ChartFactory class
     @FXML
     public Button ExitBtn;
     @FXML
@@ -38,9 +37,7 @@ public class ReportsScreenController implements ClientDependent, Initializable {
     public MenuItem updateRefreshBtn;
     Message localMessage;
     private SimpleClient client;
-
     private String previousScreen;  // Store the previous screen's FXML path
-
     /**
      * Represents the context or scope for generating the chart.
      * This field can be used to determine the specific data or branch context
@@ -49,8 +46,6 @@ public class ReportsScreenController implements ClientDependent, Initializable {
      * a data filter criterion, or any other relevant context.
      */
     private Object chartContext;
-
-    private final ChartFactory chartFactory = new ChartFactory();  // Use the ChartFactory class
 
     @FXML
     public void handleBackAction(ActionEvent actionEvent) {
