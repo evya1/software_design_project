@@ -8,3 +8,7 @@
     -fx-font-size: 22.0;
     -fx-padding: 10.0 16.8;
 }
+
+#ChartBorderPane{
+    -fx-background-color: white;
+}

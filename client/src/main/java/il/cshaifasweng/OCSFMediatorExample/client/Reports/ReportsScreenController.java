@@ -5,12 +5,33 @@ import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 
-public class ReportsScreenController implements ClientDependent {
+public class ReportsScreenController implements ClientDependent, Initializable {
+    @FXML
+    public Button ExitBtn;
+    @FXML
+    public Button newBtn;
+    @FXML
+    public MenuItem closeBtn;
+    @FXML
+    public BorderPane ChartBorderPane;
+    @FXML
+    public MenuItem showBarChartMenuItem;
+    @FXML
+    public MenuItem showPieChartMenuItem;
+    @FXML
+    public MenuItem updateRefreshBtn;
     Message localMessage;
     private SimpleClient client;
 
@@ -48,5 +69,28 @@ public class ReportsScreenController implements ClientDependent {
     }
 
     public void handleNewBtn(ActionEvent actionEvent) {
+    }
+
+    public void handleShowBarChart(ActionEvent actionEvent) {
+
+    }
+
+    public void handleShowPieChart(ActionEvent actionEvent) {
+    }
+
+    public void handleCloseBtn(ActionEvent actionEvent) {
+    }
+
+    public void handleUpdateData(ActionEvent actionEvent) {
+
+    }
+
+    /**
+     * @param url
+     * @param resourceBundle
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 }
