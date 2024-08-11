@@ -1,20 +1,12 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Customer;
 
-import ch.qos.logback.core.net.server.Client;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
-import javafx.stage.Stage;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_CUSTOMER_ID;
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_CUSTOMER_INFO;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.BOOKLET_POP_UP_MESSAGE;
 
 
 public class ExpiredLinkChecker implements Runnable {
@@ -41,17 +33,28 @@ public class ExpiredLinkChecker implements Runnable {
 
             try {
                 for (MovieLink movieLink : movieLinks) {
-                    if (movieLink.isActive()) {
+                    if (movieLink.isValid()) {
                         LocalDateTime expirationTime = movieLink.getExpirationTime();
+                        LocalDateTime creationTime = movieLink.getCreationTime();
                         LocalDateTime now = LocalDateTime.now();
 
 
                         long delay = Duration.between(now, expirationTime).toMillis();
 
-                        if (delay < 0) {
+                        if (delay < 0 && movieLink.isActive()) {
+                            movieLink.setInvalid();
                             movieLink.setInactive();
                             Thread.sleep(1000);
-                            customerController.expiredLink(movieLink);
+                            customerController.linkRefreshRequest(true);
+                        }
+                        if (!movieLink.isActive()) {
+                            delay = Duration.between(creationTime, now).toMillis();
+                            if(delay > 0){
+                                Thread.sleep(1500);
+                                movieLink.setActive();
+                                customerController.linkRefreshRequest(false);
+
+                            }
                         }
                     }
                 }

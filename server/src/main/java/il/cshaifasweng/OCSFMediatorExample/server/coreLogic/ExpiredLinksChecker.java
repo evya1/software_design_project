@@ -1,11 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
-import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import org.hibernate.Session;
@@ -13,7 +8,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 
 public class ExpiredLinksChecker implements Runnable {
@@ -32,29 +26,44 @@ public class ExpiredLinksChecker implements Runnable {
             try {
                 tx = session.beginTransaction();
 
-                String hql = "FROM MovieLink WHERE expirationTime < :currentTime";
-                List<MovieLink> expiredLinks = session.createQuery(hql, MovieLink.class)
-                        .setParameter("currentTime", LocalDateTime.now())
+                String hql = "FROM MovieLink";
+                List<MovieLink> movieLinks = session.createQuery(hql, MovieLink.class)
                         .list();
 
-                for (MovieLink movieLink : expiredLinks) {
-                    if (movieLink.isActive()) {
-                        movieLink.setInactive();
-                        session.update(movieLink);
+                for (MovieLink movieLink : movieLinks) {
 
+                    if(movieLink.isValid()){
                         int customerID = movieLink.getCustomer_id();
                         Customer customer = session.get(Customer.class, customerID);
 
-                        InboxMessage inboxMessage = new InboxMessage();
-                        inboxMessage.setCustomer(customer);
-                        inboxMessage.setMessageTitle("Movie Link Expired");
-                        inboxMessage.setMessageContent("The Link \n" + movieLink.getMovieLink() + "\nHas expired.");
-                        session.save(inboxMessage);
+                        if (movieLink.isActive() && (movieLink.getExpirationTime().isBefore(LocalDateTime.now()))) {
+                            movieLink.setInvalid();
+                            movieLink.setInactive();
+                            session.update(movieLink);
 
-                        // Add the message to the customer's inbox messages
-                        customer.getInboxMessages().add(inboxMessage);
+                            InboxMessage inboxMessage = new InboxMessage();
+                            inboxMessage.setCustomer(customer);
+                            inboxMessage.setMessageTitle("Movie Link Expired");
+                            inboxMessage.setMessageContent("The Link \n" + movieLink.getMovieLink() + "\nHas expired.");
+                            session.save(inboxMessage);
 
-                        session.update(customer);
+                            // Add the message to the customer's inbox messages
+                            customer.getInboxMessages().add(inboxMessage);
+
+                            session.update(customer);
+                        }
+
+                        else if (!movieLink.isActive() && movieLink.getCreationTime().isBefore(LocalDateTime.now()) && movieLink.getExpirationTime().isAfter(LocalDateTime.now())) {
+                            movieLink.setActive();
+                            session.update(movieLink);
+
+                            InboxMessage inboxMessage = new InboxMessage();
+                            inboxMessage.setCustomer(customer);
+                            inboxMessage.setMessageTitle("Movie link has been activated");
+                            inboxMessage.setMessageContent("The Link \n" + movieLink.getMovieLink() + "\nHas been activated.");
+                            session.save(inboxMessage);
+
+                        }
                     }
                 }
 

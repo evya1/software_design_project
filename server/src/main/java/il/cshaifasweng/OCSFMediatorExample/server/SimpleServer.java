@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
+import com.mysql.cj.xdevapi.Client;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.HandlerFactory;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
