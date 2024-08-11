@@ -95,12 +95,8 @@ public class EmployeeController implements ClientDependent {
         changeContentBtn.setDisable(true);
         confirmChangeBtn.setDisable(true);
         complaintsListView.setVisible(false);
-
-        // Check if an employee is already logged in
-        // This should come before creating new Message objects to ensure the UI reflects the login status.
-        checkEmployeeLoginStatus();
-
         Message message = new Message();
+
         message.setMessage("get prices");
         message.setData("show all prices");
         client.sendMessage(message);
@@ -525,27 +521,6 @@ public class EmployeeController implements ClientDependent {
         this.localMessage = message;
         if (message != null && message.getEmployee() != null) {
             this.employee = message.getEmployee();
-        }
-    }
-
-    /**
-     * Checks if an employee is logged in and updates the UI.
-     * <p>
-     * If the {@link Employee} is not null and active, this method adjusts the visibility
-     * of the login/logout buttons, disables the home screen button, and enables UI elements
-     * based on the employee's type.
-     * </p>
-     * <p>
-     * Call this method before creating new messages in {@code initialize()} to ensure
-     * the UI reflects the current login state.
-     * </p>
-     */
-    protected void checkEmployeeLoginStatus() {
-        if (employee != null && employee.isActive()) {
-            logINBtn.setVisible(false);
-            logOUTBtn.setVisible(true);
-            homeScreenBtn.setDisable(true);
-            enableButtonsAccordingToEmployeeType(employee.getEmployeeType());
         }
     }
 

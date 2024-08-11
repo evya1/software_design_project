@@ -76,7 +76,6 @@ class EmployeeControllerTest {
                 message.setEmployee(mockEmployee);
 
                 employeeController.setMessage(message);
-                employeeController.checkEmployeeLoginStatus();
 
                 assertFalse(employeeController.getLogINBtn().isVisible());
                 assertTrue(employeeController.getLogOUTBtn().isVisible());
@@ -101,7 +100,6 @@ class EmployeeControllerTest {
                 message.setEmployee(mockEmployee);
 
                 employeeController.setMessage(message);
-                employeeController.checkEmployeeLoginStatus();
 
                 assertTrue(employeeController.getLogINBtn().isVisible());
                 assertFalse(employeeController.getLogOUTBtn().isVisible());
