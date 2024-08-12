@@ -47,7 +47,6 @@ public class ComplaintsHandler implements RequestHandler {
                 server.sendToAllClients(answer);
             } else if (message.getData().equals("change complaint status")) {
                 //TODO: Sajed - why the method activates twice?
-                System.out.println("I AM HERE!!!");
                 session.beginTransaction();
                 Complaint complaint = session.get(Complaint.class, message.getComplaint().getId());
                 if(complaint.getComplaintStatus().equals("Open")){
@@ -56,6 +55,9 @@ public class ComplaintsHandler implements RequestHandler {
                     inboxMessage.setMessageContent("Your complaint has been closed. For more information, check your personal area.");
                     inboxMessage.setCustomer(message.getComplaint().getCustomer());
                     message.getComplaint().getCustomer().getInboxMessages().add(inboxMessage);
+                    session.save(inboxMessage);
+                    session.update(message.getComplaint().getCustomer());
+                    session.flush();
                 }
                 complaint.setComplaintStatus(message.getComplaint().getComplaintStatus());
                 complaint.setComplaintContent(message.getComplaint().getComplaintContent());
