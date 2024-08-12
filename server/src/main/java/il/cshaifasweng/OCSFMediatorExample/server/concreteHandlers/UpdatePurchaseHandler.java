@@ -7,6 +7,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
@@ -50,6 +51,17 @@ public class UpdatePurchaseHandler implements RequestHandler {
                         //session.update(freeSeat);
                         session.update(theater);
                     }
+
+                    // Adding message to customer's inbox
+                    InboxMessage inboxMessage = new InboxMessage();
+                    inboxMessage.setMessageTitle("Purchase Cancelled successfully");
+                    inboxMessage.setMessageContent("Your Purchase has been cancelled successfully.");
+                    inboxMessage.setCustomer(oldPurchase.getCustomer());
+                    oldPurchase.getCustomer().getInboxMessages().add(inboxMessage);
+                    // Save the Message and update customer
+                    session.update(oldPurchase.getCustomer());
+                    session.save(inboxMessage);
+                    session.flush();
 
                     // Save the updated purchase
                     session.update(oldPurchase);

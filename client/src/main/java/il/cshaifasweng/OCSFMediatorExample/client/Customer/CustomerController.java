@@ -46,6 +46,8 @@ public class CustomerController implements ClientDependent {
     private Customer localCustomer;
     private List<MovieLink> movieLinks;
 
+
+
     @FXML
     private Button homeScreenBtn;
 
@@ -405,6 +407,7 @@ public class CustomerController implements ClientDependent {
             Platform.runLater(() -> {
                 showAlert("Purchase Cancellation", "The Purchase was cancelled successfully.");
                 System.out.println("Enetered");
+
             });
 
         }
@@ -834,7 +837,6 @@ public class CustomerController implements ClientDependent {
         } else {
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Messages", "Your inbox is empty.");
         }
-
     }
 
     @Override
