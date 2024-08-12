@@ -27,7 +27,6 @@ public class CustomerInfoHandler implements RequestHandler {
             DataCommunicationDB.setSession(session);
             Message answer = new Message();
             Customer customer;
-
             switch (message.getData()) {
                 case GET_CUSTOMER_ID:
                     answer.setMessage(message.getMessage());
