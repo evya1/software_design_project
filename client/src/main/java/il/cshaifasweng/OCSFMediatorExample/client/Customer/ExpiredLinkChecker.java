@@ -47,7 +47,7 @@ public class ExpiredLinkChecker implements Runnable {
                             Thread.sleep(1000);
                             customerController.linkRefreshRequest(true);
                         }
-                        if (!movieLink.isActive()) {
+                        else if (!movieLink.isActive()) {
                             delay = Duration.between(creationTime, now).toMillis();
                             if(delay > 0){
                                 Thread.sleep(1500);
