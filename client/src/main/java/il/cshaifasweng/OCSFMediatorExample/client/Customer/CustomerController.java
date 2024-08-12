@@ -496,7 +496,7 @@ public class CustomerController implements ClientDependent {
     void cancelAction(ActionEvent event) {
         MovieTicket selectedMovieTicket = movieTicketTableView.getSelectionModel().getSelectedItem();
         MovieLink selectedMovieLink = moviePackageTableView.getSelectionModel().getSelectedItem();
-
+        boolean flag = false;
         if (selectedMovieTicket != null) {
             Purchase purchase = localCustomer.getPurchases().stream()
                     .filter(p -> p.getPurchasedMovieTicket() != null && p.getPurchasedMovieTicket().equals(selectedMovieTicket))
@@ -517,6 +517,7 @@ public class CustomerController implements ClientDependent {
                 } else {
                     showAlert("No refund", "There is no refund available for this purchase.");
                 }
+                flag = true;
             } else {
                 showAlert("Invalid Ticket", "The ticket is invalid.");
             }
@@ -542,11 +543,19 @@ public class CustomerController implements ClientDependent {
                 } else {
                     showAlert("No refund", "There is no refund available for this purchase.");
                 }
+                flag = true;
             } else {
                 showAlert("Invalid Link", "The link is invalid.");
             }
         } else {
             showAlert("No selection", "No selection to cancel.");
+        }
+        if (flag) {
+            Message message = new Message();
+            message.setMessage(GET_CUSTOMER_INFO);
+            message.setData(GET_CUSTOMER_MESSAGES);
+            message.setCustomer(localCustomer);
+            client.sendMessage(message);
         }
         moviePackageTableView.getSelectionModel().clearSelection();
     }
