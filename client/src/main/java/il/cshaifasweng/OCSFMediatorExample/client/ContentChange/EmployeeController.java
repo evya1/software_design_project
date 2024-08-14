@@ -4,7 +4,10 @@ import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PriceConstants;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
@@ -17,6 +20,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Pair;
@@ -30,8 +34,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_EMPLOYEES;
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.BOOKLET;
 
 public class EmployeeController implements ClientDependent {
 
@@ -74,12 +79,25 @@ public class EmployeeController implements ClientDependent {
     @FXML
     private Button logOUTBtn;
 
+    @FXML
+    private Text id;
+
+    @FXML
+    private TextField idNumberField;
+
+    @FXML
+    private Text useBooklet;
+
+    @FXML
+    private Button useBookletBtn;
+
+
     private Message localMessage;
     private SimpleClient client;
     private Employee employee;
     private PriceConstants prices;
     private List<Complaint> complaints;
-
+    private Customer customer;
 
     @FXML
     private void initialize() {
@@ -190,6 +208,9 @@ public class EmployeeController implements ClientDependent {
                     msg.setMessage("get complaints");
                     msg.setData("show all complaints");
                     client.sendMessage(msg);
+                });
+                case GET_CUSTOMER_ID -> Platform.runLater(() -> {
+                    customer = message.getCustomer();
                 });
             }
         }
@@ -389,8 +410,6 @@ public class EmployeeController implements ClientDependent {
     }
 
 
-
-
     private void emp() {
         logINBtn.setVisible(false);
         logOUTBtn.setVisible(true);
@@ -407,8 +426,11 @@ public class EmployeeController implements ClientDependent {
     private void enableButtonsAccordingToEmployeeType(EmployeeType type){
         switch (type) {
             case BASE:
-                stampBookletBtn.setVisible(true);
-                stampBookletBtn.setDisable(false);
+                useBooklet.setVisible(true);
+                id.setVisible(true);
+                idNumberField.setVisible(true);
+                stampBookletBtn.setVisible(false);
+                stampBookletBtn.setDisable(true);
                 break;
             case SERVICE:
                 showComplaintsBtn.setDisable(false);
@@ -457,6 +479,12 @@ public class EmployeeController implements ClientDependent {
         stampBookletBtn.setVisible(false);
 
         complaintsListView.setVisible(false);
+
+        useBooklet.setVisible(false);
+        useBookletBtn.setVisible(false);
+        useBookletBtn.setDisable(true);
+        id.setVisible(false);
+        idNumberField.setVisible(false);
     }
 
 
@@ -554,5 +582,57 @@ public class EmployeeController implements ClientDependent {
 
     public void setShowReportsBtn(Button showReportsBtn) {
         this.showReportsBtn = showReportsBtn;
+    }
+
+    @FXML
+    void useBooklet(ActionEvent event) {
+        for (Purchase purchase : customer.getPurchases()) {
+            if (purchase.getPurchaseType() == BOOKLET) {
+                Booklet booklet = purchase.getPurchasedBooklet();
+                if (booklet.getNumOfEntries() > 0)
+                {
+                    booklet.useEntry();
+                    System.out.println(booklet.getNumOfEntries());
+                    Message message = new Message();
+                    message.setMessage(GET_CUSTOMER_INFO);
+                    message.setData("update Booklet");
+                    message.setBooklet(booklet);
+                    message.setCustomer(customer);
+                    client.sendMessage(message);
+                }
+                else
+                    SimpleClient.showAlert(Alert.AlertType.ERROR,"Booklet is used","all entries are used");
+            }
+        }
+
+        idNumberField.clear();
+        useBookletBtn.setVisible(false);
+        useBookletBtn.setDisable(true);
+        customer = null;
+    }
+
+    @FXML
+    void getCustomerByID(ActionEvent event) {
+        System.out.println(idNumberField.textProperty().getValue());
+        try {
+            int id = Integer.parseInt(idNumberField.textProperty().getValue());
+            if (idNumberField.textProperty().getValue().trim().length() == 9) {
+                Message message = new Message();
+                message.setMessage(GET_CUSTOMER_INFO);
+                message.setData(GET_CUSTOMER_ID);
+                message.setCustomerID(idNumberField.textProperty().getValue().trim());
+                client.sendMessage(message);
+            }else {
+                SimpleClient.showAlert(Alert.AlertType.ERROR,"Error in Id","please enter 9 digits Id");
+            }
+        }catch (NumberFormatException e) {
+            SimpleClient.showAlert(Alert.AlertType.ERROR,"Error in Id","please enter a valid number");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        useBookletBtn.setVisible(true);
+        useBookletBtn.setDisable(false);
     }
 }
