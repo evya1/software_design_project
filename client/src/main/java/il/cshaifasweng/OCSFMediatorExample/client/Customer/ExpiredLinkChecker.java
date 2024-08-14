@@ -12,10 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_CUSTOMER_ID;
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_CUSTOMER_INFO;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.BOOKLET_POP_UP_MESSAGE;
-
 
 public class ExpiredLinkChecker implements Runnable {
 

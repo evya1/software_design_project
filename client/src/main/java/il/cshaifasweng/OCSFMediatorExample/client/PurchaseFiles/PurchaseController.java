@@ -10,6 +10,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseTyp
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -25,9 +26,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.BOOKLET_POP_UP_MESSAGE;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PACKAGE_POP_UP_MESSAGE;
-import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.PRIMARY_SCREEN;
+import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.StyleUtil.changeControlBorderColor;
 import static il.cshaifasweng.OCSFMediatorExample.client.Utility.Dialogs.popUpAndReturnToMainScreen;
 
@@ -183,8 +182,26 @@ public class PurchaseController implements ClientDependent {
 
     @FXML
     private void returnBtnControl(ActionEvent event) {
-        Stage stage = (Stage) returnBtn.getScene().getWindow();
-        client.moveScene(localMessage.getSourceFXML(), stage, null);
+        try {
+            Stage stage = (Stage) returnBtn.getScene().getWindow();
+            System.out.println(localMessage.getSourceFXML());
+            Message message = new Message();
+            EventBus.getDefault().unregister(this);
+
+            //If coming back to the CHOOSE_SEATS OR Movie INFORMATION se-tup the movie information.
+            if(localMessage!= null){
+                if(localMessage.getSourceFXML().equals(CHOOSE_SEATS_SCREEN) || localMessage.getSourceFXML().equals(MOVIE_INFORMATION))
+                {
+                    message.setSpecificMovie(localMessage.getSpecificMovie());
+                    message.setSourceFXML(PAYMENT_SCREEN);
+                    message.setMovieSlot(localMessage.getMovieSlot());
+                }
+            }
+
+            client.moveScene(localMessage.getSourceFXML(), stage, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private int checkInput(){
