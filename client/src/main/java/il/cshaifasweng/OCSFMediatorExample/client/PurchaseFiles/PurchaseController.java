@@ -10,7 +10,6 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseTyp
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -118,7 +117,7 @@ public class PurchaseController implements ClientDependent {
 
             Platform.runLater(() -> {
                 //TODO: Add option per type.
-                if (message.getPurchase() != null) {
+                if (Objects.equals(message.getMessage(), "New Purchase") && message.getPurchase() != null) {
                     Purchase purchase = message.getPurchase();
                     System.out.println("Purchase received: " + purchase);
                     final String title = "Purchase Confirmed!";
@@ -172,7 +171,7 @@ public class PurchaseController implements ClientDependent {
 
         if(flag == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");
-
+            System.out.println(customer.getPersonalID());
             client.sendMessage(message);
         }
 
@@ -184,10 +183,8 @@ public class PurchaseController implements ClientDependent {
     private void returnBtnControl(ActionEvent event) {
         try {
             Stage stage = (Stage) returnBtn.getScene().getWindow();
-            System.out.println(localMessage.getSourceFXML());
             Message message = new Message();
             EventBus.getDefault().unregister(this);
-
             //If coming back to the CHOOSE_SEATS OR Movie INFORMATION se-tup the movie information.
             if(localMessage!= null){
                 if(localMessage.getSourceFXML().equals(CHOOSE_SEATS_SCREEN) || localMessage.getSourceFXML().equals(MOVIE_INFORMATION))
@@ -197,7 +194,6 @@ public class PurchaseController implements ClientDependent {
                     message.setMovieSlot(localMessage.getMovieSlot());
                 }
             }
-
             client.moveScene(localMessage.getSourceFXML(), stage, message);
         } catch (Exception e) {
             e.printStackTrace();

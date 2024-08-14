@@ -18,6 +18,11 @@ import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.
 
 public class CustomerInfoHandler implements RequestHandler {
     Session session;
+    private SimpleServer server;
+
+    public CustomerInfoHandler(SimpleServer server) {
+        this.server = server;
+    }
 
     @Override
     public void handle(Message message, ConnectionToClient client) throws IOException {
@@ -56,9 +61,9 @@ public class CustomerInfoHandler implements RequestHandler {
                     session.update(cust);
                     session.getTransaction().commit();
                     answer.setMessage(message.getMessage());
-                    answer.setData(GET_CUSTOMER_ID);
+                    answer.setData("update the customers screen");
                     answer.setCustomer(cust);
-                    client.sendToClient(answer);
+                    server.sendToAllClients(answer);
                 default:
                     break;
             }

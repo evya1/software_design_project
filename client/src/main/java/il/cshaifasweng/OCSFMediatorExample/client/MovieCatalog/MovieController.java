@@ -211,7 +211,6 @@ public class MovieController implements ClientDependent {
             this.movie = (Movie) message.getSpecificMovie();
             System.out.println("Movie" + movie);
         }
-
     }
 
     public void purchaseTicketsAction(ActionEvent actionEvent) {
@@ -222,7 +221,7 @@ public class MovieController implements ClientDependent {
             Message message = new Message();
             message.setMovieSlot(selectedMovieSlot);
             message.setSpecificMovie(movie);
-            message.setSourceFXML(MOVIE_INFORMATION);//THIS IS WHAT I CHANGED
+            message.setSourceFXML(MOVIE_INFORMATION);
             try {
                 EventBus.getDefault().unregister(this);
                 Stage stage = (Stage) movieTicketBtn.getScene().getWindow();
