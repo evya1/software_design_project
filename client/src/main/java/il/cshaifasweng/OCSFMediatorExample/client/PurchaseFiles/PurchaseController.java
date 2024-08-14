@@ -119,7 +119,7 @@ public class PurchaseController implements ClientDependent {
 
             Platform.runLater(() -> {
                 //TODO: Add option per type.
-                if (message.getPurchase() != null) {
+                if (Objects.equals(message.getMessage(), "New Purchase") && message.getPurchase() != null) {
                     Purchase purchase = message.getPurchase();
                     System.out.println("Purchase received: " + purchase);
                     final String title = "Purchase Confirmed!";
@@ -173,7 +173,7 @@ public class PurchaseController implements ClientDependent {
 
         if(flag == 0) {
             System.out.println("Payment Information Clear, Sending Message to server...");
-
+            System.out.println(customer.getPersonalID());
             client.sendMessage(message);
         }
 
@@ -184,7 +184,15 @@ public class PurchaseController implements ClientDependent {
     @FXML
     private void returnBtnControl(ActionEvent event) {
         Stage stage = (Stage) returnBtn.getScene().getWindow();
-        client.moveScene(localMessage.getSourceFXML(), stage, null);
+        if (localMessage.getSourceFXML() == "catalogM/Movie")
+        {
+            Message message = new Message();
+            message.setSpecificMovie(localMessage.getSpecificMovie());
+            client.moveScene(localMessage.getSourceFXML(), stage, message);
+        } else if (localMessage.getSourceFXML() == "Primary") {
+            client.moveScene(localMessage.getSourceFXML(), stage, null);
+        }
+
     }
 
     private int checkInput(){

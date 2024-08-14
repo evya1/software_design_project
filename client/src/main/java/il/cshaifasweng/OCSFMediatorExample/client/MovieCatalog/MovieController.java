@@ -237,7 +237,7 @@ public class MovieController implements ClientDependent {
             message.setSpecificMovie(movie);
             message.setPurchaseType(PurchaseType.MOVIE_LINK);
             message.setMessage("New Movielink");
-
+            message.setSourceFXML("catalogM/Movie");
             Stage stage = (Stage) viewPackageBtn.getScene().getWindow();
             client.moveScene(PAYMENT_SCREEN,stage,message);
         } catch (Exception e) {

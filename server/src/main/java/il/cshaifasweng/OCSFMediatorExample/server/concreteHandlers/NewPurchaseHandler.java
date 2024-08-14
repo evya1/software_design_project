@@ -6,6 +6,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
+import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
@@ -17,7 +18,15 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_CUSTOMER_ID;
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_CUSTOMER_INFO;
+
 public class NewPurchaseHandler implements RequestHandler {
+    private SimpleServer server;
+
+    public NewPurchaseHandler(SimpleServer server) {
+        this.server = server;
+    }
 
     @Override
     public void handle(Message message, ConnectionToClient client) throws IOException {
@@ -32,17 +41,29 @@ public class NewPurchaseHandler implements RequestHandler {
             PriceConstants price = DataCommunicationDB.getPrices();
             // Checking if the request is to create a new purchase.
             if ("New Booklet".equals(message.getMessage().toString())) {
-                handleNewPurchase(message, PurchaseType.BOOKLET, session,price);
+                handleNewPurchase(message, PurchaseType.BOOKLET, session, price);
             } else if ("New Movielink".equals(message.getMessage().toString())) {
-                handleNewPurchase(message, PurchaseType.MOVIE_LINK, session,price);
+                handleNewPurchase(message, PurchaseType.MOVIE_LINK, session, price);
 
             } else if ("New Movie Ticket".equals(message.getMessage().toString())) {
-                handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session,price);
+                handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session, price);
             }
 
             answer.setData(message.getPurchase().getPurchaseType().toString());
             answer.setPurchase(message.getPurchase());
             client.sendToClient(answer);
+            Customer customer = DataCommunicationDB.getCustomerByPersonalID(session, message.getCustomer().getPersonalID());
+            session.beginTransaction();
+
+            for (Purchase purchase : customer.getPurchases())
+                System.out.println(purchase.getId());
+            session.update(customer);
+            session.getTransaction().commit();
+            answer.setCustomer(customer);
+            answer.setData("update the customers screen");
+            answer.setMessage(GET_CUSTOMER_INFO);
+            server.sendToAllClients(answer);
+
             // All requests are to be within the try block -- END HERE
         } catch (Exception e) {
             System.err.println("An error occurred");
@@ -161,7 +182,7 @@ public class NewPurchaseHandler implements RequestHandler {
                             break;
                         }
                     }
-                    if (flag==0){
+                    if (flag == 0) {
                         break;
                     }
                     flag = 0;
@@ -190,7 +211,7 @@ public class NewPurchaseHandler implements RequestHandler {
         }
     }
 
-    public InboxMessage setInboxMessage (InboxMessage inboxMessage, PurchaseType purchaseType, Purchase purchase){
+    public InboxMessage setInboxMessage(InboxMessage inboxMessage, PurchaseType purchaseType, Purchase purchase) {
         inboxMessage.setMessageTitle("New purchase");
         switch (purchaseType) {
             case BOOKLET:
