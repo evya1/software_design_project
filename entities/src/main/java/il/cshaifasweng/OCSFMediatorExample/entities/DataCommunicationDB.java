@@ -301,7 +301,8 @@ public class DataCommunicationDB
 
                             List <Seat> seats = new ArrayList<>(); // Set seats list
                             for(int a = 0; a < 70; a++ ){
-                                Seat seat = new Seat(a, false, theater);
+                                Seat seat = new Seat();
+                                seat.setTheater(theater);
                                 seat.setMovieSlot(movieSlot);
                                 session.save(seat);
                                 seats.add(seat);

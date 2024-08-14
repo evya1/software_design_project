@@ -5,15 +5,11 @@ public class FilePathController {
     public static final String ADD_EDIT_MOVIE = "catalogM/addNewMovie";
     public static final String MOVIE_INFORMATION = "catalogM/Movie";
     public static final String MOVIE_GRID_ENTITY = "catalogM/movieGrid";
-    public static final String BOOKLET_POP_UP_MESSAGE = "purchases/bookletPopupMessage";
-    public static final String PACKAGE_POP_UP_MESSAGE = "purchases/packagePopupMessage";
-    public static final String EXPIRED_POP_UP_MESSAGE = "customer/expiredPopupMessage";
     public static final String PAYMENT_SCREEN = "purchases/paymentScreen";
     public static final String CLIENT_CONFIG = "ServerLogin";
     public static final String COMPLAINT_SCREEN = "complaints/complaintSubmission";
-    public static final String SUBMISSION_POP_UP_MESSAGE = "complaints/complaintSubmissionPopUp";
     public static final String EMPLOYEE_SCREEN = "employeeFX/EmployeePanel";
-    public static final String CUSTOMER_SCREEN = "customer/CustomerPanel";
+    public static final String CUSTOMER_SCREEN = "Customer/CustomerPanel";
     public static final String COMPLAINT_HANDLER_SCREEN = "employeeFX/handleComplaintPanel";
     public static final String ADMIN_SCREEN = "employeeFX/AdminPanel";
     public static final String CHOOSE_SEATS_SCREEN = "purchases/ChooseSeatsPanel";
