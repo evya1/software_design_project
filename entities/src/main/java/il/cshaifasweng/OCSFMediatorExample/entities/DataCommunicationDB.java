@@ -298,6 +298,16 @@ public class DataCommunicationDB
                             MovieSlot movieSlot = new MovieSlot(movie, LocalDateTime.of(year, month, day, 10, 0),
                                     LocalDateTime.of(year, month, day, 12, 0), theater);
                             movieSlot.setBranch(branch); // Set the branch for the movie slot
+
+                            List <Seat> seats = new ArrayList<>(); // Set seats list
+                            for(int a = 0; a < 70; a++ ){
+                                Seat seat = new Seat();
+                                seat.setTheater(theater);
+                                seat.setMovieSlot(movieSlot);
+                                session.save(seat);
+                                seats.add(seat);
+                            }
+                            movieSlot.setSeatList(seats);
                             movieSlots.add(movieSlot);
                             session.save(movieSlot);
                         }

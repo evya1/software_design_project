@@ -70,7 +70,11 @@ public class HandleComplaintController implements ClientDependent {
     private void initialize(){
         is_handled = false;
         complaint = localMessage.getComplaint();
-        PurchaseTypeField.setText(complaint.getPurchaseType().toString());
+        if(complaint.getPurchaseType() != null)
+            PurchaseTypeField.setText(complaint.getPurchaseType().toString());
+        else{
+            PurchaseTypeField.setText("Other");
+        }
         PurchaseTypeField.setDisable(true);
         complaintTitleField.setText(complaint.getComplaintTitle());
         complaintTitleField.setDisable(true);
