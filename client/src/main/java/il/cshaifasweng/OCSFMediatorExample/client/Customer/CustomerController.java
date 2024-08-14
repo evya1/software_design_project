@@ -491,7 +491,6 @@ public class CustomerController implements ClientDependent {
         });
     }
 
-    //TODO: check why it doesn't update the database and also why the clearing isn't working
     @FXML
     void cancelAction(ActionEvent event) {
         MovieTicket selectedMovieTicket = movieTicketTableView.getSelectionModel().getSelectedItem();

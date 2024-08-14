@@ -16,7 +16,7 @@ public class Booklet implements Serializable {
 
 
     public void useEntry(){
-        this.numOfEntries = numOfEntries--;
+        this.numOfEntries--;
     }
 
     public int getNumOfEntries() {return numOfEntries;}

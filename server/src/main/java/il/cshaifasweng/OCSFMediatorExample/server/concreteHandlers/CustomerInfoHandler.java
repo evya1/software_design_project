@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
@@ -47,6 +48,17 @@ public class CustomerInfoHandler implements RequestHandler {
                     answer.setCustomerMessages(messages);
                     client.sendToClient(answer);
                     break;
+                case "update Booklet":
+                    session.beginTransaction();
+                    Booklet booklet = session.get(Booklet.class, message.getBooklet().getId());
+                    booklet.setNumOfEntries(message.getBooklet().getNumOfEntries());
+                    Customer cust = session.get(Customer.class, message.getCustomer().getId());
+                    session.update(cust);
+                    session.getTransaction().commit();
+                    answer.setMessage(message.getMessage());
+                    answer.setData(GET_CUSTOMER_ID);
+                    answer.setCustomer(cust);
+                    client.sendToClient(answer);
                 default:
                     break;
             }
