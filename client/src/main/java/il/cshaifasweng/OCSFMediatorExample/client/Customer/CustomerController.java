@@ -395,6 +395,13 @@ public class CustomerController implements ClientDependent {
                             bookletTableView.getItems().addAll(booklets); // Add new items
                             bookletTableView.refresh(); // Refresh the table view to display new data
                         }
+
+                        if (localCustomer.getComplaints() != null && !localCustomer.getComplaints().isEmpty()) {
+                            tableViewComplaints.getItems().clear(); // Clear existing items
+                            tableViewComplaints.getItems().addAll(localCustomer.getComplaints()); // Add new items
+                            tableViewComplaints.refresh(); // Refresh the table view to display new data
+                        }
+
                         List<MovieTicket> movieTickets = localCustomer.getPurchases().stream()
                                 .map(Purchase::getPurchasedMovieTicket)
                                 .filter(Objects::nonNull)
@@ -415,7 +422,9 @@ public class CustomerController implements ClientDependent {
                     }
                     if (localCustomer.getInboxMessages() != null && !localCustomer.getInboxMessages().isEmpty()) {
                         List<InboxMessage> messages = localCustomer.getInboxMessages();
+                        tableViewInbox.getItems().clear();
                         tableViewInbox.getItems().addAll(messages);
+                        tableViewInbox.refresh();
                     }
                 }
             } else if (message.getData().equals(GET_CUSTOMER_ID)) {
