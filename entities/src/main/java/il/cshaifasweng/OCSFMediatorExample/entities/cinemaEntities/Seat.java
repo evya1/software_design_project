@@ -10,6 +10,8 @@ import java.io.Serializable;
 public class Seat implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
     private int seatNum;
 
     private boolean taken;
@@ -67,5 +69,9 @@ public class Seat implements Serializable {
 
     public void setMovieSlot(MovieSlot movieslot) {
         this.movieSlot = movieslot;
+    }
+
+    public int getId() {
+        return id;
     }
 }

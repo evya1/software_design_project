@@ -116,7 +116,7 @@ public class PurchaseController implements ClientDependent {
             Message message = event.getMessage();
 
             Platform.runLater(() -> {
-                //TODO: Add option per type.
+
                 if (Objects.equals(message.getMessage(), "New Purchase") && message.getPurchase() != null) {
                     Purchase purchase = message.getPurchase();
                     System.out.println("Purchase received: " + purchase);
@@ -150,8 +150,7 @@ public class PurchaseController implements ClientDependent {
         flag = checkInput();
 
         Message message = new Message();
-        message.setCustomer(new Customer());
-        Customer customer = message.getCustomer();
+        Customer customer = new Customer();
         customer.setFirstName(privateNameField.getText());
         customer.setLastName(surnameNameField.getText());
         customer.setPersonalID(idNumberField.getText());
@@ -164,7 +163,14 @@ public class PurchaseController implements ClientDependent {
         payment.setExpiryDate(convertToDate(expireField.getText()));
         customer.setPayment(payment);
 
-
+        if(localMessage.getSourceFXML().equals(CHOOSE_SEATS_SCREEN)){
+            try {
+                message.setChosenSeats(localMessage.getChosenSeats());
+                message.setMovieSlot(localMessage.getMovieSlot());
+            } catch (Exception e) {
+                System.out.println("Attempting to set fields not related to the purchase.");
+            }
+        }
         message.setCustomer(customer);
         message.setMessage(localMessage.getMessage());
         message.setSpecificMovie(localMessage.getSpecificMovie());
