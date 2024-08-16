@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.NEW_TICKETS;
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
 public class ChooseSeatsController implements ClientDependent {
@@ -269,8 +269,34 @@ public class ChooseSeatsController implements ClientDependent {
         purchaseTicketBtn.setVisible(false);
         purchaseTicketBtn.setDisable(true);
         selectedSeats.clear();
-        seats = localMessage.getMovieSlot().getSeatList();
-        seatChecker();
+        if (!localMessage.getSourceFXML().equals(PAYMENT_SCREEN)) {
+            seats = localMessage.getMovieSlot().getSeatList();
+        }
+        else{
+            Message message = new Message();
+            message.setMessage(MOVIE_SLOT_INFORMATION);
+            message.setData(GET_MOVIE_SLOT_BY_ID);
+            message.setMovieSlot(localMessage.getMovieSlot());
+            client.sendMessage(message);
+        }
+
+        Image availableSeatImage = new Image("il/cshaifasweng/OCSFMediatorExample/client/theaters/AvailableSeat.png");
+        Image takenSeatImage = new Image("il/cshaifasweng/OCSFMediatorExample/client/theaters/TakenSeat.png");
+
+        for (int i = 0; i < seats.size(); i++) {
+            Seat seat = seats.get(i);
+            ImageView seatImageView = getSeatImageView(i);
+
+            assert seatImageView != null;
+            if (seat.isTaken()) {
+                seatImageView.setImage(takenSeatImage);
+                seatImageView.setUserData("taken");
+                seatImageView.setDisable(true);
+            } else {
+                seatImageView.setImage(availableSeatImage);
+                seatImageView.setUserData("available");
+            }
+        }
         // region Initialize event handlers for all seats
         row1seat1.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> handleSeatClick(row1seat1));
         row1seat2.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> handleSeatClick(row1seat2));
@@ -351,39 +377,22 @@ public class ChooseSeatsController implements ClientDependent {
         //endregion
 
     }
-    private void seatChecker(){
-        Image availableSeatImage = new Image("il/cshaifasweng/OCSFMediatorExample/client/theaters/AvailableSeat.png");
-        Image takenSeatImage = new Image("il/cshaifasweng/OCSFMediatorExample/client/theaters/TakenSeat.png");
-
-        for (int i = 0; i < seats.size(); i++) {
-            Seat seat = seats.get(i);
-            ImageView seatImageView = getSeatImageView(i);
-
-            if (seat.isTaken()) {
-                seatImageView.setImage(takenSeatImage);
-                seatImageView.setUserData("taken");
-                seatImageView.setDisable(true);
-            } else {
-                seatImageView.setImage(availableSeatImage);
-                seatImageView.setUserData("available");
-            }
-        }
-    }
 
     @Subscribe
     public void handleMessageFromServer(MessageEvent event){
         if (event != null) {
             Message message = event.getMessage();
-
-            if(message.getMessage().equals(NEW_TICKETS)){
-                System.out.println("Entered NEW_TICKETS MEessage");
-                if(message.getMovieSlot().equals(localMessage.getMovieSlot()))
-                    Platform.runLater(() -> {
-                        seats = message.getMovieSlot().getSeatList();
-                        seatChecker();
-                    });
+            if (message.getMessage().equals(NEW_TICKETS)) {
+                System.out.println("Message from Server: " + message.getMovieSlot().getId());
+                System.out.println("Local Message " + localMessage.getMovieSlot().getId() );
+                if(message.getMovieSlot().getId() == (localMessage.getMovieSlot().getId())) {
+                    Platform.runLater(() -> seats = message.getMovieSlot().getSeatList());
+                    Platform.runLater(this::refreshSeatSelectionScreen);
+                }
+            } else if (message.getMessage().equals(MOVIE_SLOT_INFORMATION)) {
+                Platform.runLater(() -> seats = message.getMovieSlot().getSeatList());
+                Platform.runLater(this::refreshSeatSelectionScreen);
             }
-
         }
         else {
             System.out.println("Invalid event data or not a Purchase instance");
@@ -506,29 +515,26 @@ public class ChooseSeatsController implements ClientDependent {
         Image markedImage = new Image("il/cshaifasweng/OCSFMediatorExample/client/theaters/MarkedSeat.png");
         Image availableImage = new Image("il/cshaifasweng/OCSFMediatorExample/client/theaters/AvailableSeat.png");
         int seatIndex = getSeatIndex(seatImageView);
-        System.out.println("This is the movie slot seat list: " + localMessage.getMovieSlot().getSeatList().size() );
-        Seat seat;
-        seat = localMessage.getMovieSlot().getSeatList().get(seatIndex);
+        System.out.println("This is the movie slot seat list: " + localMessage.getMovieSlot().getSeatList().size());
+        Seat seat = localMessage.getMovieSlot().getSeatList().get(seatIndex);
 
-        if(seatImageView.getUserData().equals("selected")){
+        Object userData = seatImageView.getUserData();
+        if ("selected".equals(userData)) {
             seatImageView.setImage(availableImage);
             seatImageView.setUserData("available");
             selectedSeats.remove(seat);
-            System.out.println("This is a check for removing from chosen seats "+ selectedSeats.get(seatIndex).getSeatNum());
-
-        }
-        else if (seatImageView.getUserData().equals("available")){
+            System.out.println("This is a check for removing from chosen seats " + seat.getSeatNum());
+        } else if ("available".equals(userData)) {
             seatImageView.setImage(markedImage);
             seatImageView.setUserData("selected");
             selectedSeats.add(seat);
-            System.out.println("This is a check for adding to chosen seats "+ selectedSeats.size());
-        }
-        else if(seatImageView.getUserData().equals("taken")){
+            System.out.println("This is a check for adding to chosen seats " + selectedSeats.size());
+        } else if ("taken".equals(userData)) {
             seatImageView.setDisable(true);
         }
+
         purchaseTicketBtn.setDisable(selectedSeats.isEmpty());
         purchaseTicketBtn.setVisible(!selectedSeats.isEmpty());
-
     }
 
     private ImageView getSeatImageView(int index) {
@@ -713,7 +719,6 @@ public class ChooseSeatsController implements ClientDependent {
 
     private void refreshSeatSelectionScreen() {
         // Re-fetch the seats list and reinitialize the seats on the screen
-        List<Seat> seats = localMessage.getMovieSlot().getSeatList();
         selectedSeats.clear();
 
         Image availableSeatImage = new Image("il/cshaifasweng/OCSFMediatorExample/client/theaters/AvailableSeat.png");

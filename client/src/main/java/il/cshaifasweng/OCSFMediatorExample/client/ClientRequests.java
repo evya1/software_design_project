@@ -9,6 +9,7 @@ public class ClientRequests {
     public static final String UPDATE_MOVIE = "Update Movie";
     public static final String UPDATE_MOVIE_SLOT = "Update movie slot";
     public static final String DELETE_MOVIE_SLOT = "Delete movie slot";
+    public static final String GET_MOVIE_SLOT_BY_ID = "Get Movie Slot by ID";
     public static final String NEW_MOVIE_SLOT = "New Movie Slot";
     public static final String MOVIE_SLOT_INFORMATION = "Movie Slot Information";
     public static final String GET_MOVIE_SLOT_BY_MOVIE_ID = "get movie slot by movie ID";

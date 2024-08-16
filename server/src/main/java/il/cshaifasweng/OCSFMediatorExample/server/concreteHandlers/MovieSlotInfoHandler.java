@@ -12,8 +12,7 @@ import org.hibernate.Transaction;
 
 import java.util.List;
 
-import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.GET_MOVIE_SLOT_BY_MOVIE_ID;
-import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.MOVIE_SLOT_INFORMATION;
+import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
 
 public class MovieSlotInfoHandler implements RequestHandler {
     private static Session session;
@@ -24,26 +23,39 @@ public class MovieSlotInfoHandler implements RequestHandler {
             SessionFactory sessionFactory = DataCommunicationDB.getSessionFactory(DataCommunicationDB.getPassword());
             session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
+            Movie movie = null;
+            List<MovieSlot> screeningTimes = null;
 
-            //Loading the movie Entity
-            Movie movie = session.get(Movie.class, message.getSpecificMovie().getId());
+            if (message.getData().equals(GET_MOVIE_SLOT_BY_MOVIE_ID)) {
+                //Loading the movie Entity
+                movie = session.get(Movie.class, message.getSpecificMovie().getId());
 
-            List<MovieSlot> screeningTimes = movie.getMovieScreeningTime();
-            screeningTimes.size();
-            for (MovieSlot movieSlot : screeningTimes) {
-                if (movieSlot.getTheater() != null && movieSlot.getBranch() != null) {
-                movieSlot.getTheater().getId();
-                movieSlot.getBranch().getBranchName();
+                screeningTimes = movie.getMovieScreeningTime();
+                screeningTimes.size();
+                for (MovieSlot movieSlot : screeningTimes) {
+                    if (movieSlot.getTheater() != null && movieSlot.getBranch() != null) {
+                    movieSlot.getTheater().getId();
+                    movieSlot.getBranch().getBranchName();
+                    }
                 }
+                transaction.commit();
+                Message answer = new Message();
+                answer.setMovieSlots(screeningTimes);
+                answer.setSpecificMovie(movie);
+                answer.setMessage(MOVIE_SLOT_INFORMATION);
+                answer.setData(GET_MOVIE_SLOT_BY_MOVIE_ID);
+                client.sendToClient(answer);
             }
-            transaction.commit();
+            else if (message.getData().equals(GET_MOVIE_SLOT_BY_ID)) {
+                MovieSlot movieSlot = session.get(MovieSlot.class, message.getMovieSlot().getId());
+                Message answer = new Message();
+                answer.setMovieSlot(movieSlot);
+                answer.setMessage(MOVIE_SLOT_INFORMATION);
+                answer.setData(GET_MOVIE_SLOT_BY_ID);
+                client.sendToClient(answer);
+            }
 
-            Message answer = new Message();
-            answer.setMovieSlots(screeningTimes);
-            answer.setSpecificMovie(movie);
-            answer.setMessage(MOVIE_SLOT_INFORMATION);
-            answer.setData(GET_MOVIE_SLOT_BY_MOVIE_ID);
-            client.sendToClient(answer);
+
 
         } catch (Exception e) {
             if (session != null) {
