@@ -4,6 +4,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Seat;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
@@ -38,18 +39,12 @@ public class UpdatePurchaseHandler implements RequestHandler {
                     // Update the purchase's cancelled status
                     oldPurchase.setCancelled(updatePurchase.isCancelled());
 
-                    //releasing the purchased seat
+                    //releasing the purchased seat and updating the number of available seats in the theater
                     if(oldPurchase.getPurchaseType() == PurchaseType.MOVIE_TICKET){
-                        int freeSeatNum = oldPurchase.getPurchasedMovieTicket().getSeatNum();
-                        Theater theater = oldPurchase.getPurchasedMovieTicket().getMovieSlot().getTheater();
-                        theater.setAvailableSeats(theater.getAvailableSeats() + 1);
-                        //TODO: Need to update to MovieSlot seats and not Theater.
-                        //Seat freeSeat = theater.getSeatList().get(freeSeatNum);
-                        //freeSeat.setTaken(false);
-
-                        // Save the Theater and Seat
-                        //session.update(freeSeat);
-                        session.update(theater);
+                       MovieSlot localSlot = session.get(MovieSlot.class, oldPurchase.getPurchasedMovieTicket().getMovieSlot().getId());
+                       localSlot.increaseSeat();
+                        Seat freeSeat = session.get(Seat.class, oldPurchase.getPurchasedMovieTicket().getSeatID());
+                        freeSeat.setTaken(false);
                     }
 
                     // Adding message to customer's inbox

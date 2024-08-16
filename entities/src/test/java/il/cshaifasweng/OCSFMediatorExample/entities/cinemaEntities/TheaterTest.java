@@ -26,7 +26,7 @@ public class TheaterTest {
         seats = new ArrayList<>();
         movieSlots = new ArrayList<>();
         branch = createBranch("InitialBranch", "initial@branch.com", "Initial", "Manager");
-        theater = new Theater(70, 50, movieSlots, 10);
+        theater = new Theater(70,  movieSlots, 10);
         theater.setBranch(branch);
     }
 
@@ -95,22 +95,6 @@ public class TheaterTest {
         assertEquals(numOfSeats, theater.getNumOfSeats());
 
         printTestInfo("Number of seats set successfully");
-    }
-
-    @Test
-    public void testGetAvailableSeats() {
-        assertEquals(50, theater.getAvailableSeats());
-
-        printTestInfo("Available seats retrieved successfully");
-    }
-
-    @Test
-    public void testSetAvailableSeats() {
-        int availableSeats = 75;
-        theater.setAvailableSeats(availableSeats);
-        assertEquals(availableSeats, theater.getAvailableSeats());
-
-        printTestInfo("Available seats set successfully");
     }
 
     @Test

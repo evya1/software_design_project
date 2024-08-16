@@ -42,6 +42,8 @@ public class RequestTypes {
     public static final String UPDATE_MOVIE_SLOT = "Update movie slot";
     public static final String NEW_MOVIE_SLOT = "New Movie Slot";
     public static final String GET_CUSTOMER_MESSAGES = "Get customer messages";
+    public static final String NEW_TICKETS = "There are new tickets";
+
 
 
 

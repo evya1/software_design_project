@@ -36,6 +36,7 @@ public class ClientRequests {
     public static final String UPDATE_PURCHASE = "UPDATE PURCHASE";
     public static final String GET_COMPLAINT_REQUEST = "New Complaint";
     public static final String GET_CUSTOMER_MESSAGES = "Get customer messages";
+    public static final String NEW_TICKETS = "There are new tickets";
 
 
 

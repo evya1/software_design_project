@@ -35,6 +35,7 @@ public class MovieSlot implements Serializable {
     @OneToMany(mappedBy = "movieSlot", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private List<Seat> seatList;
+    private int availableSeats = 70;
 
     private String movieTitle;
     private LocalDateTime startDateTime;
@@ -137,4 +138,20 @@ public class MovieSlot implements Serializable {
     public void setSeatList(List<Seat> seatList) {
         this.seatList = seatList;
     }
+
+    public int getAvailableSeats() {
+        return availableSeats;
+    }
+
+    public void setAvailableSeats(int availableSeats) {
+        this.availableSeats = availableSeats;
+    }
+    public void increaseSeat(){
+        this.availableSeats++;
+    }
+    public void decreaseSeat(){
+        this.availableSeats--;
+    }
+
+
 }

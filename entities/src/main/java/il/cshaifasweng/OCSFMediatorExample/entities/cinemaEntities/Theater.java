@@ -15,7 +15,6 @@ public class Theater implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int theaterNum;
     private int numOfSeats;
-    private int availableSeats;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "branch_id")
@@ -29,15 +28,14 @@ public class Theater implements Serializable {
 
     public Theater() {}
 
-    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, int rowLength) {
+    public Theater(int numOfSeats, List<MovieSlot> schedule, int rowLength) {
         setNumOfSeats(numOfSeats);
-        setAvailableSeats(availableSeats);
         setSchedule(schedule);
         setRowLength(rowLength);
     }
 
-    public Theater(int numOfSeats, int availableSeats, List<MovieSlot> schedule, int rowLength, Branch branch) {
-        this(numOfSeats,availableSeats,schedule,rowLength);
+    public Theater(int numOfSeats, List<MovieSlot> schedule, int rowLength, Branch branch) {
+        this(numOfSeats,schedule,rowLength);
         setBranch(branch);
     }
 
@@ -58,13 +56,6 @@ public class Theater implements Serializable {
         this.numOfSeats = numOfSeats;
     }
 
-    public int getAvailableSeats() {
-        return availableSeats;
-    }
-
-    public void setAvailableSeats(int availableSeats) {
-        this.availableSeats = availableSeats;
-    }
 
     public Branch getBranch() {
         return branch;
