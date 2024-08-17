@@ -15,9 +15,13 @@ import org.hibernate.service.ServiceRegistry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.*;
+import static java.time.Month.*;
 
 public class DataCommunicationDB
 {
@@ -61,6 +65,7 @@ public class DataCommunicationDB
         configuration.addAnnotatedClass(Complaint.class);
         configuration.addAnnotatedClass(PriceConstants.class);
         configuration.addAnnotatedClass(InboxMessage.class);
+        configuration.addAnnotatedClass(ReportData.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
@@ -1160,5 +1165,112 @@ public class DataCommunicationDB
     //endregion
 
     public static void main(String[] args) {
+    }
+
+    public static Month getQuarterStartMonth(Month month) {
+        switch (month) {
+            case JANUARY:
+            case FEBRUARY:
+            case MARCH:
+                return JANUARY;
+            case APRIL:
+            case MAY:
+            case JUNE:
+                return APRIL;
+            case JULY:
+            case AUGUST:
+            case SEPTEMBER:
+                return JULY;
+            case OCTOBER:
+            case NOVEMBER:
+            case DECEMBER:
+                return OCTOBER;
+            default:
+                throw new IllegalArgumentException("Invalid month: " + month);
+        }
+    }
+
+    public static List<Report> getReportsForEmployee(Employee employee, ReportSpanType reportSpanType, Message message) {
+        Session session = getSession();
+        List<Report> reports = null;
+        EmployeeType employeeType = employee.getEmployeeType();
+
+        try {
+            Transaction transaction = session.beginTransaction();
+
+            String hql = employeeType == CHAIN_MANAGER
+                    ? "FROM Report WHERE reportSpanType = :reportSpanType"
+                    : "FROM Report WHERE branch = :branch AND reportSpanType = :reportSpanType";
+
+            Query<Report> query = session.createQuery(hql, Report.class);
+            query.setParameter("reportSpanType", reportSpanType);
+
+            if (employeeType == BRANCH_MANAGER) {
+                query.setParameter("branch", employee.getBranch());
+            }
+
+            reports = query.getResultList();
+
+            if (reports.isEmpty()) {
+                ReportService reportService = new ReportService(session);
+
+                Optional<PurchaseType> purchaseType = Optional.ofNullable(message.getPurchaseType());
+
+                Optional<Branch> optionalBranch = Optional.ofNullable(employee.getBranch());
+                int year = message.getYear();
+                switch (message.getMessage()) {
+                    case FETCH_MONTHLY_REPORTS:
+                        Optional<Month> optionalMonth = Optional.ofNullable(message.getMonth());
+                        reports = reportService.generateReport(
+                                Monthly,
+                                year,
+                                optionalBranch,
+                                optionalMonth,
+                                purchaseType
+                        );
+                        break;
+
+                    case FETCH_YEARLY_REPORTS:
+                        reports = reportService.generateReport(
+                                Yearly,
+                                year, optionalBranch,
+                                null,
+                                purchaseType
+                        );
+                        break;
+
+                    case FETCH_LAST_QUARTER_REPORT:
+                        Optional<Month> startMonth = Optional.ofNullable(getQuarterStartMonth(message.getMonth()));
+                        reports = reportService.generateReport(
+                                Quarterly,
+                                year, optionalBranch,
+                                startMonth,
+                                purchaseType
+                        );
+                        break;
+
+                    // Add other cases as needed
+                }
+
+                // Save generated reports to the database
+                session.beginTransaction();
+                for (Report report : reports) {
+                    session.save(report);
+                }
+                session.getTransaction().commit();
+            }
+
+            transaction.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback(); // Rollback on error
+            }
+        } finally {
+            session.close();
+        }
+
+        return reports;
     }
 }
