@@ -1,10 +1,13 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.userRequests;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,199 +18,235 @@ import java.util.Map;
 @Table(name = "report")
 public class Report implements Serializable {
 
+
+    /**
+     * Represents the unique ID of the report.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * Represents the branch associated with the report.
+     */
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "branch_id")
+    @JoinColumn(name = "branch_id", nullable = false)
     private Branch branch;
 
+    /**
+     * Represents the span type of the report (e.g., Daily, Monthly, Quarterly, etc.).
+     */
     @Enumerated(EnumType.STRING)
-    private ReportType reportType;
+    @Column(name = "report_span_type", nullable = false)
+    private ReportSpanType reportSpanType;
 
+    @Enumerated(EnumType.ORDINAL)
+    @Column
+    private PurchaseType purchaseType;
+
+    /**
+     * Represents the month for which the report is generated.
+     */
     @Enumerated(EnumType.STRING)
+    @Column(name = "month", nullable = true)
     private Month month;
 
+    /**
+     * Represents the year for which the report is generated.
+     */
+    @Column(name = "year", nullable = false)
+    private int year;
+
+    /**
+     * Represents the date the report was generated.
+     */
+    @Column(name = "report_date")
     private LocalDate reportDate;
 
     /**
-     * Details for human-readable information.
+     * Represents a descriptive label for the report.
      */
+    @Column(name = "label", length = 255)
+    private String label;
+
+    /**
+     * Contains human-readable details or notes about the report.
+     */
+    @Column(name = "details", length = 2000)
     private String details;
 
     /**
-     * Data for charts/graphs. Key-value pairs to represent graph data.
+     * Stores simple key-value pairs for chart data. The key is the label, and the value is the data point.
      */
     @ElementCollection
     @CollectionTable(name = "report_data", joinColumns = @JoinColumn(name = "report_id"))
     @MapKeyColumn(name = "label")
-    @Column(name = "value")
+    @Column
     private Map<String, Double> dataForGraphs;
 
     /**
-     * Path to a file containing detailed data.
+     * Stores complex or pre-calculated chart data in serialized (e.g., JSON) format.
      */
+    @Lob
+    @Column(name = "serialized_report_data", columnDefinition = "TEXT")
+    private String serializedReportData;
+
+    /**
+     * Represents the file path to additional detailed data related to the report.
+     */
+    @Column(name = "data_file_path", length = 500)
     private String dataFilePath;
 
-    // Default constructor required by JPA
+    /**
+     * Represents a list of detailed report data entries associated with this report.
+     */
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Column
+    private List<ReportData> reportDataList;
+
     public Report() {}
 
     /**
      * Smart constructor with Builder pattern.
+     *
      * @param builder the builder object containing all required fields
      */
     public Report(Builder builder) {
         this.branch = builder.branch;
-        this.reportType = builder.reportType;
+        this.reportSpanType = builder.reportSpanType;
         this.month = builder.month;
+        this.year = builder.year;
         this.reportDate = builder.reportDate;
         this.details = builder.details;
         this.dataForGraphs = builder.dataForGraphs;
+        this.serializedReportData = builder.serializedReportData;
         this.dataFilePath = builder.dataFilePath;
+        this.label = builder.label;
+        this.reportDataList = builder.reportDataList;
+        this.purchaseType = builder.purchaseType;
     }
 
     // Getters and setters
-
-    /**
-     * Gets the report ID.
-     * @return the report ID
-     */
     public int getId() {
         return id;
     }
 
-    /**
-     * Sets the report ID.
-     * @param id the report ID
-     */
     public void setId(int id) {
         this.id = id;
     }
 
-    /**
-     * Gets the branch associated with the report.
-     * @return the branch
-     */
     public Branch getBranch() {
         return branch;
     }
 
-    /**
-     * Sets the branch associated with the report.
-     * @param branch the branch
-     */
     public void setBranch(Branch branch) {
         this.branch = branch;
     }
 
-    /**
-     * Gets the report type.
-     * @return the report type
-     */
-    public ReportType getReportType() {
-        return reportType;
+    public ReportSpanType getReportType() {
+        return reportSpanType;
     }
 
-    /**
-     * Sets the report type.
-     * @param reportType the report type
-     */
-    public void setReportType(ReportType reportType) {
-        this.reportType = reportType;
+    public void setReportSpanType(ReportSpanType reportSpanType) {
+        this.reportSpanType = reportSpanType;
     }
 
-    /**
-     * Gets the month for the report.
-     * @return the month
-     */
     public Month getMonth() {
         return month;
     }
 
-    /**
-     * Sets the month for the report.
-     * @param month the month
-     */
     public void setMonth(Month month) {
         this.month = month;
     }
 
-    /**
-     * Gets the report date.
-     * @return the report date
-     */
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
     public LocalDate getReportDate() {
         return reportDate;
     }
 
-    /**
-     * Sets the report date.
-     * @param reportDate the report date
-     */
     public void setReportDate(LocalDate reportDate) {
         this.reportDate = reportDate;
     }
 
-    /**
-     * Gets the details of the report.
-     * @return the details
-     */
     public String getDetails() {
         return details;
     }
 
-    /**
-     * Sets the details of the report.
-     * @param details the details
-     */
     public void setDetails(String details) {
         this.details = details;
     }
 
-    /**
-     * Gets the data for graphs.
-     * @return the data for graphs
-     */
     public Map<String, Double> getDataForGraphs() {
         return dataForGraphs;
     }
 
-    /**
-     * Sets the data for graphs.
-     * @param dataForGraphs the data for graphs
-     */
     public void setDataForGraphs(Map<String, Double> dataForGraphs) {
         this.dataForGraphs = dataForGraphs;
     }
 
-    /**
-     * Gets the path to the file containing detailed data.
-     * @return the data file path
-     */
+    public String getSerializedReportData() {
+        return serializedReportData;
+    }
+
+    public void setSerializedReportData(String serializedReportData) {
+        this.serializedReportData = serializedReportData;
+    }
+
     public String getDataFilePath() {
         return dataFilePath;
     }
 
-    /**
-     * Sets the path to the file containing detailed data.
-     * @param dataFilePath the data file path
-     */
     public void setDataFilePath(String dataFilePath) {
         this.dataFilePath = dataFilePath;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public List<ReportData> getReportDataList() {
+        return reportDataList;
+    }
+
+    public void setReportDataList(List<ReportData> reportDataList) {
+        this.reportDataList = reportDataList;
+    }
+
+    public PurchaseType getPurchaseType() {
+        return purchaseType;
+    }
+
+    public void setPurchaseType(PurchaseType purchaseType) {
+        this.purchaseType = purchaseType;
     }
 
     /**
      * Builder class for Report.
      */
     public static class Builder {
+        private int year;
+        private PurchaseType purchaseType;
         private Branch branch;
-        private ReportType reportType;
+        private ReportSpanType reportSpanType;
         private Month month;
         private LocalDate reportDate;
         private String details;
         private Map<String, Double> dataForGraphs;
+        private String serializedReportData;
         private String dataFilePath;
+        private String label;
+        private List<ReportData> reportDataList;
 
         public Builder() {}
 
@@ -216,13 +255,23 @@ public class Report implements Serializable {
             return this;
         }
 
-        public Builder withReportType(ReportType reportType) {
-            this.reportType = reportType;
+        public Builder withPurchaseType(PurchaseType purchaseType) {
+            this.purchaseType = purchaseType;
+            return this;
+        }
+
+        public Builder withReportSpanType(ReportSpanType reportSpanType) {
+            this.reportSpanType = reportSpanType;
             return this;
         }
 
         public Builder withMonth(Month month) {
             this.month = month;
+            return this;
+        }
+
+        public Builder withYear(int year) {
+            this.year = year;
             return this;
         }
 
@@ -241,8 +290,23 @@ public class Report implements Serializable {
             return this;
         }
 
+        public Builder withSerializedReportData(String serializedReportData) {
+            this.serializedReportData = serializedReportData;
+            return this;
+        }
+
         public Builder withDataFilePath(String dataFilePath) {
             this.dataFilePath = dataFilePath;
+            return this;
+        }
+
+        public Builder withLabel(String label) {
+            this.label = label;
+            return this;
+        }
+
+        public Builder withReportDataList(List<ReportData> reportDataList) {
+            this.reportDataList = reportDataList;
             return this;
         }
 

@@ -10,11 +10,14 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Month;
 
 
 
@@ -82,6 +85,13 @@ public class Message implements Serializable {
     private PurchaseType purchaseType;
     private List<Complaint> complaints;
     private boolean newContentFlag = false;
+
+    // Reports Related
+    private List<Report> reports;
+    private boolean isSingleReport = false;
+    private ReportSpanType reportSpanType;
+    private int year;
+    private Month month;
 
 
     public List<Theater> getTheaters() {
@@ -259,4 +269,41 @@ public class Message implements Serializable {
     public List<Seat> getChosenSeats() {return chosenSeats;}
 
     public void setChosenSeats(List<Seat> chosenSeats) {this.chosenSeats = chosenSeats;}
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
+        isSingleReport = reports != null && reports.size() == 1;
+    }
+
+    public boolean isSingleReport() {
+        return isSingleReport;
+    }
+
+    public ReportSpanType getReportSpanType() {
+        return reportSpanType;
+    }
+
+    public void setReportSpanType(ReportSpanType reportSpanType) {
+        this.reportSpanType = reportSpanType;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public Month getMonth() {
+        return month;
+    }
+
+    public void setMonth(Month month) {
+        this.month = month;
+    }
 }
