@@ -8,14 +8,17 @@ import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
-import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
-import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.time.Month;
 import java.util.List;
-
+import java.time.Month;
+import java.util.Map;
 
 
 public class Message implements Serializable {
@@ -82,6 +85,18 @@ public class Message implements Serializable {
     private PurchaseType purchaseType;
     private List<Complaint> complaints;
     private boolean newContentFlag = false;
+
+    // Reports Related
+    private List<Report> reports;
+    private boolean isSingleReport = false;
+    private ReportSpanType reportSpanType;
+    private int year;
+    private Month month;
+    private ReportType reportType;
+    private String reportLabel;
+    private String reportDetails;
+    private Map<String, Double> dataForGraphs;
+    private String serializedReportData;
 
 
     public List<Theater> getTheaters() {
@@ -259,4 +274,81 @@ public class Message implements Serializable {
     public List<Seat> getChosenSeats() {return chosenSeats;}
 
     public void setChosenSeats(List<Seat> chosenSeats) {this.chosenSeats = chosenSeats;}
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
+        isSingleReport = reports != null && reports.size() == 1;
+    }
+
+    public boolean isSingleReport() {
+        return isSingleReport;
+    }
+
+    public ReportSpanType getReportSpanType() {
+        return reportSpanType;
+    }
+
+    public void setReportSpanType(ReportSpanType reportSpanType) {
+        this.reportSpanType = reportSpanType;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public Month getMonth() {
+        return month;
+    }
+
+    public void setMonth(Month month) {
+        this.month = month;
+    }
+
+    public ReportType getReportType() {
+        return reportType;
+    }
+
+    public void setReportType(ReportType reportType) {
+        this.reportType = reportType;
+    }
+
+    public String getReportLabel() {
+        return reportLabel;
+    }
+
+    public void setReportLabel(String reportLabel) {
+        this.reportLabel = reportLabel;
+    }
+
+    public String getReportDetails() {
+        return reportDetails;
+    }
+
+    public void setReportDetails(String reportDetails) {
+        this.reportDetails = reportDetails;
+    }
+
+    public Map<String, Double> getDataForGraphs() {
+        return dataForGraphs;
+    }
+
+    public void setDataForGraphs(Map<String, Double> dataForGraphs) {
+        this.dataForGraphs = dataForGraphs;
+    }
+
+    public String getSerializedReportData() {
+        return serializedReportData;
+    }
+
+    public void setSerializedReportData(String serializedReportData) {
+        this.serializedReportData = serializedReportData;
+    }
 }

@@ -6,6 +6,8 @@ import il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
+
 public class HandlerFactory {
     private static HandlerFactory instance;
     private final Map<String, RequestHandler> handlers;
