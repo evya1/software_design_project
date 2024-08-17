@@ -15,13 +15,9 @@ import org.hibernate.service.ServiceRegistry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.*;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
-import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
-import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.*;
-import static java.time.Month.*;
 
 public class DataCommunicationDB
 {
@@ -65,7 +61,6 @@ public class DataCommunicationDB
         configuration.addAnnotatedClass(Complaint.class);
         configuration.addAnnotatedClass(PriceConstants.class);
         configuration.addAnnotatedClass(InboxMessage.class);
-        configuration.addAnnotatedClass(ReportData.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
@@ -308,6 +303,7 @@ public class DataCommunicationDB
                                 Seat seat = new Seat();
                                 seat.setTheater(theater);
                                 seat.setMovieSlot(movieSlot);
+                                seat.setSeatNum(a+1);
                                 session.save(seat);
                                 seats.add(seat);
                             }
@@ -874,6 +870,7 @@ public class DataCommunicationDB
             for (int i = 0; i < 70; i++) {
                 Seat seat = new Seat(false, slot.getTheater());
                 seat.setMovieSlot(slot);  // Set the MovieSlot reference in Seat
+                seat.setSeatNum(i+1);   //70 seats
                 seats.add(seat);
             }
 
