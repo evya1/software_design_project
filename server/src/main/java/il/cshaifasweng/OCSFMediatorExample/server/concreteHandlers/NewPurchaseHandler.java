@@ -68,9 +68,11 @@ public class NewPurchaseHandler implements RequestHandler {
             answer.setPurchase(message.getPurchase());
             client.sendToClient(answer);
 
-            answer.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
-            answer.setMessage(NEW_TICKETS);
-            server.sendToAllClients(answer);
+            if("New Movie Ticket".equals(message.getMessage().toString())) {
+                answer.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
+                answer.setMessage(NEW_TICKETS);
+                server.sendToAllClients(answer);
+            }
             
             Customer customer = DataCommunicationDB.getCustomerByPersonalID(session, message.getCustomer().getPersonalID());
             session.beginTransaction();
