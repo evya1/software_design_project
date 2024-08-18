@@ -25,14 +25,14 @@ public class HandlerFactory {
         handlers.put(RequestTypes.CHANGE_SCREENING_TIMES_REQUEST, new ChangeScreeningTimesHandler());
         handlers.put(RequestTypes.UPDATE_MOVIES_LIST_REQUEST, new UpdateMoviesListHandler());
         handlers.put(RequestTypes.MOVIE_SLOT_INFORMATION, new MovieSlotInfoHandler());
-        handlers.put(RequestTypes.GET_PURCHASE_REQUEST, new NewPurchaseHandler());
-        handlers.put(RequestTypes.GET_MOVIE_TICKET_REQUEST, new NewPurchaseHandler());
-        handlers.put(RequestTypes.GET_MOVIELINK_REQUEST, new NewPurchaseHandler());
+        handlers.put(RequestTypes.GET_PURCHASE_REQUEST, new NewPurchaseHandler(server));
+        handlers.put(RequestTypes.GET_MOVIE_TICKET_REQUEST, new NewPurchaseHandler(server));
+        handlers.put(RequestTypes.GET_MOVIELINK_REQUEST, new NewPurchaseHandler(server));
         handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler());
         handlers.put(RequestTypes.BRANCH_THEATER_INFORMATION, new BranchTheaterHandler());
-        handlers.put(RequestTypes.GET_COMPLAINT_REQUEST, new ComplaintSubmissionHandler());
+        handlers.put(RequestTypes.GET_COMPLAINT_REQUEST, new ComplaintSubmissionHandler(server));
         handlers.put(RequestTypes.GET_EMPLOYEES, new EmployeesListHandler());
-        handlers.put(RequestTypes.GET_CUSTOMER_INFO, new CustomerInfoHandler());
+        handlers.put(RequestTypes.GET_CUSTOMER_INFO, new CustomerInfoHandler(server));
         handlers.put(RequestTypes.EMPLOYEE_INFORMATION, new EmployeeModificationHandler(server));
         handlers.put(RequestTypes.UPDATE_PURCHASE, new UpdatePurchaseHandler());
     }

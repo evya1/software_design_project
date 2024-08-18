@@ -11,6 +11,7 @@ public class RequestTypes {
     public static final String GET_MOVIE_SLOT_BY_MOVIE_ID = "get movie slot by movie ID";
     public static final String GET_PURCHASE_REQUEST = "New Booklet";
     public static final String GET_MOVIE_TICKET_REQUEST = "New Movie Ticket";
+    public static final String GET_MOVIE_SLOT_BY_ID = "Get Movie Slot by ID";
     public static final String GET_MOVIELINK_REQUEST = "New Movielink";
     public static final String CREATE_NEW_MOVIE = "Content Change";
     public static final String SHOW_ALL_MOVIES = "show all movies";
@@ -42,6 +43,8 @@ public class RequestTypes {
     public static final String UPDATE_MOVIE_SLOT = "Update movie slot";
     public static final String NEW_MOVIE_SLOT = "New Movie Slot";
     public static final String GET_CUSTOMER_MESSAGES = "Get customer messages";
+    public static final String NEW_TICKETS = "There are new tickets";
+
 
 
 

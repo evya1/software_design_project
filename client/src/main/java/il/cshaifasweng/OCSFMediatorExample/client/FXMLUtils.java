@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.client.Customer.CustomerController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 

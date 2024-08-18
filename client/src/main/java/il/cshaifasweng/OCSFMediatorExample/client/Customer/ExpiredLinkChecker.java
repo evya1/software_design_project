@@ -3,10 +3,15 @@ package il.cshaifasweng.OCSFMediatorExample.client.Customer;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import java.util.concurrent.TimeUnit;
 
 
 public class ExpiredLinkChecker implements Runnable {
@@ -45,14 +50,14 @@ public class ExpiredLinkChecker implements Runnable {
                             movieLink.setInvalid();
                             movieLink.setInactive();
                             Thread.sleep(1000);
-                            customerController.linkRefreshRequest(true);
+                           Platform.runLater(() -> customerController.linkRefreshRequest(true));
                         }
                         else if (!movieLink.isActive()) {
                             delay = Duration.between(creationTime, now).toMillis();
                             if(delay > 0){
                                 Thread.sleep(1500);
                                 movieLink.setActive();
-                                customerController.linkRefreshRequest(false);
+                                Platform.runLater(() -> customerController.linkRefreshRequest(false));
 
                             }
                         }

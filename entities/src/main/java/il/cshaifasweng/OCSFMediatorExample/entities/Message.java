@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Seat;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
@@ -12,6 +13,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -54,6 +56,7 @@ public class Message implements Serializable {
 
     //Movie Ticket related messages
     private MovieTicket movieTicket;
+    private List<Seat> chosenSeats;
 
     private String customerID;
 
@@ -252,4 +255,8 @@ public class Message implements Serializable {
     public void setCustomerMessages(List<InboxMessage> customerMessages) {
         this.customerMessages = customerMessages;
     }
+
+    public List<Seat> getChosenSeats() {return chosenSeats;}
+
+    public void setChosenSeats(List<Seat> chosenSeats) {this.chosenSeats = chosenSeats;}
 }

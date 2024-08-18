@@ -3,6 +3,7 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
@@ -47,15 +48,16 @@ public class ComplaintsHandler implements RequestHandler {
                 server.sendToAllClients(answer);
             } else if (message.getData().equals("change complaint status")) {
                 //TODO: Sajed - why the method activates twice?
-                System.out.println("I AM HERE!!!");
                 session.beginTransaction();
                 Complaint complaint = session.get(Complaint.class, message.getComplaint().getId());
                 if(complaint.getComplaintStatus().equals("Open")){
                     InboxMessage inboxMessage = new InboxMessage();
                     inboxMessage.setMessageTitle("New Complaint Resolution");
                     inboxMessage.setMessageContent("Your complaint has been closed. For more information, check your personal area.");
-                    inboxMessage.setCustomer(message.getComplaint().getCustomer());
-                    message.getComplaint().getCustomer().getInboxMessages().add(inboxMessage);
+                    Customer currentCustomer = session.get(Customer.class, message.getComplaint().getCustomer().getId());
+                    inboxMessage.setCustomer(currentCustomer);
+                    currentCustomer.getInboxMessages().add(inboxMessage);
+                    session.save(inboxMessage);
                 }
                 complaint.setComplaintStatus(message.getComplaint().getComplaintStatus());
                 complaint.setComplaintContent(message.getComplaint().getComplaintContent());

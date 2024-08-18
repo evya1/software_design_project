@@ -85,13 +85,12 @@ public class SimpleChatServer {
 
 
         try {
-            DataCommunicationDB.generateMovieList();
+            //DataCommunicationDB.generateMovieList();
 //             DataCommunicationDB.createMockData();
             DataCommunicationDB.printAllEntities();
 
             Thread expiredLinksCheckerThread = new Thread(new ExpiredLinksChecker(sessionFactory));
             expiredLinksCheckerThread.start();
-
 
         } catch (Exception exception) {
             System.err.println("An error occurred: " + exception.getMessage());

@@ -207,7 +207,10 @@ public class MovieController implements ClientDependent {
     @Override
     public void setMessage(Message message) {
         this.localMessage = message;
-        this.movie = (Movie) message.getSpecificMovie();
+        if(!(message==null)) {
+            this.movie = (Movie) message.getSpecificMovie();
+            System.out.println("Movie" + movie);
+        }
     }
 
     public void purchaseTicketsAction(ActionEvent actionEvent) {
@@ -217,6 +220,8 @@ public class MovieController implements ClientDependent {
             EventBus.getDefault().unregister(this);
             Message message = new Message();
             message.setMovieSlot(selectedMovieSlot);
+            message.setSpecificMovie(movie);
+            message.setSourceFXML(MOVIE_INFORMATION);
             try {
                 EventBus.getDefault().unregister(this);
                 Stage stage = (Stage) movieTicketBtn.getScene().getWindow();
@@ -237,7 +242,7 @@ public class MovieController implements ClientDependent {
             message.setSpecificMovie(movie);
             message.setPurchaseType(PurchaseType.MOVIE_LINK);
             message.setMessage("New Movielink");
-
+            message.setSourceFXML(MOVIE_INFORMATION);
             Stage stage = (Stage) viewPackageBtn.getScene().getWindow();
             client.moveScene(PAYMENT_SCREEN,stage,message);
         } catch (Exception e) {

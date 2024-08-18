@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Booklet;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
@@ -17,6 +18,11 @@ import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.
 
 public class CustomerInfoHandler implements RequestHandler {
     Session session;
+    private SimpleServer server;
+
+    public CustomerInfoHandler(SimpleServer server) {
+        this.server = server;
+    }
 
     @Override
     public void handle(Message message, ConnectionToClient client) throws IOException {
@@ -27,7 +33,6 @@ public class CustomerInfoHandler implements RequestHandler {
             DataCommunicationDB.setSession(session);
             Message answer = new Message();
             Customer customer;
-
             switch (message.getData()) {
                 case GET_CUSTOMER_ID:
                     answer.setMessage(message.getMessage());
@@ -48,6 +53,17 @@ public class CustomerInfoHandler implements RequestHandler {
                     answer.setCustomerMessages(messages);
                     client.sendToClient(answer);
                     break;
+                case "update Booklet":
+                    session.beginTransaction();
+                    Booklet booklet = session.get(Booklet.class, message.getBooklet().getId());
+                    booklet.setNumOfEntries(message.getBooklet().getNumOfEntries());
+                    Customer cust = session.get(Customer.class, message.getCustomer().getId());
+                    session.update(cust);
+                    session.getTransaction().commit();
+                    answer.setMessage(message.getMessage());
+                    answer.setData("update the customers screen");
+                    answer.setCustomer(cust);
+                    server.sendToAllClients(answer);
                 default:
                     break;
             }

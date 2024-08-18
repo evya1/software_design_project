@@ -121,8 +121,7 @@ public class DataCommunicationDB
             List<Theater> branchTheaters = branch.getTheaterList();
             for (Theater branchTheater : branchTheaters) {
                 System.out.println("\tTheater ID: " + branchTheater.getId() +
-                        ", Num of Seats: " + branchTheater.getNumOfSeats() +
-                        ", Available Seats: " + branchTheater.getAvailableSeats());
+                        ", Num of Seats: " + branchTheater.getNumOfSeats());
             }
 
             // Print Report
@@ -281,7 +280,7 @@ public class DataCommunicationDB
                 // Create Theaters for each Branch
                 List<Theater> theaters = new ArrayList<>();
                 for (int j = 1; j <= 3; j++) {
-                    Theater theater = new Theater(70, 70, new ArrayList<>(), 10);
+                    Theater theater = new Theater(70, new ArrayList<>(), 10);
                     theater.setBranch(branch);
                     theaters.add(theater);
                     session.save(theater);
@@ -298,6 +297,17 @@ public class DataCommunicationDB
                             MovieSlot movieSlot = new MovieSlot(movie, LocalDateTime.of(year, month, day, 10, 0),
                                     LocalDateTime.of(year, month, day, 12, 0), theater);
                             movieSlot.setBranch(branch); // Set the branch for the movie slot
+
+                            List <Seat> seats = new ArrayList<>(); // Set seats list
+                            for(int a = 0; a < 70; a++ ){
+                                Seat seat = new Seat();
+                                seat.setTheater(theater);
+                                seat.setMovieSlot(movieSlot);
+                                seat.setSeatNum(a+1);
+                                session.save(seat);
+                                seats.add(seat);
+                            }
+                            movieSlot.setSeatList(seats);
                             movieSlots.add(movieSlot);
                             session.save(movieSlot);
                         }
@@ -865,6 +875,7 @@ public class DataCommunicationDB
             for (int i = 0; i < 70; i++) {
                 Seat seat = new Seat(false, slot.getTheater());
                 seat.setMovieSlot(slot);  // Set the MovieSlot reference in Seat
+                seat.setSeatNum(i+1);   //70 seats
                 seats.add(seat);
             }
 
@@ -1043,7 +1054,7 @@ public class DataCommunicationDB
     }
 
     private static Theater createTheaterForBranch(Branch branch) {
-        Theater theater = new Theater(70, 70, new ArrayList<>(), 10);
+        Theater theater = new Theater(70, new ArrayList<>(), 10);
         theater.setBranch(branch);
         session.save(theater);
         return theater;
@@ -1080,8 +1091,8 @@ public class DataCommunicationDB
         customer.setLastName(lastName);
         customer.setEmail(email);
         customer.setPersonalID(personalID);
-        customer.setPurchases(new ArrayList<Purchase>()); // Initialize empty purchases list
-        customer.setComplaints(new ArrayList<Complaint>()); // Initialize empty complaints list
+        customer.setPurchases(new ArrayList<>()); // Initialize empty purchases list
+        customer.setComplaints(new ArrayList<>()); // Initialize empty complaints list
 
         session.save(customer);
         return customer;

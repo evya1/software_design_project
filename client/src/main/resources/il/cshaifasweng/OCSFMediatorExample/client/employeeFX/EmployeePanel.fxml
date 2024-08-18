@@ -7,12 +7,14 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <VBox alignment="CENTER" prefHeight="650.0" prefWidth="1400.0" spacing="20.0" styleClass="PanelBackground" stylesheets="@../catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ContentChange.EmployeeController">
     <children>
@@ -33,6 +35,23 @@
                         <String fx:value="hover-button" />
                      </styleClass></ComboBox>
                   <ListView fx:id="complaintsListView" layoutX="401.0" layoutY="126.0" onMouseClicked="#complaintToHandle" prefHeight="263.0" prefWidth="219.0" />
+                  <Text fx:id="id" fill="WHITE" layoutX="27.0" layoutY="118.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ID Number:" wrappingWidth="164.01950120925903">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="idNumberField" layoutX="159.0" layoutY="100.0" onAction="#getCustomerByID" prefHeight="25.0" prefWidth="174.0" promptText="* Enter 9 Digit ID" styleClass="rounded-corners" />
+                  <Text fx:id="useBooklet" fill="WHITE" layoutX="57.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Use ticket From Booklet" wrappingWidth="268.01950883865356">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Text>
+                  <Button fx:id="useBookletBtn" layoutX="109.0" layoutY="138.0" mnemonicParsing="false" onAction="#useBooklet" prefHeight="26.0" prefWidth="116.0" stylesheets="@../catalogM/styleColor.css" text="Use Booklet" textFill="WHITE">
+                     <styleClass>
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
+                     </styleClass>
+                  </Button>
                </children>
                 </AnchorPane>
             </center>

@@ -41,6 +41,8 @@ public class CustomerController implements ClientDependent {
     private Customer localCustomer;
     private List<MovieLink> movieLinks;
 
+
+
     @FXML
     private Button homeScreenBtn;
 
@@ -363,6 +365,63 @@ public class CustomerController implements ClientDependent {
                     tableViewInbox.refresh();
                 });
 
+            } else if (message.getData().equals("update the customers screen")) {
+                if (Integer.parseInt(localCustomer.getPersonalID()) == Integer.parseInt(message.getCustomer().getPersonalID())) {
+                    localCustomer = message.getCustomer();
+                    try {
+                        // Extract movie links from purchases
+                        movieLinks = localCustomer.getPurchases().stream()
+                                .map(Purchase::getPurchasedMovieLink)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+                    } catch (Exception e) {
+                        System.out.println("Customer has no movie links");
+                    }
+                    if (localCustomer.getPurchases() != null && !localCustomer.getPurchases().isEmpty()) {
+                        // Extract booklets from purchases
+                        List<Booklet> booklets = localCustomer.getPurchases().stream()
+                                .map(Purchase::getPurchasedBooklet)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+
+                        if (!booklets.isEmpty()) {
+
+                            bookletTableView.getItems().clear(); // Clear existing items
+                            bookletTableView.getItems().addAll(booklets); // Add new items
+                            bookletTableView.refresh(); // Refresh the table view to display new data
+                        }
+
+                        if (localCustomer.getComplaints() != null && !localCustomer.getComplaints().isEmpty()) {
+                            tableViewComplaints.getItems().clear(); // Clear existing items
+                            tableViewComplaints.getItems().addAll(localCustomer.getComplaints()); // Add new items
+                            tableViewComplaints.refresh(); // Refresh the table view to display new data
+                        }
+
+                        List<MovieTicket> movieTickets = localCustomer.getPurchases().stream()
+                                .map(Purchase::getPurchasedMovieTicket)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+
+                        if (!movieTickets.isEmpty()) {
+                            movieTicketTableView.getItems().clear(); // Clear existing items
+                            movieTicketTableView.getItems().addAll(movieTickets); // Add new items
+                            movieTicketTableView.refresh(); // Refresh the table view to display new data
+                        }
+
+                        if (!movieLinks.isEmpty()) {
+                            moviePackageTableView.getItems().clear(); // Clear existing items
+                            moviePackageTableView.getItems().addAll(movieLinks); // Add new items
+                            moviePackageTableView.refresh(); // Refresh the table view to display new data
+                        }
+
+                    }
+                    if (localCustomer.getInboxMessages() != null && !localCustomer.getInboxMessages().isEmpty()) {
+                        List<InboxMessage> messages = localCustomer.getInboxMessages();
+                        tableViewInbox.getItems().clear();
+                        tableViewInbox.getItems().addAll(messages);
+                        tableViewInbox.refresh();
+                    }
+                }
             } else if (message.getData().equals(GET_CUSTOMER_ID)) {
                 Platform.runLater(() -> {
                     String displayMessage = "Customer wasn't found";
@@ -379,6 +438,7 @@ public class CustomerController implements ClientDependent {
                         catch (Exception e){
                             System.out.println("Customer has no movie links");
                         }
+
                         if(movieLinks != null){
                             this.expiredLinkChecker = new ExpiredLinkChecker(client, localCustomer.getId(), movieLinks, this);
                             expiredLinkCheckerThread = new Thread(expiredLinkChecker);
@@ -387,8 +447,9 @@ public class CustomerController implements ClientDependent {
 
                         displayMessage = message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName();
                         welcomeLabel.setText("Welcome " + message.getCustomer().getFirstName() + " " + message.getCustomer().getLastName() + " Choose the information you wish to view from the side menu");
+                        if (!connectedFlag)
+                            SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Customer connected", displayMessage);
                         loggedInButtons();
-                        SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Customer connected", displayMessage);
                     } else {
                         connectedFlag = false;
                         SimpleClient.showAlert(Alert.AlertType.ERROR, "Wrong information", displayMessage);
@@ -400,6 +461,7 @@ public class CustomerController implements ClientDependent {
             Platform.runLater(() -> {
                 showAlert("Purchase Cancellation", "The Purchase was cancelled successfully.");
                 System.out.println("Enetered");
+
             });
 
         }
@@ -428,7 +490,7 @@ public class CustomerController implements ClientDependent {
     void loginLogoutAction(ActionEvent event) {
         if (connectedFlag) {
             loggedOutButtons();
-            expiredLinkChecker.stopChecker();
+//            expiredLinkChecker.stopChecker();
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Logged out", "Logged out successfully.");
 
             // Perform logout
@@ -483,12 +545,11 @@ public class CustomerController implements ClientDependent {
         });
     }
 
-    //TODO: check why it doesn't update the database and also why the clearing isn't working
     @FXML
     void cancelAction(ActionEvent event) {
         MovieTicket selectedMovieTicket = movieTicketTableView.getSelectionModel().getSelectedItem();
         MovieLink selectedMovieLink = moviePackageTableView.getSelectionModel().getSelectedItem();
-
+        boolean flag = false;
         if (selectedMovieTicket != null) {
             Purchase purchase = localCustomer.getPurchases().stream()
                     .filter(p -> p.getPurchasedMovieTicket() != null && p.getPurchasedMovieTicket().equals(selectedMovieTicket))
@@ -509,6 +570,7 @@ public class CustomerController implements ClientDependent {
                 } else {
                     showAlert("No refund", "There is no refund available for this purchase.");
                 }
+                flag = true;
             } else {
                 showAlert("Invalid Ticket", "The ticket is invalid.");
             }
@@ -534,11 +596,19 @@ public class CustomerController implements ClientDependent {
                 } else {
                     showAlert("No refund", "There is no refund available for this purchase.");
                 }
+                flag = true;
             } else {
                 showAlert("Invalid Link", "The link is invalid.");
             }
         } else {
             showAlert("No selection", "No selection to cancel.");
+        }
+        if (flag) {
+            Message message = new Message();
+            message.setMessage(GET_CUSTOMER_INFO);
+            message.setData(GET_CUSTOMER_MESSAGES);
+            message.setCustomer(localCustomer);
+            client.sendMessage(message);
         }
         moviePackageTableView.getSelectionModel().clearSelection();
     }
@@ -832,7 +902,6 @@ public class CustomerController implements ClientDependent {
         } else {
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "No Messages", "Your inbox is empty.");
         }
-
     }
 
     @Override
