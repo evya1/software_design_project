@@ -85,7 +85,7 @@ public class SimpleChatServer {
 
 
         try {
-            //DataCommunicationDB.generateMovieList();
+            DataCommunicationDB.generateMovieList();
 //             DataCommunicationDB.createMockData();
             DataCommunicationDB.printAllEntities();
 

@@ -490,7 +490,7 @@ public class CustomerController implements ClientDependent {
     void loginLogoutAction(ActionEvent event) {
         if (connectedFlag) {
             loggedOutButtons();
-//            expiredLinkChecker.stopChecker();
+            expiredLinkChecker.stopChecker();
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Logged out", "Logged out successfully.");
 
             // Perform logout
