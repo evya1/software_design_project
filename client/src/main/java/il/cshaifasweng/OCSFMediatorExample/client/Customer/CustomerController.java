@@ -430,7 +430,7 @@ public class CustomerController implements ClientDependent {
 
                         try{
                             // Extract movie links from purchases
-                             movieLinks = localCustomer.getPurchases().stream()
+                            movieLinks = localCustomer.getPurchases().stream()
                                     .map(Purchase::getPurchasedMovieLink)
                                     .filter(Objects::nonNull)
                                     .collect(Collectors.toList());

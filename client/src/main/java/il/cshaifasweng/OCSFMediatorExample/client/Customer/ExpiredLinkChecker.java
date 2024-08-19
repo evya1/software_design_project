@@ -50,7 +50,7 @@ public class ExpiredLinkChecker implements Runnable {
                             movieLink.setInvalid();
                             movieLink.setInactive();
                             Thread.sleep(1000);
-                           Platform.runLater(() -> customerController.linkRefreshRequest(true));
+                            Platform.runLater(() -> customerController.linkRefreshRequest(true));
                         }
                         else if (!movieLink.isActive()) {
                             delay = Duration.between(creationTime, now).toMillis();
@@ -73,5 +73,3 @@ public class ExpiredLinkChecker implements Runnable {
     }
 
 }
-
-
