@@ -16,6 +16,7 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -58,9 +59,9 @@ public class NewPurchaseHandler implements RequestHandler {
                     return;
                 }
                 int size = message.getChosenSeats().size();
-                for(int i = 0 ; i < size; i++) {
+                for (int i = 0; i < size; i++) {
                     System.out.println("The current num of seats are : " + i);
-                    handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session,price);
+                    handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session, price);
                 }
             }
 
@@ -68,10 +69,12 @@ public class NewPurchaseHandler implements RequestHandler {
             answer.setPurchase(message.getPurchase());
             client.sendToClient(answer);
 
-            answer.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
-            answer.setMessage(NEW_TICKETS);
-            server.sendToAllClients(answer);
-            
+            if ("New Movie Ticket".equals(message.getMessage().toString())) {
+                answer.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
+                answer.setMessage(NEW_TICKETS);
+                server.sendToAllClients(answer);
+            }
+
             Customer customer = DataCommunicationDB.getCustomerByPersonalID(session, message.getCustomer().getPersonalID());
             session.beginTransaction();
 
@@ -116,6 +119,13 @@ public class NewPurchaseHandler implements RequestHandler {
             Customer customer = message.getCustomer();
             Customer existingCustomer = DataCommunicationDB.getCustomerByPersonalID(session, customer.getPersonalID());
 
+            Query<Payment> query = session.createQuery("FROM Payment WHERE cardNumber = :cardNumber AND" +
+                    " cvv = :cvv AND expiryDate = :expiryDate", Payment.class);
+            query.setParameter("cardNumber", customer.getPayment().getCardNumber());
+            query.setParameter("cvv", customer.getPayment().getCvv());
+            query.setParameter("expiryDate", customer.getPayment().getExpiryDate());
+            Payment payment = query.uniqueResult();
+
             if (existingCustomer != null) {
                 //Customer Exists.
                 System.out.println("Customer exists with ID: " + existingCustomer.getId());
@@ -125,6 +135,18 @@ public class NewPurchaseHandler implements RequestHandler {
                 existingCustomer.getPurchases().add(purchase);
                 inboxMessage.setCustomer(existingCustomer);
                 existingCustomer.getInboxMessages().add(inboxMessage);
+                if (payment != null) {
+                    payment = session.get(Payment.class, payment.getPaymentID());
+                    payment.setCustomer(existingCustomer);
+                    existingCustomer.setPayment(payment);
+                    session.update(payment);
+                } else {
+                    payment = message.getCustomer().getPayment();
+                    payment.setCustomer(existingCustomer);
+                    existingCustomer.setPayment(payment);
+                    session.save(payment);
+                }
+
                 session.save(inboxMessage);
                 session.save(purchase);
                 session.update(existingCustomer);
@@ -137,9 +159,24 @@ public class NewPurchaseHandler implements RequestHandler {
                 customer.getPurchases().add(purchase);
                 inboxMessage.setCustomer(customer);
                 customer.getInboxMessages().add(inboxMessage);
-                session.save(inboxMessage);
-                session.save(customer); // Save customer first to generate ID
-                session.save(purchase); // Then save purchase to link it to customer
+                if (payment != null) {
+                    payment = session.get(Payment.class, payment.getPaymentID());
+                    payment.setCustomer(customer);
+                    customer.setPayment(payment);
+                    session.save(inboxMessage);
+                    session.save(customer); // Save customer first to generate ID
+                    session.save(purchase); // Then save purchase to link it to customer
+                    session.update(payment);
+                } else {
+                    payment = message.getCustomer().getPayment();
+                    payment.setCustomer(customer);
+                    customer.setPayment(payment);
+                    session.save(inboxMessage);
+                    session.save(customer); // Save customer first to generate ID
+                    session.save(purchase); // Then save purchase to link it to customer
+                    session.save(payment);
+                }
+
                 System.out.println("Successfully created new customer.");
             }
             session.flush();
@@ -148,7 +185,6 @@ public class NewPurchaseHandler implements RequestHandler {
             System.out.println("Entering the PurchaseEntity");
             setPurchaseEntity(purchase, purchaseType, session, message);
             session.update(purchase); // Update the purchase with the correct entity
-
 
 
             // Log for checking IDs
@@ -238,9 +274,9 @@ public class NewPurchaseHandler implements RequestHandler {
                 session.flush();
                 System.out.println("Movie Ticket Purchase Call Received");
                 MovieTicket movieTicket = new MovieTicket();
-                movieTicket.setBranch(session.get(Branch.class,localMessage.getMovieSlot().getBranch().getId()));
-                movieTicket.setMovie(session.get(Movie.class,localMessage.getSpecificMovie().getId()));
-                movieTicket.setMovieSlot(session.get(MovieSlot.class,localMessage.getMovieSlot().getId()));
+                movieTicket.setBranch(session.get(Branch.class, localMessage.getMovieSlot().getBranch().getId()));
+                movieTicket.setMovie(session.get(Movie.class, localMessage.getSpecificMovie().getId()));
+                movieTicket.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
                 movieTicket.setMovieName(localMessage.getSpecificMovie().getMovieName());
                 movieTicket.setBranchName(localMessage.getMovieSlot().getBranch().getBranchName());
                 movieTicket.setTheaterNum(localMessage.getMovieSlot().getTheaterId());
@@ -252,12 +288,12 @@ public class NewPurchaseHandler implements RequestHandler {
                     Seat currentSeat = session.get(Seat.class, message.getChosenSeats().getFirst().getId());
                     currentSeat.setTaken(true);
                     movieTicket.setSeatID(currentSeat.getId());
-                    
+
                     //Updating the MovieSlot number of available seats
                     MovieSlot slotToUpdate = session.get(MovieSlot.class, localMessage.getMovieSlot().getId());
                     slotToUpdate.decreaseSeat();
                     message.getChosenSeats().removeFirst();
-                    
+
                 }
 
                 session.save(movieTicket);
