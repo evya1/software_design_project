@@ -32,7 +32,6 @@ public class MovieLink implements Serializable {
     public MovieLink() {}
 
     public MovieLink(Movie movie, String movieName, String movieLink, LocalDateTime creationTime, LocalDateTime expirationTime) {
-        this.movie = movie;
         this.movieName = movieName;
         this.movieLink = movieLink;
         this.creationTime = creationTime;

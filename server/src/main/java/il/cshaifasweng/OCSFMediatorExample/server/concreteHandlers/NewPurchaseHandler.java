@@ -263,7 +263,6 @@ public class NewPurchaseHandler implements RequestHandler {
                 movieLink.setMovieName(movieName);
                 movieLink.setMovieLink(newLink);
                 Movie movie = session.get(Movie.class, message.getSpecificMovie().getId());
-                movieLink.setMovie(movie);
                 movieLink.setInactive();
 
                 session.save(movieLink);
@@ -275,7 +274,6 @@ public class NewPurchaseHandler implements RequestHandler {
                 System.out.println("Movie Ticket Purchase Call Received");
                 MovieTicket movieTicket = new MovieTicket();
                 movieTicket.setBranch(session.get(Branch.class, localMessage.getMovieSlot().getBranch().getId()));
-                movieTicket.setMovie(session.get(Movie.class, localMessage.getSpecificMovie().getId()));
                 movieTicket.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
                 movieTicket.setMovieName(localMessage.getSpecificMovie().getMovieName());
                 movieTicket.setBranchName(localMessage.getMovieSlot().getBranch().getBranchName());
