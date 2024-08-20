@@ -656,6 +656,7 @@ public class MovieAdditionController implements ClientDependent {
                     Stage stage = (Stage) newMovieBtn.getScene().getWindow();
                     message = new Message();
                     message.setMessage(NEW_MOVIE_TEXT_REQUEST);
+                    message.setEmployee(localMessage.getEmployee());
                     logger.info("Moving scene");
                     EventBus.getDefault().unregister(this);
                     client.moveScene(ADD_EDIT_MOVIE, stage, message);
@@ -696,6 +697,13 @@ public class MovieAdditionController implements ClientDependent {
                         logger.info("Movie ID: {} Was requested to be deleted.", movie.getId());
                         message.setMovieID(movie.getId());
                         client.sendMessage(message);
+                        Stage stage = (Stage) deleteMovieBtn.getScene().getWindow();
+                        message = new Message();
+                        message.setMessage("back to change content screen");
+                        message.setEmployee(localMessage.getEmployee());
+                        logger.info("Moving scene");
+                        EventBus.getDefault().unregister(this);
+                        client.moveScene(ADD_EDIT_MOVIE, stage, message);
                     },
                     //Action to perform on NO
                     () -> {
@@ -731,6 +739,7 @@ public class MovieAdditionController implements ClientDependent {
             Stage stage = (Stage) newMovieBtn.getScene().getWindow();
             Message message = new Message();
             message.setMessage(NEW_MOVIE_TEXT_REQUEST);
+            message.setEmployee(localMessage.getEmployee());
             logger.info("Moving scene");
             EventBus.getDefault().unregister(this);
             client.moveScene(ADD_EDIT_MOVIE, stage, message);
@@ -840,6 +849,7 @@ public class MovieAdditionController implements ClientDependent {
             Stage stage = (Stage) backBtn1.getScene().getWindow();
             Message message = new Message();
             message.setMessage("back to change content screen");
+            message.setEmployee(localMessage.getEmployee());
             logger.info("Moving scene");
             EventBus.getDefault().unregister(this);
             client.moveScene(ADD_EDIT_MOVIE, stage, message);

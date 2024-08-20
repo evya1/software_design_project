@@ -34,7 +34,7 @@ public class MovieRequestHandler implements RequestHandler {
             answer.setMessage(MOVIES_REQUEST);
 
             switch(message.getData()){
-                case SHOW_ALL_MOVIES: //TODO: Refactor this case.
+                case SHOW_ALL_MOVIES:
                     String hql = "FROM Movie";
                     Query query = session.createQuery(hql);
                     List<Movie> movies = query.list();

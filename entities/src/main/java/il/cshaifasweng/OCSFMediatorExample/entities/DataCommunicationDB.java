@@ -199,27 +199,27 @@ public class DataCommunicationDB
             }
 
             // create employees and save them in the DB
-            Employee e1 = new Employee("emp1","stam","eqwe@gmail.com","7sny",
-                    "12345",false,null,BASE,null);
-            Employee e2 = new Employee("emp2","service","sherotlko7ot@gmail.com",
-                    "sherot","sL1234",false,null,SERVICE,null);
-            Employee e3 = new Employee("emp3","content","tochen@gmail.com","1",
-                    "1",false,null,CONTENT_MANAGER,null);
-            Employee e4 = new Employee("emp4","CEO","CHM@gmail.com",
-                    "Mnkal","imCEO1",false,null,CHAIN_MANAGER,null);
+            Employee e1 = new Employee("Josh","Burns","Burns@gmail.com","Base",
+                    "Password",false,null,BASE,null);
+            Employee e2 = new Employee("Jimmy","Cash","sherotlko7ot@gmail.com",
+                    "Service","Password",false,null,SERVICE,null);
+            Employee e3 = new Employee("Sherlott","Chance","tochen@gmail.com","1",
+                    "Content",false,null,CONTENT_MANAGER,null);
+            Employee e4 = new Employee("Moki","Shtut","CHM@gmail.com",
+                    "CEO","Password",false,null,CHAIN_MANAGER,null);
             List<Employee> employees = Arrays.asList(e1, e2, e3, e4);
             for (Employee employee : employees) {
                 session.save(employee);
             }
 
             //customer
-            Customer customer1 = new Customer("cust1","smith","csm@gmail.com","123456789",
+            Customer customer1 = new Customer("Yossi","Smith","csm@gmail.com","123456789",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer2 = new Customer("cust2","freeman","free@gmail.com","345345345",
+            Customer customer2 = new Customer("David","Freeman","free@gmail.com","345345345",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer3 = new Customer("cust3","fox","cfox@gmail.com","888888888",
+            Customer customer3 = new Customer("Abigail","Fox","cfox@gmail.com","888888888",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer4 = new Customer("cust4","al pacino","godfather@gmail.com","000000001",
+            Customer customer4 = new Customer("John","Al pacino","godfather@gmail.com","000000001",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
             List<Customer> customers = Arrays.asList(customer1, customer2, customer3, customer4);
             for (Customer customer : customers) {
@@ -674,6 +674,58 @@ public class DataCommunicationDB
             transaction = session.beginTransaction();
             Movie movie = session.get(Movie.class, movieId);
             if (movie != null) {
+                List<MovieSlot> slotsToDelete = getScreeningTimesByMovie(session,movie.getId());
+                for (MovieSlot slot : slotsToDelete) {
+                    try {
+                        int slotID = slot.getId();
+                        slot = getMovieSlotByID(slotID);
+
+                        if (slot == null) {
+                            System.err.println("MovieSlot with ID " + slotID + " does not exist.");
+                            session.getTransaction().rollback();
+                            return;
+                        }
+
+                        // Delete all related seats
+                        List<Seat> seats = slot.getSeatList();
+                        for (Seat seat : seats) {
+                            session.remove(seat);
+                        }
+                        slot.getSeatList().clear();
+
+                        // Detach the MovieSlot from Movie
+                        Movie movieToDetach = slot.getMovie();
+                        if (movieToDetach != null) {
+                            movieToDetach.getMovieScreeningTime().remove(slot);
+                            slot.setMovie(null);
+                        } else {
+                            System.out.println("No associated movie found for this MovieSlot.");
+                        }
+
+                        // Detach the MovieSlot from Theater
+                        Theater theater = slot.getTheater();
+                        if (theater != null) {
+                            theater.getSchedule().remove(slot);
+                            slot.setTheater(null);
+                        } else {
+                            System.out.println("No associated theater found for this MovieSlot.");
+                        }
+
+                        // Detach the MovieSlot from Branch
+                        Branch branch = slot.getBranch();
+                        if (branch != null) {
+                            slot.setBranch(null);
+                        } else {
+                            System.out.println("No associated branch found for this MovieSlot.");
+                        }
+
+                        // Finally, delete the MovieSlot
+                        session.remove(session.contains(slot) ? slot : session.merge(slot));
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                movie = session.get(Movie.class, movieId);
                 session.delete(movie);
                 System.out.println("Movie with ID " + movieId + " was deleted successfully.");
             } else {
@@ -769,11 +821,18 @@ public class DataCommunicationDB
                 return;
             }
 
+            // Delete all related seats
+            List<Seat> seats = slot.getSeatList();
+            for (Seat seat : seats) {
+                session.remove(seat);
+            }
+            slot.getSeatList().clear();
+
             // Detach the MovieSlot from Movie
             Movie movie = slot.getMovie();
             if (movie != null) {
                 movie.getMovieScreeningTime().remove(slot);
-                slot.setMovie(null);  // Only set to null if it's not already null
+                slot.setMovie(null);
             } else {
                 System.out.println("No associated movie found for this MovieSlot.");
             }
@@ -1004,8 +1063,8 @@ public class DataCommunicationDB
         ticket.setTheaterNum(theater.getId()); // Use getId() for theater number
         ticket.setSeatNum(1); // Assume seat 1 for simplicity
         ticket.setSeatRow(1);
-        ticket.setMovieSlot(new MovieSlot()); // Assume a new MovieSlot for simplicity
-        ticket.getMovieSlot().setStartDateTime(LocalDateTime.parse(dateTime));
+//        ticket.setMovieSlot(new MovieSlot()); // Assume a new MovieSlot for simplicity
+//        ticket.getMovieSlot().setStartDateTime(LocalDateTime.parse(dateTime));
 
         session.save(ticket);
         return ticket;

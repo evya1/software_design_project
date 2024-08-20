@@ -28,7 +28,7 @@ public class HandlerFactory {
         handlers.put(RequestTypes.GET_PURCHASE_REQUEST, new NewPurchaseHandler(server));
         handlers.put(RequestTypes.GET_MOVIE_TICKET_REQUEST, new NewPurchaseHandler(server));
         handlers.put(RequestTypes.GET_MOVIELINK_REQUEST, new NewPurchaseHandler(server));
-        handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler());
+        handlers.put(RequestTypes.CREATE_NEW_MOVIE, new ContentChangeHandler(server));
         handlers.put(RequestTypes.BRANCH_THEATER_INFORMATION, new BranchTheaterHandler());
         handlers.put(RequestTypes.GET_COMPLAINT_REQUEST, new ComplaintSubmissionHandler(server));
         handlers.put(RequestTypes.GET_EMPLOYEES, new EmployeesListHandler());
