@@ -13,17 +13,17 @@ import java.time.LocalDateTime;
 public class MovieTicket implements Serializable {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Movie movie;
 
-    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Branch branch;
 
-    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    MovieSlot movieSlot = new MovieSlot();
+//    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    MovieSlot movieSlot = new MovieSlot();
 
     private String movieName;
     private String branchName;
@@ -31,6 +31,7 @@ public class MovieTicket implements Serializable {
     private int seatNum;
     private int seatRow;
     private int seatID;
+    private LocalDateTime slot;
 
 
     public MovieTicket(Movie movie, Branch branch, String movieName, String branchName, int theaterNum, int seatNum, int seatRow, MovieSlot movieSlot) {
@@ -41,10 +42,12 @@ public class MovieTicket implements Serializable {
         this.theaterNum = theaterNum;
         this.seatNum = seatNum;
         this.seatRow = seatRow;
-        this.movieSlot = movieSlot;
+        //this.movieSlot = movieSlot;
+        slot = movieSlot.getStartDateTime();
     }
 
-    public MovieTicket(){}
+    public MovieTicket() {
+    }
 
     public int getTheaterNum() {
         return theaterNum;
@@ -54,11 +57,11 @@ public class MovieTicket implements Serializable {
         this.theaterNum = theaterNum;
     }
 
-    public void setSeatID (int seatID){
+    public void setSeatID(int seatID) {
         this.seatID = seatID;
     }
 
-    public int getSeatID(){
+    public int getSeatID() {
         return this.seatID;
     }
 
@@ -68,6 +71,14 @@ public class MovieTicket implements Serializable {
 
     public void setSeatRow(int seatRow) {
         this.seatRow = seatRow;
+    }
+
+    public void setSlot(LocalDateTime time) {
+        this.slot = time;
+    }
+
+    public LocalDateTime getSlot() {
+        return slot;
     }
 
     public int getSeatNum() {
@@ -114,14 +125,13 @@ public class MovieTicket implements Serializable {
         this.branchName = branchName;
     }
 
-    public MovieSlot getMovieSlot() {
-        return movieSlot;
-    }
-
-    public void setMovieSlot(MovieSlot movieSlot) {
-        this.movieSlot = movieSlot;
-    }
-
+//    public MovieSlot getMovieSlot() {
+//        return movieSlot;
+//    }
+//
+//    public void setMovieSlot(MovieSlot movieSlot) {
+//        this.movieSlot = movieSlot;
+//    }
 
 
 }
