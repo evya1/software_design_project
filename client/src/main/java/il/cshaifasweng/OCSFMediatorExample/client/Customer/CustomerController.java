@@ -220,10 +220,11 @@ public class CustomerController implements ClientDependent {
         // region Movie Ticket Columns
         idNumMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         movieNameMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("movieName"));
-        movieSlotMovieTicketCol.setCellValueFactory(cellData -> {
-            MovieSlot movieSlot = cellData.getValue().getMovieSlot();
-            return new ReadOnlyObjectWrapper<>(movieSlot.getStartDateTime());
-        });
+        movieSlotMovieTicketCol.setCellValueFactory(new PropertyValueFactory<>("slot"));
+//        movieSlotMovieTicketCol.setCellValueFactory(cellData -> {
+//            MovieSlot movieSlot = cellData.getValue().getMovieSlot();
+//            return new ReadOnlyObjectWrapper<>(movieSlot.getStartDateTime());
+//        });
         movieSlotMovieTicketCol.setCellFactory(column -> new TableCell<MovieTicket, LocalDateTime>() {
             @Override
             protected void updateItem(LocalDateTime item, boolean empty) {
@@ -558,7 +559,7 @@ public class CustomerController implements ClientDependent {
                 movieTicketTableView.getSelectionModel().clearSelection();
                 return;
             }
-            LocalDateTime startTime = selectedMovieTicket.getMovieSlot().getStartDateTime();
+            LocalDateTime startTime = selectedMovieTicket.getSlot();
             LocalDateTime now = LocalDateTime.now();
             if (now.isBefore(startTime)) {
                 if (now.plusHours(3).isBefore(startTime)) {

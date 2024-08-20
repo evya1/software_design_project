@@ -198,27 +198,27 @@ public class DataCommunicationDB
             }
 
             // create employees and save them in the DB
-            Employee e1 = new Employee("emp1","stam","eqwe@gmail.com","7sny",
-                    "12345",false,null,BASE,null);
-            Employee e2 = new Employee("emp2","service","sherotlko7ot@gmail.com",
-                    "sherot","sL1234",false,null,SERVICE,null);
-            Employee e3 = new Employee("emp3","content","tochen@gmail.com","1",
-                    "1",false,null,CONTENT_MANAGER,null);
-            Employee e4 = new Employee("emp4","CEO","CHM@gmail.com",
-                    "Mnkal","imCEO1",false,null,CHAIN_MANAGER,null);
+            Employee e1 = new Employee("Josh","Burns","Burns@gmail.com","Base",
+                    "Password",false,null,BASE,null);
+            Employee e2 = new Employee("Jimmy","Cash","sherotlko7ot@gmail.com",
+                    "Service","Password",false,null,SERVICE,null);
+            Employee e3 = new Employee("Sherlott","Chance","tochen@gmail.com","1",
+                    "Content",false,null,CONTENT_MANAGER,null);
+            Employee e4 = new Employee("Moki","Shtut","CHM@gmail.com",
+                    "CEO","Password",false,null,CHAIN_MANAGER,null);
             List<Employee> employees = Arrays.asList(e1, e2, e3, e4);
             for (Employee employee : employees) {
                 session.save(employee);
             }
 
             //customer
-            Customer customer1 = new Customer("cust1","smith","csm@gmail.com","123456789",
+            Customer customer1 = new Customer("Yossi","Smith","csm@gmail.com","123456789",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer2 = new Customer("cust2","freeman","free@gmail.com","345345345",
+            Customer customer2 = new Customer("David","Freeman","free@gmail.com","345345345",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer3 = new Customer("cust3","fox","cfox@gmail.com","888888888",
+            Customer customer3 = new Customer("Abigail","Fox","cfox@gmail.com","888888888",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer4 = new Customer("cust4","al pacino","godfather@gmail.com","000000001",
+            Customer customer4 = new Customer("John","Al pacino","godfather@gmail.com","000000001",
                     new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
             List<Customer> customers = Arrays.asList(customer1, customer2, customer3, customer4);
             for (Customer customer : customers) {
@@ -344,69 +344,69 @@ public class DataCommunicationDB
             }
 
             // Create and assign movie tickets to customers
-            MovieTicket ticket1 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 2, 1, 1, session.get(MovieSlot.class,24));
-            MovieTicket ticket2 = new MovieTicket(session.get(Movie.class, 2), session.get(Branch.class, 1), "The Matrix", "Johns Cinema", 1, 1, 1, session.get(MovieSlot.class,11));
-            MovieTicket ticket3 = new MovieTicket(session.get(Movie.class, 3), session.get(Branch.class, 2), "Interstellar", "General Bay Cinema", 5, 1, 1, session.get(MovieSlot.class,90));
-            MovieTicket ticket4 = new MovieTicket(session.get(Movie.class, 4), session.get(Branch.class, 2), "The Dark Knight", "General Bay Cinema", 4, 2, 1,session.get(MovieSlot.class,76));
-            MovieTicket ticket5 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 1, 2, 1,session.get(MovieSlot.class,5));
-            List<MovieTicket> tickets = Arrays.asList(ticket1, ticket2, ticket3, ticket4, ticket5);
-            for (MovieTicket ticket : tickets) {
-                session.save(ticket);
-            }
-
-            assignTicketToCustomer(session.get(Customer.class, customer1.getId()), ticket1, session);
-            assignTicketToCustomer(session.get(Customer.class, customer2.getId()), ticket2, session);
-            assignTicketToCustomer(session.get(Customer.class, customer3.getId()), ticket3, session);
-            assignTicketToCustomer(session.get(Customer.class, customer4.getId()), ticket4, session);
-            assignTicketToCustomer(session.get(Customer.class, customer1.getId()), ticket5, session);
-
-            // Create and assign movie links to customers
-            MovieLink link1 = new MovieLink(movie1, "Inception", "http://example.com/inception", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-            MovieLink link2 = new MovieLink(movie2, "The Matrix", "http://example.com/matrix", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-            MovieLink link3 = new MovieLink(movie3, "Interstellar", "http://example.com/interstellar", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-            MovieLink link4 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-            MovieLink link5 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
-            link1.setActive();
-            link2.setActive();
-            link3.setActive();
-            link4.setActive();
-            link5.setInvalid();
-
-            List<MovieLink> movieLinks = Arrays.asList(link1, link2, link3, link4, link5);
-            for (MovieLink movieLink : movieLinks) {
-                session.save(movieLink);
-            }
-            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link5, session);
-            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link1, session);
-            assignLinkToCustomer(session.get(Customer.class, customer2.getId()), link2, session);
-            assignLinkToCustomer(session.get(Customer.class, customer3.getId()), link3, session);
-            assignLinkToCustomer(session.get(Customer.class, customer4.getId()), link4, session);
-
-
-
-            //create and assign Booklets
-            Booklet booklet1 = new Booklet();
-            Booklet booklet2 = new Booklet();
-            Booklet booklet3 = new Booklet();
-            Booklet booklet4 = new Booklet();
-            List<Booklet> booklets = Arrays.asList(booklet1, booklet2, booklet3, booklet4);
-            for (Booklet booklet : booklets) {
-                session.save(booklet);
-            }
-            assignBookletToCustomer(session.get(Customer.class, customer1.getId()), booklet1, session);
-            assignBookletToCustomer(session.get(Customer.class, customer2.getId()), booklet2, session);
-            assignBookletToCustomer(session.get(Customer.class, customer3.getId()), booklet3, session);
-            assignBookletToCustomer(session.get(Customer.class, customer4.getId()), booklet4, session);
-
-
-            //create Inbox Messages
-            InboxMessage in1 = new InboxMessage();
-            in1.setMessageTitle("Ticket Purchased Successfully");
-            in1.setMessageContent("Here's your ticket info");
-            in1.setCustomer(customer1);
-            session.save(in1);
-            customer1.getInboxMessages().add(in1);
-            session.save(customer1);
+//            MovieTicket ticket1 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 2, 1, 1, session.get(MovieSlot.class,24));
+//            MovieTicket ticket2 = new MovieTicket(session.get(Movie.class, 2), session.get(Branch.class, 1), "The Matrix", "Johns Cinema", 1, 1, 1, session.get(MovieSlot.class,11));
+//            MovieTicket ticket3 = new MovieTicket(session.get(Movie.class, 3), session.get(Branch.class, 2), "Interstellar", "General Bay Cinema", 5, 1, 1, session.get(MovieSlot.class,90));
+//            MovieTicket ticket4 = new MovieTicket(session.get(Movie.class, 4), session.get(Branch.class, 2), "The Dark Knight", "General Bay Cinema", 4, 2, 1,session.get(MovieSlot.class,76));
+//            MovieTicket ticket5 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 1, 2, 1,session.get(MovieSlot.class,5));
+//            List<MovieTicket> tickets = Arrays.asList(ticket1, ticket2, ticket3, ticket4, ticket5);
+//            for (MovieTicket ticket : tickets) {
+//                session.save(ticket);
+//            }
+//
+//            assignTicketToCustomer(session.get(Customer.class, customer1.getId()), ticket1, session);
+//            assignTicketToCustomer(session.get(Customer.class, customer2.getId()), ticket2, session);
+//            assignTicketToCustomer(session.get(Customer.class, customer3.getId()), ticket3, session);
+//            assignTicketToCustomer(session.get(Customer.class, customer4.getId()), ticket4, session);
+//            assignTicketToCustomer(session.get(Customer.class, customer1.getId()), ticket5, session);
+//
+//            // Create and assign movie links to customers
+//            MovieLink link1 = new MovieLink(movie1, "Inception", "http://example.com/inception", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+//            MovieLink link2 = new MovieLink(movie2, "The Matrix", "http://example.com/matrix", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+//            MovieLink link3 = new MovieLink(movie3, "Interstellar", "http://example.com/interstellar", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+//            MovieLink link4 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+//            MovieLink link5 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
+//            link1.setActive();
+//            link2.setActive();
+//            link3.setActive();
+//            link4.setActive();
+//            link5.setInvalid();
+//
+//            List<MovieLink> movieLinks = Arrays.asList(link1, link2, link3, link4, link5);
+//            for (MovieLink movieLink : movieLinks) {
+//                session.save(movieLink);
+//            }
+//            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link5, session);
+//            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link1, session);
+//            assignLinkToCustomer(session.get(Customer.class, customer2.getId()), link2, session);
+//            assignLinkToCustomer(session.get(Customer.class, customer3.getId()), link3, session);
+//            assignLinkToCustomer(session.get(Customer.class, customer4.getId()), link4, session);
+//
+//
+//
+//            //create and assign Booklets
+//            Booklet booklet1 = new Booklet();
+//            Booklet booklet2 = new Booklet();
+//            Booklet booklet3 = new Booklet();
+//            Booklet booklet4 = new Booklet();
+//            List<Booklet> booklets = Arrays.asList(booklet1, booklet2, booklet3, booklet4);
+//            for (Booklet booklet : booklets) {
+//                session.save(booklet);
+//            }
+//            assignBookletToCustomer(session.get(Customer.class, customer1.getId()), booklet1, session);
+//            assignBookletToCustomer(session.get(Customer.class, customer2.getId()), booklet2, session);
+//            assignBookletToCustomer(session.get(Customer.class, customer3.getId()), booklet3, session);
+//            assignBookletToCustomer(session.get(Customer.class, customer4.getId()), booklet4, session);
+//
+//
+//            //create Inbox Messages
+//            InboxMessage in1 = new InboxMessage();
+//            in1.setMessageTitle("Ticket Purchased Successfully");
+//            in1.setMessageContent("Here's your ticket info");
+//            in1.setCustomer(customer1);
+//            session.save(in1);
+//            customer1.getInboxMessages().add(in1);
+//            session.save(customer1);
             session.flush();
 
 
@@ -1056,8 +1056,8 @@ public class DataCommunicationDB
         ticket.setTheaterNum(theater.getId()); // Use getId() for theater number
         ticket.setSeatNum(1); // Assume seat 1 for simplicity
         ticket.setSeatRow(1);
-        ticket.setMovieSlot(new MovieSlot()); // Assume a new MovieSlot for simplicity
-        ticket.getMovieSlot().setStartDateTime(LocalDateTime.parse(dateTime));
+//        ticket.setMovieSlot(new MovieSlot()); // Assume a new MovieSlot for simplicity
+//        ticket.getMovieSlot().setStartDateTime(LocalDateTime.parse(dateTime));
 
         session.save(ticket);
         return ticket;

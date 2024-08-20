@@ -274,10 +274,11 @@ public class NewPurchaseHandler implements RequestHandler {
                 System.out.println("Movie Ticket Purchase Call Received");
                 MovieTicket movieTicket = new MovieTicket();
                 movieTicket.setBranch(session.get(Branch.class, localMessage.getMovieSlot().getBranch().getId()));
-                movieTicket.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
+                //movieTicket.setMovieSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()));
                 movieTicket.setMovieName(localMessage.getSpecificMovie().getMovieName());
                 movieTicket.setBranchName(localMessage.getMovieSlot().getBranch().getBranchName());
                 movieTicket.setTheaterNum(localMessage.getMovieSlot().getTheaterId());
+                movieTicket.setSlot(session.get(MovieSlot.class, localMessage.getMovieSlot().getId()).getStartDateTime());
 
                 if (!message.getChosenSeats().isEmpty()) {
                     movieTicket.setSeatNum(message.getChosenSeats().getFirst().getSeatNum());
