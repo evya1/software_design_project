@@ -199,9 +199,9 @@ public class DataCommunicationDB
 
             // create employees and save them in the DB
             Employee e1 = new Employee("emp1","stam","eqwe@gmail.com","7sny",
-                            "12345",false,null,BASE,null);
+                    "12345",false,null,BASE,null);
             Employee e2 = new Employee("emp2","service","sherotlko7ot@gmail.com",
-                            "sherot","sL1234",false,null,SERVICE,null);
+                    "sherot","sL1234",false,null,SERVICE,null);
             Employee e3 = new Employee("emp3","content","tochen@gmail.com","1",
                     "1",false,null,CONTENT_MANAGER,null);
             Employee e4 = new Employee("emp4","CEO","CHM@gmail.com",

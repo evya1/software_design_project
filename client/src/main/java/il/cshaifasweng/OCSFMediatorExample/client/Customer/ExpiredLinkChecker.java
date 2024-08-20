@@ -3,13 +3,12 @@ package il.cshaifasweng.OCSFMediatorExample.client.Customer;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
-import javafx.stage.Stage;
 import javafx.application.Platform;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+
 
 import java.util.concurrent.TimeUnit;
 
@@ -73,3 +72,5 @@ public class ExpiredLinkChecker implements Runnable {
     }
 
 }
+
+
