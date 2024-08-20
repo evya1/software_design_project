@@ -51,11 +51,10 @@ public class ReportsRequestHandler implements RequestHandler {
     private void handleMonthlyReports(RequestData requestData, ConnectionToClient client) throws IOException {
         try {
             List<Report> reports = reportService.retrieveReportsByBranchAndMonth(
-                    requestData.branch(), requestData.month()
+                    requestData.branch(), requestData.month(), requestData.purchaseType(), requestData.reportType()
             );
             client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), reports));
         } catch (Exception e) {
-            // Handle the exception and notify the client
             System.err.println("Error retrieving monthly reports: " + e.getMessage());
             e.printStackTrace();
             client.sendToClient(MessageUtilForReports.createErrorMessage("Failed to retrieve monthly reports."));
@@ -66,9 +65,12 @@ public class ReportsRequestHandler implements RequestHandler {
         try {
             Month month = requestData.month();
             Month startMonth = DataCommunicationDB.getQuarterStartMonth(month);
+
+            // Make sure to pass the necessary parameters: branch, startMonth, purchaseType, and reportType
             List<Report> reports = reportService.retrieveReportsByBranchAndMonth(
-                    requestData.branch(), startMonth
+                    requestData.branch(), startMonth, requestData.purchaseType(), requestData.reportType()
             );
+
             client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), reports));
         } catch (Exception e) {
             // Handle the exception and notify the client

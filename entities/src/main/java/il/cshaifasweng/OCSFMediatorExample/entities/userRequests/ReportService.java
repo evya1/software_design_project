@@ -87,7 +87,7 @@ public class ReportService {
     public Report createAndPersistReport(ReportType reportType, ReportSpanType spanType, Branch branch, Month month, PurchaseType purchaseType) {
         ReportStrategy strategy = getStrategy(reportType, spanType);
         List<?> dataItems = gatherReportData(reportType, branch, month, purchaseType);
-        Report report = strategy.generateReport(dataItems, branch, month);
+        Report report = strategy.generateReport(dataItems, branch, month); // I need to add "purchaseType" param later
 
         // Save the generated report to the database
         db.persistReport(report);
@@ -95,7 +95,15 @@ public class ReportService {
         return report;
     }
 
-    public List<Report> retrieveReportsByBranchAndMonth(Branch branch, Month month) {
-        return db.retrieveReportsForBranchAndMonth(branch, month);
+    public List<Report> retrieveReportsByBranchAndMonth(Branch branch, Month month, PurchaseType purchaseType, ReportType reportType) {
+        List<Report> retrievedReports = db.retrieveReportsForBranchAndMonth(branch, month);
+
+        // If no existing retrievedReports, generate new ones
+        if (retrievedReports.isEmpty()) {
+            Report newReport = createAndPersistReport(reportType, ReportSpanType.Monthly, branch, month, purchaseType);
+            retrievedReports.add(newReport);
+        }
+
+        return retrievedReports;
     }
 }

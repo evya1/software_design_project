@@ -1321,46 +1321,17 @@ public class DataCommunicationDB {
                 .getResultList();
     }
 
-    public List<Complaint> retrieveComplaintsByBranchAndMonth(Branch branch, Month month) {
-        return getSession().createQuery(
-                        "FROM Complaint WHERE branch = :branch AND MONTH(dateOfComplaint) = :month",
-                        Complaint.class)
-                .setParameter("branch", branch)
-                .setParameter("month", month.getValue())
-                .getResultList();
-    }
-
-    public List<Purchase> retrieveAllPurchasesByBranchAndMonth(Branch branch, Month month, PurchaseType purchaseType) {
-        return getSession().createQuery(
-                        "FROM Purchase WHERE branch = :branch AND purchaseType = :purchaseType AND MONTH(dateOfPurchase) = :month",
-                        Purchase.class)
-                .setParameter("branch", branch)
-                .setParameter("purchaseType", purchaseType)
-                .setParameter("month", month.getValue())
-                .getResultList();
-    }
-
     // Method to save a Report to the database
     public void persistReport(Report report) {
         Session session = getSession();
         session.beginTransaction();
-        session.save(report);
+        session.merge(report);
         session.getTransaction().commit();
     }
 
     // Method to fetch a report by its ID
     public Report findReportById(Long reportId) {
         return getSession().get(Report.class, reportId);
-    }
-
-    // Method to fetch all reports for a specific branch and month
-    public List<Report> retrieveReportsForBranchAndMonth(Branch branch, Month month) {
-        return getSession().createQuery(
-                        "FROM Report WHERE branch = :branch AND month = :month",
-                        Report.class)
-                .setParameter("branch", branch)
-                .setParameter("month", month)
-                .getResultList();
     }
 
     public void modifyReport(Report report) {
@@ -1375,5 +1346,117 @@ public class DataCommunicationDB {
         session.beginTransaction();
         session.delete(report);
         session.getTransaction().commit();
+    }
+
+    public List<Report> retrieveReportsForBranchAndMonth(Branch branch, Month month) {
+        Session session = ensureSession();
+        Transaction transaction = null;
+        List<Report> reports = null;
+
+        try {
+            transaction = startTransaction(session);
+
+            reports = executeReportQuery(session, branch, month);
+
+            commitTransaction(transaction);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw e;  // Re-throw the exception to be handled further up
+        }
+
+        return reports;
+    }
+
+    public List<Complaint> retrieveComplaintsByBranchAndMonth(Branch branch, Month month) {
+        Session session = ensureSession();
+        Transaction transaction = null;
+        List<Complaint> complaints = null;
+
+        try {
+            transaction = startTransaction(session);
+
+            complaints = executeComplaintQuery(session, branch, month);
+
+            commitTransaction(transaction);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw e;
+        }
+
+        return complaints;
+    }
+
+    public List<Purchase> retrieveAllPurchasesByBranchAndMonth(Branch branch, Month month, PurchaseType purchaseType) {
+        Session session = ensureSession();
+        Transaction transaction = null;
+        List<Purchase> purchases = null;
+
+        try {
+            transaction = startTransaction(session);
+
+            purchases = executePurchaseQuery(session, branch, month, purchaseType);
+
+            commitTransaction(transaction);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw e;
+        }
+
+        return purchases;
+    }
+
+    private List<Complaint> executeComplaintQuery(Session session, Branch branch, Month month) {
+        String sql = "SELECT * FROM complaints WHERE branch_id = :branchId AND MONTH(dateOfComplaint) = :month";
+
+        return session.createNativeQuery(sql, Complaint.class)
+                .setParameter("branchId", branch.getId())
+                .setParameter("month", month.getValue()) // Assuming date_of_complaint is a date or timestamp column
+                .getResultList();
+    }
+
+    private List<Purchase> executePurchaseQuery(Session session, Branch branch, Month month, PurchaseType purchaseType) {
+        String tableName = Purchase.class.getName();
+        System.out.println(tableName);
+        String sql = "SELECT * FROM purchase WHERE branch_id = :branchId AND purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
+
+        return session.createNativeQuery(sql, Purchase.class)
+                .setParameter("branchId", branch.getId())
+                .setParameter("purchaseType", purchaseType.name()) // Use name() to get the string representation of the enum
+                .setParameter("month", month.getValue()) // Assuming date_of_purchase is a date or timestamp column
+                .getResultList();
+    }
+
+    private Session ensureSession() {
+        Session session = getSession();
+        if (session == null || !session.isOpen()) {
+            session = getSessionFactory(DataCommunicationDB.getPassword()).openSession();
+            setSession(session);  // Ensure this session is reused later
+        }
+        return session;
+    }
+
+    private Transaction startTransaction(Session session) {
+        return session.beginTransaction();
+    }
+
+    private void commitTransaction(Transaction transaction) {
+        if (transaction != null && !transaction.getRollbackOnly()) {
+            transaction.commit();
+        }
+    }
+
+    private void rollbackTransaction(Transaction transaction) {
+        if (transaction != null && transaction.isActive()) {
+            transaction.rollback();
+        }
+    }
+
+    private List<Report> executeReportQuery(Session session, Branch branch, Month month) {
+        String sql = "SELECT * FROM Report WHERE branch_id = :branchId AND month = :month";
+
+        return session.createNativeQuery(sql, Report.class)
+                .setParameter("branchId", branch.getId())
+                .setParameter("month", month.getValue())
+                .getResultList();
     }
 }
