@@ -873,12 +873,18 @@ public class CustomerController implements ClientDependent {
         }
     }
 
-    public void linkRefreshRequest(boolean isExpired){
+    public void linkRefreshRequest(int isExpired, MovieLink movieLink){
         Platform.runLater(() -> {
-            if (isExpired)
-                showAlert("Expiration Alert","A link has expired.");
-            else
+            if (isExpired==0) {
+                showAlert("Expiration Alert", "A link has expired.");
+            }
+            else if (isExpired==1) {
                 showAlert("Activated link", "A link has been activated! Please check your inbox");
+            }
+
+            else{
+                showAlert("Link will soon be activated!", "A link will be activated in an hour!\nFurther details in the inbox.");
+            }
             moviePackageTableView.refresh(); // Refresh the table view to display new data
 
             Message msg = new Message();

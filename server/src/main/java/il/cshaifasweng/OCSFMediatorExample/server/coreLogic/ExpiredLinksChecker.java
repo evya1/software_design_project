@@ -39,8 +39,8 @@ public class ExpiredLinksChecker implements Runnable {
                     if(movieLink.isValid()){
                         int customerID = movieLink.getCustomer_id();
                         Customer customer = session.get(Customer.class, customerID);
-
-                        if (movieLink.isActive() && (movieLink.getExpirationTime().isBefore(LocalDateTime.now()))) {
+                        LocalDateTime currentTime = LocalDateTime.now();
+                        if (movieLink.isActive() && (movieLink.getExpirationTime().isBefore(currentTime))) {
 
 
                             movieLink.setInvalid();
@@ -59,7 +59,7 @@ public class ExpiredLinksChecker implements Runnable {
                             session.update(customer);
                         }
 
-                        else if (!movieLink.isActive() && movieLink.getCreationTime().isBefore(LocalDateTime.now()) && movieLink.getExpirationTime().isAfter(LocalDateTime.now())) {
+                        else if (!movieLink.isActive() && movieLink.getCreationTime().isBefore(currentTime) && movieLink.getExpirationTime().isAfter(currentTime)) {
                             movieLink.setActive();
                             session.update(movieLink);
 
@@ -68,7 +68,18 @@ public class ExpiredLinksChecker implements Runnable {
                             inboxMessage.setMessageTitle("Movie link has been activated");
                             inboxMessage.setMessageContent("The Link \n" + movieLink.getMovieLink() + "\nHas been activated.");
                             session.save(inboxMessage);
+                        }
 
+                        else if (!(movieLink.isActive()) && !(movieLink.isNotified()) && movieLink.getCreationTime().minusHours(1).isBefore(currentTime) && movieLink.getExpirationTime().isAfter(currentTime)){
+                            System.out.println("Notifying customer ");
+                            movieLink.setNotified();
+                            session.update(movieLink);
+
+                            InboxMessage inboxMessage = new InboxMessage();
+                            inboxMessage.setCustomer(customer);
+                            inboxMessage.setMessageTitle("Movie link will soon be activated");
+                            inboxMessage.setMessageContent("The Link \n" + movieLink.getMovieLink() + "\nWill be activated in an hour.");
+                            session.save(inboxMessage);
                         }
                     }
                 }

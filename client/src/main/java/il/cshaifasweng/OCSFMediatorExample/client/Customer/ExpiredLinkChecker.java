@@ -50,17 +50,24 @@ public class ExpiredLinkChecker implements Runnable {
                             movieLink.setInvalid();
                             movieLink.setInactive();
                             Thread.sleep(1000);
-                            Platform.runLater(() -> customerController.linkRefreshRequest(true));
-                        }
-                        else if (!movieLink.isActive()) {
+                            Platform.runLater(() -> customerController.linkRefreshRequest(0, movieLink));
+                        } else if (!movieLink.isActive()) {
                             delay = Duration.between(creationTime, now).toMillis();
-                            if(delay > 0){
+                            if (delay > 0) {
                                 System.out.println("time active");
                                 Thread.sleep(1500);
                                 movieLink.setActive();
-                                Platform.runLater(() -> customerController.linkRefreshRequest(false));
+                                Platform.runLater(() -> customerController.linkRefreshRequest(1, movieLink));
+
+                            } else if (!movieLink.isNotified() && delay > -3600000) {
+                                System.out.println("active notification");
+                                Thread.sleep(1500);
+                                movieLink.setNotified();
+                                Platform.runLater(() -> customerController.linkRefreshRequest(2, movieLink));
 
                             }
+
+
                         }
                     }
                 }

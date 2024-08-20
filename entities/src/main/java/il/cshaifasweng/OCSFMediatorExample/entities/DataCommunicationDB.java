@@ -15,6 +15,7 @@ import org.hibernate.service.ServiceRegistry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
@@ -366,11 +367,17 @@ public class DataCommunicationDB
             MovieLink link3 = new MovieLink(movie3, "Interstellar", "http://example.com/interstellar", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
             MovieLink link4 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
             MovieLink link5 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
+
             link1.setActive();
             link2.setActive();
             link3.setActive();
             link4.setActive();
             link5.setInvalid();
+
+            link1.setNotified();
+            link2.setNotified();
+            link3.setNotified();
+            link4.setNotified();
 
             List<MovieLink> movieLinks = Arrays.asList(link1, link2, link3, link4, link5);
             for (MovieLink movieLink : movieLinks) {
@@ -1153,10 +1160,18 @@ public class DataCommunicationDB
         InboxMessage inboxMessage = new InboxMessage();
         inboxMessage.setCustomer(customer);
         inboxMessage.setMessageTitle("New purchase");
-        inboxMessage.setMessageContent("New Movie Package purchased. We'll notify you before activating the link.");
+        inboxMessage.setMessageContent("New Movie Package purchased. The link will activate at:\n" +  purchase.getPurchasedMovieLink().getCreationTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
         session.save(inboxMessage);
 
+
+
         if (LocalDateTime.now().isAfter(link.getCreationTime())){
+            InboxMessage inboxMessage0 = new InboxMessage();
+            inboxMessage0.setCustomer(customer);
+            inboxMessage0.setMessageTitle("Movie link will soon be activated");
+            inboxMessage0.setMessageContent("The Link \n" + link.getMovieLink() + "\nWill be activated in an hour.");
+            session.save(inboxMessage0);
+
             InboxMessage inboxMessage1 = new InboxMessage();
             inboxMessage1.setCustomer(customer);
             inboxMessage1.setMessageTitle("Movie link has been activated");

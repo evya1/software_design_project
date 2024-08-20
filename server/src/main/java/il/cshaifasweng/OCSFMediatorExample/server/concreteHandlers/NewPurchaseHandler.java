@@ -21,6 +21,7 @@ import org.hibernate.query.Query;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
@@ -184,6 +185,10 @@ public class NewPurchaseHandler implements RequestHandler {
             message.setPurchase(purchase);
             System.out.println("Entering the PurchaseEntity");
             setPurchaseEntity(purchase, purchaseType, session, message);
+
+            if (purchaseType == PurchaseType.MOVIE_LINK)
+                inboxMessage.setMessageContent("New Movie Package purchased. The link will activate at:\n" +  purchase.getPurchasedMovieLink().getCreationTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
+
             session.update(purchase); // Update the purchase with the correct entity
 
 
@@ -254,6 +259,7 @@ public class NewPurchaseHandler implements RequestHandler {
                 int randomNumber = 20 + (int)(Math.random() * 101);
                 System.out.println(currentTime);
                 movieLink.setCreationTime(currentTime.plusSeconds(randomNumber));
+//                movieLink.setCreationTime(currentTime.plusSeconds(randomNumber + 3600));
                 System.out.println(currentTime);
                 System.out.println(currentTime.plusSeconds(randomNumber));
                 //movieLink.setExpirationTime(currentTime.plusDays(1);
@@ -312,9 +318,6 @@ public class NewPurchaseHandler implements RequestHandler {
         switch (purchaseType) {
             case BOOKLET:
                 inboxMessage.setMessageContent("New Booklet purchased with 20 entries.");
-                break;
-            case MOVIE_LINK:
-                inboxMessage.setMessageContent("New Movie Package purchased. We'll notify you before activating the link.");
                 break;
             case MOVIE_TICKET:
                 inboxMessage.setMessageContent("New Movie Ticket Purchased for " + localMessage.getSpecificMovie().getMovieName() + ". The Ticket information can be found at your personal area under 'Purchases'. ");
