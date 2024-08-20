@@ -46,6 +46,7 @@ public class ExpiredLinkChecker implements Runnable {
                         long delay = Duration.between(now, expirationTime).toMillis();
 
                         if (delay < 0 && movieLink.isActive()) {
+                            System.out.println("time expired");
                             movieLink.setInvalid();
                             movieLink.setInactive();
                             Thread.sleep(1000);
@@ -54,6 +55,7 @@ public class ExpiredLinkChecker implements Runnable {
                         else if (!movieLink.isActive()) {
                             delay = Duration.between(creationTime, now).toMillis();
                             if(delay > 0){
+                                System.out.println("time active");
                                 Thread.sleep(1500);
                                 movieLink.setActive();
                                 Platform.runLater(() -> customerController.linkRefreshRequest(false));
@@ -70,6 +72,10 @@ public class ExpiredLinkChecker implements Runnable {
     public void stopChecker(){
         this.stopChecker=true;
     }
+
+    public List<MovieLink> getMovieLinks() {return this.movieLinks;}
+
+    public void updateChecker(List<MovieLink> movieLinks){this.movieLinks=movieLinks;}
 
 }
 

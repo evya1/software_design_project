@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
@@ -16,6 +17,9 @@ public class ExpiredLinksChecker implements Runnable {
     public ExpiredLinksChecker(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
+
+
+
 
     @Override
     public void run() {
@@ -37,6 +41,8 @@ public class ExpiredLinksChecker implements Runnable {
                         Customer customer = session.get(Customer.class, customerID);
 
                         if (movieLink.isActive() && (movieLink.getExpirationTime().isBefore(LocalDateTime.now()))) {
+
+
                             movieLink.setInvalid();
                             movieLink.setInactive();
                             session.update(movieLink);
@@ -73,8 +79,7 @@ public class ExpiredLinksChecker implements Runnable {
 
                 tx.commit();
 
-                //This will erase all expired links every 30 seconds
-                Thread.sleep(30000);
+                Thread.sleep(500);
             } catch (Exception e) {
                 if (tx != null) {
                     tx.rollback();

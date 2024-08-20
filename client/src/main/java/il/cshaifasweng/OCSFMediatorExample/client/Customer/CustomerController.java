@@ -409,6 +409,16 @@ public class CustomerController implements ClientDependent {
                         if (!movieLinks.isEmpty()) {
                             moviePackageTableView.getItems().clear(); // Clear existing items
                             moviePackageTableView.getItems().addAll(movieLinks); // Add new items
+                            try{
+
+                                expiredLinkCheckerThread.interrupt();
+                                this.expiredLinkChecker = new ExpiredLinkChecker(client, localCustomer.getId(), movieLinks, this);
+                                expiredLinkCheckerThread = new Thread(expiredLinkChecker);
+                                expiredLinkCheckerThread.start();
+                                System.out.println("Link Checker Updated");
+
+                            } catch (Exception e) {System.out.println("Link checker not found");}
+
                             moviePackageTableView.refresh(); // Refresh the table view to display new data
                         }
 
@@ -488,7 +498,7 @@ public class CustomerController implements ClientDependent {
     void loginLogoutAction(ActionEvent event) {
         if (connectedFlag) {
             loggedOutButtons();
-            expiredLinkChecker.stopChecker();
+            expiredLinkCheckerThread.interrupt();
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Logged out", "Logged out successfully.");
 
             // Perform logout
