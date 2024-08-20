@@ -1,7 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -25,7 +24,8 @@ public class MovieLink implements Serializable {
     private String movieLink;
     private LocalDateTime creationTime;
     private LocalDateTime expirationTime;
-    private boolean isActive = true;
+    private boolean isValid = true;
+    private boolean isActive = false;
 
 
 
@@ -84,11 +84,23 @@ public class MovieLink implements Serializable {
         return id;
     }
 
-    public boolean isActive(){return this.isActive;}
+    public boolean isValid(){return this.isValid;}
 
-    public void setActive() {this.isActive = true;}
+    public void setValid() {this.isValid = true;}
 
-    public void setInactive() {this.isActive = false;}
+    public void setInvalid() {this.isValid = false;}
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive() {
+        isActive = true;
+    }
+
+    public void setInactive() {
+        isActive = false;
+    }
 
     public void setCustomer_id(int customer_id) {this.customer_id = customer_id;}
 

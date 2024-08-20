@@ -1,5 +1,4 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Customer;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
@@ -12,17 +11,12 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.InboxMessage;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javassist.Loader;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
@@ -30,7 +24,6 @@ import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-import javax.print.DocFlavor;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -435,7 +428,7 @@ public class CustomerController implements ClientDependent {
 
                         try{
                             // Extract movie links from purchases
-                             movieLinks = localCustomer.getPurchases().stream()
+                            movieLinks = localCustomer.getPurchases().stream()
                                     .map(Purchase::getPurchasedMovieLink)
                                     .filter(Objects::nonNull)
                                     .collect(Collectors.toList());
@@ -591,7 +584,7 @@ public class CustomerController implements ClientDependent {
                 return;
             }
 
-            LocalDateTime startTime = selectedMovieLink.getExpirationTime();
+            LocalDateTime startTime = selectedMovieLink.getCreationTime();
             LocalDateTime now = LocalDateTime.now();
             System.out.println(now);
             System.out.println(startTime);
@@ -870,9 +863,12 @@ public class CustomerController implements ClientDependent {
         }
     }
 
-    public void expiredLink(MovieLink movieLink){
+    public void linkRefreshRequest(boolean isExpired){
         Platform.runLater(() -> {
-            showAlert("Expiration Alert","A link has expired.");
+            if (isExpired)
+                showAlert("Expiration Alert","A link has expired.");
+            else
+                showAlert("Activated link", "A link has been activated! Please check your inbox");
             moviePackageTableView.refresh(); // Refresh the table view to display new data
 
             Message msg = new Message();

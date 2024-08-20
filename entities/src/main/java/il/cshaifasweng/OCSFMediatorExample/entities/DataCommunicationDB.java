@@ -199,9 +199,9 @@ public class DataCommunicationDB
 
             // create employees and save them in the DB
             Employee e1 = new Employee("emp1","stam","eqwe@gmail.com","7sny",
-                            "12345",false,null,BASE,null);
+                    "12345",false,null,BASE,null);
             Employee e2 = new Employee("emp2","service","sherotlko7ot@gmail.com",
-                            "sherot","sL1234",false,null,SERVICE,null);
+                    "sherot","sL1234",false,null,SERVICE,null);
             Employee e3 = new Employee("emp3","content","tochen@gmail.com","1",
                     "1",false,null,CONTENT_MANAGER,null);
             Employee e4 = new Employee("emp4","CEO","CHM@gmail.com",
@@ -366,17 +366,22 @@ public class DataCommunicationDB
             MovieLink link3 = new MovieLink(movie3, "Interstellar", "http://example.com/interstellar", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
             MovieLink link4 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
             MovieLink link5 = new MovieLink(movie4, "The Dark Knight", "http://example.com/dark_knight", LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
+            link1.setActive();
+            link2.setActive();
+            link3.setActive();
+            link4.setActive();
+            link5.setInvalid();
 
             List<MovieLink> movieLinks = Arrays.asList(link1, link2, link3, link4, link5);
             for (MovieLink movieLink : movieLinks) {
                 session.save(movieLink);
             }
-
+            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link5, session);
             assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link1, session);
             assignLinkToCustomer(session.get(Customer.class, customer2.getId()), link2, session);
             assignLinkToCustomer(session.get(Customer.class, customer3.getId()), link3, session);
             assignLinkToCustomer(session.get(Customer.class, customer4.getId()), link4, session);
-            assignLinkToCustomer(session.get(Customer.class, customer1.getId()), link5, session);
+
 
 
             //create and assign Booklets
@@ -1143,6 +1148,30 @@ public class DataCommunicationDB
         purchase.setDateOfPurchase(LocalDateTime.now());
         purchase.setCustomer(customer);
         customer.addPurchase(purchase);
+
+
+        InboxMessage inboxMessage = new InboxMessage();
+        inboxMessage.setCustomer(customer);
+        inboxMessage.setMessageTitle("New purchase");
+        inboxMessage.setMessageContent("New Movie Package purchased. We'll notify you before activating the link.");
+        session.save(inboxMessage);
+
+        if (LocalDateTime.now().isAfter(link.getCreationTime())){
+            InboxMessage inboxMessage1 = new InboxMessage();
+            inboxMessage1.setCustomer(customer);
+            inboxMessage1.setMessageTitle("Movie link has been activated");
+            inboxMessage1.setMessageContent("The Link \n" + link.getMovieLink() + "\nHas been activated.");
+            session.save(inboxMessage1);
+        }
+
+        if (LocalDateTime.now().isAfter(link.getExpirationTime())){
+            InboxMessage inboxMessage2 = new InboxMessage();
+            inboxMessage2.setCustomer(customer);
+            inboxMessage2.setMessageTitle("Movie Link Expired");
+            inboxMessage2.setMessageContent("The Link \n" + link.getMovieLink() + "\nHas expired.");
+            session.save(inboxMessage2);
+        }
+
 
         session.save(purchase);
     }
