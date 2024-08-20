@@ -3,16 +3,25 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import java.io.IOException;
+import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
 
 public class ContentChangeHandler implements RequestHandler {
+
+    SimpleServer server;
+
+    public ContentChangeHandler(SimpleServer server) {
+        this.server = server;
+    }
 
     @Override
     public void handle(Message message, ConnectionToClient client) throws IOException {
@@ -55,6 +64,7 @@ public class ContentChangeHandler implements RequestHandler {
                     System.out.println("Movie was deleted successfully");
                     answer.setData("Movie Deleted");
                     client.sendToClient(answer);
+                    break;
 
                 case NEW_MOVIE_SLOT:
                     DataCommunicationDB.createMovieSlot(message.getMovieSlot());
@@ -81,6 +91,17 @@ public class ContentChangeHandler implements RequestHandler {
                     break;
                 default:
             }
+
+            if(!message.getData().equals(SHOW_ALL_MOVIES)){
+                String hql = "FROM Movie";
+                Query query = session.createQuery(hql);
+                List<Movie> movies = query.list();
+                answer.setData(SHOW_ALL_MOVIES);
+                session.beginTransaction();
+                answer.setMovies(movies);
+                server.sendToAllClients(answer);
+            }
+
             // All requests are to be within the try block -- END HERE
         } catch (Exception e) {
             System.err.println("An error occurred");

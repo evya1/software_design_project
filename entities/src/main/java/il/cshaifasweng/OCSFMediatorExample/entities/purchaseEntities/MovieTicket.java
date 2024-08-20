@@ -32,9 +32,9 @@ public class MovieTicket implements Serializable {
     private int seatRow;
     private int seatID;
 
+
     public MovieTicket(Movie movie, Branch branch, String movieName, String branchName, int theaterNum, int seatNum, int seatRow, MovieSlot movieSlot) {
         this.id = getId();
-        this.movie = movie;
         this.branch = branch;
         this.movieName = movieName;
         this.branchName = branchName;

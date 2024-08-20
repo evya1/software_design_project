@@ -667,6 +667,58 @@ public class DataCommunicationDB
             transaction = session.beginTransaction();
             Movie movie = session.get(Movie.class, movieId);
             if (movie != null) {
+                List<MovieSlot> slotsToDelete = getScreeningTimesByMovie(session,movie.getId());
+                for (MovieSlot slot : slotsToDelete) {
+                    try {
+                        int slotID = slot.getId();
+                        slot = getMovieSlotByID(slotID);
+
+                        if (slot == null) {
+                            System.err.println("MovieSlot with ID " + slotID + " does not exist.");
+                            session.getTransaction().rollback();
+                            return;
+                        }
+
+                        // Delete all related seats
+                        List<Seat> seats = slot.getSeatList();
+                        for (Seat seat : seats) {
+                            session.remove(seat);
+                        }
+                        slot.getSeatList().clear();
+
+                        // Detach the MovieSlot from Movie
+                        Movie movieToDetach = slot.getMovie();
+                        if (movieToDetach != null) {
+                            movieToDetach.getMovieScreeningTime().remove(slot);
+                            slot.setMovie(null);
+                        } else {
+                            System.out.println("No associated movie found for this MovieSlot.");
+                        }
+
+                        // Detach the MovieSlot from Theater
+                        Theater theater = slot.getTheater();
+                        if (theater != null) {
+                            theater.getSchedule().remove(slot);
+                            slot.setTheater(null);
+                        } else {
+                            System.out.println("No associated theater found for this MovieSlot.");
+                        }
+
+                        // Detach the MovieSlot from Branch
+                        Branch branch = slot.getBranch();
+                        if (branch != null) {
+                            slot.setBranch(null);
+                        } else {
+                            System.out.println("No associated branch found for this MovieSlot.");
+                        }
+
+                        // Finally, delete the MovieSlot
+                        session.remove(session.contains(slot) ? slot : session.merge(slot));
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                movie = session.get(Movie.class, movieId);
                 session.delete(movie);
                 System.out.println("Movie with ID " + movieId + " was deleted successfully.");
             } else {
@@ -762,11 +814,18 @@ public class DataCommunicationDB
                 return;
             }
 
+            // Delete all related seats
+            List<Seat> seats = slot.getSeatList();
+            for (Seat seat : seats) {
+                session.remove(seat);
+            }
+            slot.getSeatList().clear();
+
             // Detach the MovieSlot from Movie
             Movie movie = slot.getMovie();
             if (movie != null) {
                 movie.getMovieScreeningTime().remove(slot);
-                slot.setMovie(null);  // Only set to null if it's not already null
+                slot.setMovie(null);
             } else {
                 System.out.println("No associated movie found for this MovieSlot.");
             }
