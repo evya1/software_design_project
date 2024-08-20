@@ -1,5 +1,4 @@
-package il.cshaifasweng.OCSFMediatorExample.client.Customer;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+package il.cshaifasweng.OCSFMediatorExample.client.customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
