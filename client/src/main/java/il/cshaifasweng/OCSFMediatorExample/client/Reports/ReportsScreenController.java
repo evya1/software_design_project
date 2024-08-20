@@ -1,9 +1,12 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 
-import il.cshaifasweng.OCSFMediatorExample.client.*;
+import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
+import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -27,8 +30,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
-import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.ALL_BRANCHES;
+import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.BRANCH_MANAGER;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
@@ -40,20 +43,6 @@ import static javafx.scene.control.Alert.AlertType.INFORMATION;
 public class ReportsScreenController implements ClientDependent, Initializable, AutoCloseable {
 
     private final ChartFactory chartFactory = new ChartFactory();
-    private ReportsRequestHandler requestHandler;
-    private Message localMessage;
-    private SimpleClient client;
-    private Employee employee;
-    private String previousScreen;
-    /**
-     * Represents the context or scope for generating the chart.
-     * This field can be used to determine the specific data or branch context
-     * that will influence the content and title of the chart.
-     * For example, it might represent a specific branch name,
-     * a data filter criterion, or any other relevant context.
-     */
-    private Object chartContext;
-
     @FXML
     public Button ExitBtn;
     @FXML
@@ -82,6 +71,19 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     public ComboBox supportedSpanSelectionComboBox;
     @FXML
     public ComboBox productSelectionComboBox;
+    private ReportsRequestHandler requestHandler;
+    private Message localMessage;
+    private SimpleClient client;
+    private Employee employee;
+    private String previousScreen;
+    /**
+     * Represents the context or scope for generating the chart.
+     * This field can be used to determine the specific data or branch context
+     * that will influence the content and title of the chart.
+     * For example, it might represent a specific branch name,
+     * a data filter criterion, or any other relevant context.
+     */
+    private Object chartContext;
     @FXML
     private TableView<Report> reportTableView;
 
@@ -89,15 +91,46 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         EventBus.getDefault().register(this);
-        Message localMessage = getLocalMessage();
 
+        // Initialize UI components
         initializeComponents();
+
+        // Set the chartBorderPane in the ChartFactory instance
+        chartFactory.setChartBorderPane(chartBorderPane);
+
+        Message localMessage = getLocalMessage();
 
         if (localMessage != null) {
             setEmployee(localMessage.getEmployee());
             setChartContext(chartContext);
-            requestReportData();
+
+            // Default fetch for Monthly Purchases of Booklet type
+            fetchDefaultMonthlyBookletPurchases();
         }
+    }
+
+    private void fetchDefaultMonthlyBookletPurchases() {
+        if (requestHandler == null) {
+            System.err.println("Request Handler is not initialized!\n");
+            return;
+        }
+
+        // Fetch for Monthly Purchases of "Booklet" type
+        ReportSpanType spanType = ReportSpanType.Monthly;
+        int year = LocalDate.now().getYear();
+        int month = LocalDate.now().getMonthValue();
+
+        RequestData requestData = MessageUtilForReports.buildRequestData(
+                FETCH_MONTHLY_REPORTS,
+                REPORT_TYPE_A,
+                spanType,
+                PurchaseType.BOOKLET,
+                employee,
+                year,
+                month
+        );
+
+        requestHandler.sendRequest(requestData);
     }
 
     @FXML
@@ -233,33 +266,9 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
-        String contextDescription = chartFactory.getContextDescription(chartContext);
-        chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
-        chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
-    }
-
-    /**
-     * Sets the chart context based on the employee's role within the organization.
-     * <p>
-     * If the employee is a Branch Manager, the context is set to the employee's branch.
-     * If the employee is a Chain Manager, the context is set to represent all branches.
-     * If the employee is null or has a different role, the context is set to null.
-     * </p>
-     *
-     * @param chartContext The initial context parameter (can be null or an object).
-     *                     This value will be overridden based on the employee's role.
-     */
-    public void setChartContext(Object chartContext) {
-        if (employee != null) {
-            EmployeeType type = employee.getEmployeeType();
-            if (type == BRANCH_MANAGER) {
-                this.chartContext = employee.getBranch();
-            } else if (type == CHAIN_MANAGER) {
-                this.chartContext = CHAIN_MANAGER;
-            }
-        } else {
-            this.chartContext = null;
-        }
+        String contextDescription = chartFactory.getContextDescription(event.getContextParameter());
+        chartFactory.prepareAndDisplayBarChart(contextDescription, event.getChartBorderPane());
+        chartFactory.prepareAndDisplayPieChart(contextDescription, event.getChartBorderPane());
     }
 
     /**
@@ -426,8 +435,8 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private void initializeReportTypeSelectionComboBox() {
-        reportTypeSelectionComboBox.getItems().addAll(REPORT_TYPE_A, REPORT_TYPE_B, ALL_REPORT_TYPE);
-        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, DEFAULT_SELECTION_OPTION_VALUE_FOR_REPORT_TYPE);
+        reportTypeSelectionComboBox.getItems().addAll(ReportType.REPORT_TYPE_A, ReportType.REPORT_TYPE_B, ReportType.ALL_REPORT_TYPE);
+        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, ReportType.ALL_REPORT_TYPE);
     }
 
     private void initializeSupportedSpanSelectionComboBox() {
@@ -448,8 +457,8 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             branchNames.add(employee.getBranchInCharge().getBranchName());
             branchSelectionComboBox.setVisible(true);
             resetComboBoxPromptAndValue(branchSelectionComboBox,
-                                        DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH,
-                                        branchNames.getFirst());
+                    DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH,
+                    branchNames.getFirst());
         } else {
             branchSelectionComboBox.setVisible(false);
         }
@@ -525,24 +534,48 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         }
     }
 
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public void setLocalMessage(Message localMessage) {
-        this.localMessage = localMessage;
-    }
-
     public Employee getEmployee() {
         return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 
     public Message getLocalMessage() {
         return localMessage;
     }
 
+    public void setLocalMessage(Message localMessage) {
+        this.localMessage = localMessage;
+    }
+
     public Object getChartContext() {
         return chartContext;
+    }
+
+    /**
+     * Sets the chart context based on the employee's role within the organization.
+     * <p>
+     * If the employee is a Branch Manager, the context is set to the employee's branch.
+     * If the employee is a Chain Manager, the context is set to represent all branches.
+     * If the employee is null or has a different role, the context is set to null.
+     * </p>
+     *
+     * @param chartContext The initial context parameter (can be null or an object).
+     *                     This value will be overridden based on the employee's role.
+     */
+    public void setChartContext(Object chartContext) {
+        if (employee != null) {
+            EmployeeType type = employee.getEmployeeType();
+            if (type == BRANCH_MANAGER) {
+                this.chartContext = employee.getBranch();
+            } else if (type == CHAIN_MANAGER) {
+                this.chartContext = CHAIN_MANAGER;
+            }
+        } else {
+            this.chartContext = null;
+        }
     }
 
     private ReportSpanType getTimeSpan(String reportSpan) {
@@ -616,7 +649,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private ReportType getSelectedReportType() {
-        return (ReportType) getSelectedValue(reportTypeSelectionComboBox);
+        return (ReportType) reportTypeSelectionComboBox.getValue();
     }
 
 }

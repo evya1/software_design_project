@@ -43,7 +43,6 @@ public class ReportsRequestHandler {
         if (REPORT_DATA_RESPONSE.equals(message.getMessage())) {
             EventBus.getDefault().post(new RefreshChartDataEvent(message.getReports(), message.getMessage()));
         }
-        handleResponse(message);
     }
 
     /**

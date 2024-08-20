@@ -7,23 +7,44 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Strategies.*;
 
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.Monthly;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.Quarterly;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.REPORT_TYPE_A;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.REPORT_TYPE_B;
 
 public class ReportService {
+    private static ReportService instance;
     private final DataCommunicationDB db;
-    private final MonthlyReportStrategy monthlyReportStrategy;
-    private final QuarterlySalesReportStrategy quarterlySalesReportStrategy;
+    private final Map<ReportType, Map<ReportSpanType, ReportStrategy>> strategyRegistry;
 
-    // Constructor for dependency injection
-    public ReportService(DataCommunicationDB db,
-                         MonthlyReportStrategy monthlyReportStrategy,
-                         QuarterlySalesReportStrategy quarterlySalesReportStrategy) {
+    private ReportService(DataCommunicationDB db) {
         this.db = db;
-        this.monthlyReportStrategy = monthlyReportStrategy;
-        this.quarterlySalesReportStrategy = quarterlySalesReportStrategy;
+        this.strategyRegistry = new HashMap<>();
+    }
+
+    public static synchronized ReportService getInstance() {
+        if (instance == null) {
+            DataCommunicationDB db = new DataCommunicationDB();
+            instance = new ReportService(db);
+
+            // Register strategies (moved from ServerConfiguration)
+            instance.registerStrategy(REPORT_TYPE_A, Monthly, new MonthlySalesReportStrategy());
+            instance.registerStrategy(REPORT_TYPE_A, Quarterly, new QuarterlySalesReportStrategy());
+            instance.registerStrategy(REPORT_TYPE_B, Monthly, new MonthlyComplaintsReportStrategy());
+            instance.registerStrategy(REPORT_TYPE_B, Quarterly, new QuarterlyComplaintsReportStrategy());
+        }
+        return instance;
+    }
+
+    // Method to register strategies
+    public void registerStrategy(ReportType reportType, ReportSpanType spanType, ReportStrategy strategy) {
+        strategyRegistry
+                .computeIfAbsent(reportType, k -> new HashMap<>())
+                .put(spanType, strategy);
     }
 
     public Report generateReport(ReportType reportType, ReportSpanType spanType, Branch branch, Month month, PurchaseType purchaseType) {
@@ -33,22 +54,14 @@ public class ReportService {
     }
 
     private ReportStrategy getStrategy(ReportType reportType, ReportSpanType spanType) {
-        if (spanType == Monthly) {
-            switch (reportType) {
-                case REPORT_TYPE_A:  // Monthly Sales Report
-                    return monthlyReportStrategy;
-                case REPORT_TYPE_B:  // Monthly Complaints Report
-                    return new MonthlyComplaintsReportStrategy();
-            }
-        } else if (spanType == Quarterly) {
-            switch (reportType) {
-                case REPORT_TYPE_A:  // Quarterly Sales Report
-                    return quarterlySalesReportStrategy;
-                case REPORT_TYPE_B:  // Quarterly Complaints Report
-                    return new QuarterlyComplaintsReportStrategy();
+        Map<ReportSpanType, ReportStrategy> strategiesBySpan = strategyRegistry.get(reportType);
+        if (strategiesBySpan != null) {
+            ReportStrategy strategy = strategiesBySpan.get(spanType);
+            if (strategy != null) {
+                return strategy;
             }
         }
-        throw new IllegalArgumentException("Unknown report type or span: " + reportType + ", " + spanType);
+        throw new IllegalArgumentException("No strategy found for report type: " + reportType + " and span type: " + spanType);
     }
 
     private List<Object> gatherReportData(ReportType reportType, Branch branch, Month month, PurchaseType purchaseType) {

@@ -32,6 +32,7 @@ public class ChartFactory {
      */
     private final ObservableList<Pair<String, Double>> chartData;
     private Object chartContext; // Holds the current context for the chart
+    private BorderPane chartBorderPane;
 
     // Constructor updated to initialize the observable chart data
     public ChartFactory() {
@@ -53,11 +54,15 @@ public class ChartFactory {
     public void onReportDataReceived(ReportDataReceivedEvent event) {
         updateChartContext(event);
         List<Report> reports = event.getReports();
+
+        // Convert the reports to chart data
         chartData.setAll(convertReportsToChartData(reports));
 
-        // Post event to notify that chart data has been updated
-        EventBus.getDefault().post(new ChartDataUpdatedEvent(chartContext, false, null, null, null));
+        // Notify that chart data has been updated
+        // Pass chartBorderPane as part of the event or call a method that handles UI updates
+        EventBus.getDefault().post(new ChartDataUpdatedEvent(chartContext, false, null, null, chartBorderPane));
     }
+
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -376,9 +381,7 @@ public class ChartFactory {
     public void prepareAndDisplayBarChart(String contextDescription, BorderPane chartBorderPane) {
         Platform.runLater(() -> {
             BarChart<String, Number> barChart = createBarChart(contextDescription);
-            // Convert the chart data
-            ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData(chartData);
-            // Populate the BarChart with data and add it to the BorderPane
+            ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
             populateBarChart(barChart, chartBorderPane, barChartData);
         });
     }
@@ -397,9 +400,7 @@ public class ChartFactory {
     public void prepareAndDisplayPieChart(String contextDescription, BorderPane chartBorderPane) {
         Platform.runLater(() -> {
             PieChart pieChart = createPieChart(contextDescription);
-            // Convert the chart data
-            ObservableList<PieChart.Data> pieChartData = convertToPieChartData(chartData);
-            // Populate the PieChart with data and add it to the BorderPane
+            ObservableList<PieChart.Data> pieChartData = convertToPieChartData();
             populatePieChart(pieChart, chartBorderPane, pieChartData);
         });
     }
@@ -554,5 +555,13 @@ public class ChartFactory {
         } else {
             this.chartContext = getContextDescription("Unknown Context"); // Use existing method for fallback context
         }
+    }
+
+    public BorderPane getChartBorderPane() {
+        return chartBorderPane;
+    }
+
+    public void setChartBorderPane(BorderPane chartBorderPane) {
+        this.chartBorderPane = chartBorderPane;
     }
 }
