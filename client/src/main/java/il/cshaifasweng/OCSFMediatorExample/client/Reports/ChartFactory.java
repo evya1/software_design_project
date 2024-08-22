@@ -10,10 +10,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
@@ -50,7 +51,7 @@ public class ChartFactory {
      *
      * @param event The `ReportDataReceivedEvent` containing the list of reports and associated data.
      */
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe
     public void onReportDataReceived(ReportDataReceivedEvent event) {
         updateChartContext(event);
         List<Report> reports = event.getReports();
@@ -64,8 +65,7 @@ public class ChartFactory {
     }
 
 
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe
     public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
         String contextDescription = getContextDescription(event.getContextParameter());
         if (event.shouldUseLabel()) {
@@ -78,7 +78,7 @@ public class ChartFactory {
     }
 
     /**
-     * Converts a list of {@link Report} entities into chart data represented as a list of {@link Pair<String, Double>}.
+     * Converts a list of {@link Report} entities into chart data represented as a list of {@link Pair<String Double>}.
      * <p>
      * This method processes each report, extracting the key-value pairs from the {@code dataForGraphs} map.
      * Each key-value pair is converted into a {@link Pair} where the key is combined with metadata from the {@link Report}
@@ -87,7 +87,7 @@ public class ChartFactory {
      * </p>
      *
      * @param reports A list of {@link Report} entities to be converted into chart data.
-     * @return A list of {@link Pair<String, Double>} representing the chart data, with the label containing
+     * @return A list of {@link Pair<Double String>} representing the chart data, with the label containing
      * contextual information from the report and the value representing the data point.
      */
     private List<Pair<String, Double>> convertReportsToChartData(List<Report> reports) {
@@ -167,24 +167,16 @@ public class ChartFactory {
         return Arrays.asList(new Pair<>("Product A", 3000.0), new Pair<>("Product B", 1500.0), new Pair<>("Product C", 300.0));
     }
 
-    /**
-     * Converts generic chart data to BarChart data.
-     * <p>
-     * This method transforms the generic key-value pair data into an ObservableList that can be
-     * directly used by a BarChart. The conversion ensures that the data aligns with the expected
-     * structure for the BarChart.
-     * </p>
-     * <p><b>Usage:</b></p>
-     * <pre>{@code
-     * List<Pair<String, Double>> genericData = chartFactory.createGenericChartData();
-     * ObservableList<XYChart.Data<String, Number>> barChartData = chartFactory.convertToBarChartData(genericData);
-     * }</pre>
-     *
-     * @param genericData the generic chart data.
-     * @return an ObservableList of XYChart.Data for use in BarChart.
-     */
+    private <T> ObservableList<T> convertToChartData(List<Pair<String, Double>> genericData, Function<Pair<String, Double>, T> mapper) {
+        return FXCollections.observableArrayList(genericData.stream().map(mapper).collect(Collectors.toList()));
+    }
+
     public ObservableList<XYChart.Data<String, Number>> convertToBarChartData(List<Pair<String, Double>> genericData) {
-        return FXCollections.observableArrayList(genericData.stream().map(pair -> new XYChart.Data<String, Number>(pair.getKey(), pair.getValue())).collect(Collectors.toList()));
+        return convertToChartData(genericData, pair -> new XYChart.Data<>(pair.getKey(), pair.getValue()));
+    }
+
+    public ObservableList<PieChart.Data> convertToPieChartData(List<Pair<String, Double>> genericData) {
+        return convertToChartData(genericData, pair -> new PieChart.Data(pair.getKey(), pair.getValue()));
     }
 
     /**
@@ -203,27 +195,6 @@ public class ChartFactory {
      */
     public ObservableList<XYChart.Data<String, Number>> convertToBarChartData() {
         return FXCollections.observableArrayList(chartData.stream().map(pair -> new XYChart.Data<String, Number>(pair.getKey(), pair.getValue())).collect(Collectors.toList()));
-    }
-
-
-    /**
-     * Converts generic chart data to PieChart data.
-     * <p>
-     * This method transforms the generic key-value pair data into an ObservableList that can be
-     * directly used by a PieChart. The conversion ensures that the data aligns with the expected
-     * structure for the PieChart.
-     * </p>
-     * <p><b>Usage:</b></p>
-     * <pre>{@code
-     * List<Pair<String, Double>> genericData = chartFactory.createGenericChartData();
-     * ObservableList<PieChart.Data> pieChartData = chartFactory.convertToPieChartData(genericData);
-     * }</pre>
-     *
-     * @param genericData the generic chart data.
-     * @return an ObservableList of PieChart.Data for use in PieChart.
-     */
-    public ObservableList<PieChart.Data> convertToPieChartData(List<Pair<String, Double>> genericData) {
-        return FXCollections.observableArrayList(genericData.stream().map(pair -> new PieChart.Data(pair.getKey(), pair.getValue())).collect(Collectors.toList()));
     }
 
     /**
@@ -302,12 +273,15 @@ public class ChartFactory {
         // Add data to the bar chart
         barChart.getData().add(dataSeries);
 
-        // Customize the appearance and behavior of the bar chart
-        barChart.setLegendVisible(false);  // Hide the legend, since it's not needed for this chart.
-        barChart.setAnimated(false);       // Disable animations for a static display of the chart.
-        barChart.setPrefSize(CHART_PREF_WIDTH, CHART_PREF_HEIGHT);
+        customizeChartAppearance(barChart);
 
         return barChart;
+    }
+
+    private void customizeChartAppearance(Chart chart) {
+        chart.setLegendVisible(false);
+        chart.setAnimated(false);
+        chart.setPrefSize(CHART_PREF_WIDTH, CHART_PREF_HEIGHT);
     }
 
     /**
@@ -359,73 +333,50 @@ public class ChartFactory {
         pieChart.setLabelLineLength(PIE_CHART_LABEL_LINE_LENGTH);
         pieChart.setStartAngle(PIE_CHART_START_ANGLE);
         pieChart.setLabelsVisible(true);
-        pieChart.setLegendVisible(false);  // Hide the legend, since it's not needed for this chart.
-        pieChart.setAnimated(false);       // Disable animations for a static display of the chart.
-        pieChart.setPrefSize(CHART_PREF_WIDTH, CHART_PREF_HEIGHT);
+
+        customizeChartAppearance(pieChart);
 
         return pieChart;
     }
 
+    private <T> void prepareAndDisplayChart(String contextDescription, BorderPane chartBorderPane, Supplier<Chart> chartSupplier, ObservableList<T> chartData) {
+        Platform.runLater(() -> {
+            Chart chart = chartSupplier.get();
+            chartBorderPane.setCenter(chart);
+        });
+    }
 
-    /**
-     * Prepares and displays a BarChart by creating it and populating it in the provided BorderPane.
-     * <p>
-     * This method schedules the creation and display of the BarChart on the JavaFX Application Thread
-     * using {@code Platform.runLater}. This ensures that all UI updates are thread-safe and occur
-     * on the correct thread.
-     * </p>
-     *
-     * @param contextDescription the context description (e.g., branch name, all locations).
-     * @param chartBorderPane    the BorderPane where the BarChart will be displayed.
-     */
     public void prepareAndDisplayBarChart(String contextDescription, BorderPane chartBorderPane) {
-        Platform.runLater(() -> {
-            BarChart<String, Number> barChart = createBarChart(contextDescription);
-            ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
-            populateBarChart(barChart, chartBorderPane, barChartData);
-        });
+        ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
+        prepareAndDisplayChart(contextDescription, chartBorderPane, () -> createBarChart(contextDescription), barChartData);
+    }
+
+    public void prepareAndDisplayPieChart(String contextDescription, BorderPane chartBorderPane) {
+        ObservableList<PieChart.Data> pieChartData = convertToPieChartData();
+        prepareAndDisplayChart(contextDescription, chartBorderPane, () -> createPieChart(contextDescription), pieChartData);
     }
 
     /**
-     * Prepares and displays a PieChart by creating it and populating it in the provided BorderPane.
+     * Populates the BarChart with data and adds it to the provided BorderPane.
      * <p>
-     * This method schedules the creation and display of the PieChart on the JavaFX Application Thread
-     * using {@code Platform.runLater}. This ensures that all UI updates are thread-safe and occur
-     * on the correct thread.
+     * This method is responsible for displaying the BarChart in the UI by adding it to the specified
+     * BorderPane. It allows the BarChart to be dynamically added to any part of the UI as needed.
      * </p>
+     * <p><b>Usage:</b></p>
+     * <pre>{@code
+     * BarChart<String, Number> barChart = ...; // Your BarChart instance
+     * chartFactory.populateBarChart(barChart, chartBorderPane);
+     * }</pre>
      *
-     * @param contextDescription the context description (e.g., branch name, all locations).
-     * @param chartBorderPane    the BorderPane where the PieChart will be displayed.
+     * @param barChart        the BarChart to be populated and displayed.
+     * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
-    public void prepareAndDisplayPieChart(String contextDescription, BorderPane chartBorderPane) {
-        Platform.runLater(() -> {
-            PieChart pieChart = createPieChart(contextDescription);
-            ObservableList<PieChart.Data> pieChartData = convertToPieChartData();
-            populatePieChart(pieChart, chartBorderPane, pieChartData);
-        });
+    public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane, ObservableList<XYChart.Data<String, Number>> barChartData) {
+        barChart.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>(barChartData);
+        barChart.getData().add(series);
+        chartBorderPane.setCenter(barChart);
     }
-
-
-        /**
-         * Populates the BarChart with data and adds it to the provided BorderPane.
-         * <p>
-         * This method is responsible for displaying the BarChart in the UI by adding it to the specified
-         * BorderPane. It allows the BarChart to be dynamically added to any part of the UI as needed.
-         * </p>
-         * <p><b>Usage:</b></p>
-         * <pre>{@code
-         * BarChart<String, Number> barChart = ...; // Your BarChart instance
-         * chartFactory.populateBarChart(barChart, chartBorderPane);
-         * }</pre>
-         *
-         * @param barChart        the BarChart to be populated and displayed.
-         * @param chartBorderPane the BorderPane where the chart will be displayed.
-         */
-        public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane, ObservableList<XYChart.Data<String, Number>> barChartData) {
-            XYChart.Series<String, Number> series = new XYChart.Series<>(barChartData);
-            barChart.getData().add(series);
-            chartBorderPane.setCenter(barChart);
-        }
 
     /**
      * Populates the PieChart with data and adds it to the provided BorderPane.
@@ -443,6 +394,7 @@ public class ChartFactory {
      * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
     public void populatePieChart(PieChart pieChart, BorderPane chartBorderPane, ObservableList<PieChart.Data> pieChartData) {
+        pieChart.getData().clear();
         pieChart.setData(pieChartData);
         chartBorderPane.setCenter(pieChart);
     }

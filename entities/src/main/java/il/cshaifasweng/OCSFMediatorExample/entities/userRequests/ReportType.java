@@ -1,7 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.userRequests;
 
 public enum ReportType {
-    REPORT_TYPE_A("Sells Report"),
+    REPORT_TYPE_A("Sales Report"),
     REPORT_TYPE_B("Complaints Report"),
     ALL_REPORT_TYPE("All Reports");
     private final String value;
@@ -11,6 +11,10 @@ public enum ReportType {
     }
 
     public String getValue() {
+        return value;
+    }
+
+    public String toString() {
         return value;
     }
 }

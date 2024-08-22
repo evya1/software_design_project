@@ -19,15 +19,16 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.ALL_BRANCHES;
@@ -38,6 +39,8 @@ import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.*;
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 
 public class ReportsScreenController implements ClientDependent, Initializable, AutoCloseable {
@@ -64,13 +67,13 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     @FXML
     public DatePicker datePicker;
     @FXML
-    public ComboBox branchSelectionComboBox;
+    public ComboBox<String> branchSelectionComboBox;
     @FXML
-    public ComboBox reportTypeSelectionComboBox;
+    public ComboBox<ReportType> reportTypeSelectionComboBox;
     @FXML
-    public ComboBox supportedSpanSelectionComboBox;
+    public ComboBox<String> supportedSpanSelectionComboBox;
     @FXML
-    public ComboBox productSelectionComboBox;
+    public ComboBox<PurchaseType> purchaseTypeSelectionComboBox;
     private ReportsRequestHandler requestHandler;
     private Message localMessage;
     private SimpleClient client;
@@ -110,45 +113,17 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private void fetchDefaultMonthlyBookletPurchases() {
-        if (requestHandler == null) {
-            System.err.println("Request Handler is not initialized!\n");
-            return;
-        }
+        if (isNotInitialized(requestHandler, ERROR_MESSAGE_REQUEST_HANDLER_NOT_INITIALIZED)) return;
 
-        // Fetch for Monthly Purchases of "Booklet" type
-        ReportSpanType spanType = ReportSpanType.Monthly;
-        int year = LocalDate.now().getYear();
-        int month = LocalDate.now().getMonthValue();
+        Pair<Integer, Integer> yearAndMonth = getCurrentYearAndMonth();
+        int year = yearAndMonth.getKey();
+        int month = yearAndMonth.getValue();
 
         RequestData requestData = MessageUtilForReports.buildRequestData(
                 FETCH_MONTHLY_REPORTS,
                 REPORT_TYPE_A,
-                spanType,
+                Monthly,
                 PurchaseType.BOOKLET,
-                employee,
-                year,
-                month
-        );
-
-        requestHandler.sendRequest(requestData);
-    }
-
-    @FXML
-    void requestReportData() {
-        if (requestHandler == null) {
-            System.err.println("Request Handler is not initialized!\n");
-            return;
-        }
-        // Assuming `employee` and other necessary fields are available
-        ReportSpanType spanType = Monthly;
-        int year = LocalDate.now().getYear();  // Example of using the current year
-        int month = LocalDate.now().getMonthValue();  // Example of using the current month
-
-        RequestData requestData = MessageUtilForReports.buildRequestData(
-                FETCH_MONTHLY_REPORTS,
-                ReportType.ALL_REPORT_TYPE,  // Example report type, change as needed
-                spanType,
-                ALL_TYPES,  // Assuming fetching all purchase types
                 employee,
                 year,
                 month
@@ -163,33 +138,41 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     /**
-     * Handles the action event to display a BarChart in the UI.
+     * Handles the action event to display a chart (either BarChart or PieChart) in the UI.
      * <p>
      * This method retrieves the context description based on the current chart context (e.g., branch name or all locations)
-     * and uses the ChartFactory to create, configure, and display the BarChart in the specified BorderPane.
+     * and uses the ChartFactory to create, configure, and display the chart in the specified BorderPane.
+     * The chart type (BarChart or PieChart) is determined by the chartType parameter.
      * </p>
      *
+     * @param actionEvent The action event triggered by user interaction, such as clicking a button.
+     * @param chartType   The type of chart to be displayed (e.g., "BarChart" or "PieChart").
+     */
+    private void handleShowChart(ActionEvent actionEvent, String chartType) {
+        String contextDescription = chartFactory.getContextDescription(chartContext);
+        if (BAR_CHART_TYPE.equals(chartType)) {
+            chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
+        } else if (PIE_CHART_TYPE.equals(chartType)) {
+            chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
+        }
+    }
+
+    /**
+     * Handles the action event to display a BarChart in the UI.
      * @param actionEvent The action event triggered by user interaction, such as clicking a button.
      */
     @FXML
     public void handleShowBarChart(ActionEvent actionEvent) {
-        String contextDescription = chartFactory.getContextDescription(chartContext);
-        chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
+        handleShowChart(actionEvent, BAR_CHART_TYPE);
     }
 
     /**
      * Handles the action event to display a PieChart in the UI.
-     * <p>
-     * This method retrieves the context description based on the current chart context (e.g., branch name or all locations)
-     * and uses the ChartFactory to create, configure, and display the PieChart in the specified BorderPane.
-     * </p>
-     *
      * @param actionEvent The action event triggered by user interaction, such as clicking a button.
      */
     @FXML
     public void handleShowPieChart(ActionEvent actionEvent) {
-        String contextDescription = chartFactory.getContextDescription(chartContext);
-        chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
+        handleShowChart(actionEvent, PIE_CHART_TYPE);
     }
 
     @FXML
@@ -207,29 +190,22 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      */
     @FXML
     public void handleUpdateData(ActionEvent actionEvent) {
-//        EventBus.getDefault().post(new RefreshChartDataEvent());
-
         Node node = chartBorderPane.getCenter();
-        if (node instanceof PieChart pc) {
 
-            PieChart.Data second = pc.getData().get(2);
-            second.setPieValue(5000);   // Product C
+        if (node instanceof PieChart pieChart) {
+            ObservableList<PieChart.Data> pieChartData = pieChart.getData();
 
-        } else if (node instanceof BarChart bc) {
-            //            BarChart.
+            if (pieChartData.size() > 2) {
+                PieChart.Data second = pieChartData.get(2);
+                second.setPieValue(5000);   // Update the value for Product C
+            }
+
+        } else if (node instanceof BarChart<?, ?> barChart) {
+            // Logic for handling BarChart updates should go here
         }
     }
 
-    /**
-     * Receives events when chart data needs to be updated and refreshes the chart data.
-     * <p>
-     * This method listens for {@link RefreshChartDataEvent} and refreshes the data in the `ChartFactory`.
-     * The updated data will automatically be reflected in the displayed charts.
-     * </p>
-     *
-     * @param event The event that triggers the chart data refresh.
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe
     public void onRefreshChartDataEvent(RefreshChartDataEvent event) {
         if (!event.isEmpty()) {
             updateChartWithData(event.getReports());
@@ -239,21 +215,33 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     @FXML
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe
     private void updateChartWithData(List<Report> reports) {
-        // Pass the reports data to ChartFactory
-        chartFactory.onReportDataReceived(new ReportDataReceivedEvent(reports, false, employee, employee.getBranch()));
-
-        // Update the UI with the new data using ChartFactory
-        String contextDescription = chartFactory.getContextDescription(chartContext);
-        chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
-        chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
+        Platform.runLater(() -> {
+            chartFactory.onReportDataReceived(new ReportDataReceivedEvent(reports, false, employee, employee.getBranch()));
+            String contextDescription = chartFactory.getContextDescription(chartContext);
+            chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
+            chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
+        });
     }
 
-    public void onReportDataReceived(ReportDataReceivedEvent event) {
-        EventBus.getDefault().post(new ChartDataUpdatedEvent(chartContext, true, // Or false, depending on logic
-                event.getReports().get(0), "DataKeyExample", // Update with actual data key
-                chartBorderPane));
+    @Subscribe
+    public void dataReceived(MessageEvent event) {
+        Message message = event.getMessage();
+        System.out.println("dataReceived - Message received: " + message.getMessage());
+
+        if (REPORT_DATA_RESPONSE.equals(message.getMessage())) {
+            Platform.runLater(() -> {
+                List<Report> reports = message.getReports();
+                if (reports != null && !reports.isEmpty()) {
+                    System.out.println("Reports received: " + reports.size());
+                    updateChartWithData(reports);
+                } else {
+                    System.out.println("No reports received.");
+                    SimpleClient.showAlert(INFORMATION, "No Reports", "There are no reports available.");
+                }
+            });
+        }
     }
 
     /**
@@ -264,7 +252,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      *
      * @param event The event that triggers the UI update.
      */
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe
     public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
         String contextDescription = chartFactory.getContextDescription(event.getContextParameter());
         chartFactory.prepareAndDisplayBarChart(contextDescription, event.getChartBorderPane());
@@ -280,20 +268,16 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      */
     @FXML
     void requestReportData(ActionEvent event) {
-        if (requestHandler == null) {
-            System.err.println("Request Handler is not initialized!\n");
-            return;
-        }
+        if (isNotInitialized(requestHandler, ERROR_MESSAGE_REQUEST_HANDLER_NOT_INITIALIZED)) return;
 
-        // Assuming `employee` and other necessary fields are available
-        ReportSpanType spanType = Quarterly;
-        int year = LocalDate.now().getYear();  // Example of using the current year
-        int month = LocalDate.now().getMonthValue();  // Example of using the current month
+        Pair<Integer, Integer> yearAndMonth = getCurrentYearAndMonth();
+        int year = yearAndMonth.getKey();
+        int month = yearAndMonth.getValue();
 
         RequestData requestData = MessageUtilForReports.buildRequestData(
                 FETCH_LAST_QUARTER_REPORT,
                 ReportType.ALL_REPORT_TYPE,  // Example report type, change as needed
-                spanType,
+                Quarterly,
                 ALL_TYPES,  // Assuming fetching all purchase types
                 employee,
                 year,
@@ -303,50 +287,34 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         requestHandler.sendRequest(requestData);
     }
 
-    /**
-     * Subscribes to `MessageEvent` events posted on the EventBus and processes the received messages.
-     * This method handles the response containing report data by updating the `TableView` in the UI.
-     * If no reports are found, an informational alert is displayed to the user.
-     *
-     * @param event The `MessageEvent` containing the message with report data received from the server.
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void dataReceived(MessageEvent event) {
-        Message message = event.getMessage();
-        if (REPORT_DATA_RESPONSE.equals(message.getMessage())) {
-            Platform.runLater(() -> {
-                List<Report> reports = message.getReports();
-                if (reports != null && !reports.isEmpty()) {
-                    EventBus.getDefault().post(new ReportDataReceivedEvent(reports, false, employee, employee.getBranch()));
-                } else {
-                    SimpleClient.showAlert(INFORMATION, "No Reports", "There are no reports available.");
-                }
-            });
-        }
-    }
-
     @FXML
     void chooseBranch(ActionEvent event) {
-        // Logic to filter or apply selection based on selected branch
-        String selectedBranch = branchSelectionComboBox.getValue().toString();
-        System.out.println("Selected branch: " + selectedBranch);
-        // Add your logic to handle the selected branch
+        handleSelectionChange(branchSelectionComboBox, "branch");
     }
 
     @FXML
     void chooseSupportedSpan(ActionEvent event) {
-        // Logic to filter or apply selection based on report type
-        String selectedReportType = supportedSpanSelectionComboBox.getValue().toString();
-        System.out.println("Selected report type: " + selectedReportType);
-        // Add your logic to handle the selected report type
+        handleSelectionChange(supportedSpanSelectionComboBox, "supported span");
     }
 
     @FXML
     void chooseReportType(ActionEvent event) {
-        // Logic to filter or apply selection based on report span
-        String selectedReportSpan = reportTypeSelectionComboBox.getValue().toString();
-        System.out.println("Selected report span: " + selectedReportSpan);
-        // Add your logic to handle the selected report span
+        handleSelectionChange(reportTypeSelectionComboBox, "report type");
+    }
+
+    @FXML
+    public void choosePurchaseType(ActionEvent actionEvent) {
+        handleSelectionChange(purchaseTypeSelectionComboBox, "product");
+        requestReportData(actionEvent); // Optionally trigger report request based on selected product
+    }
+
+    @FXML
+    private <T> void handleSelectionChange(ComboBox<T> comboBox, String description) {
+        T selectedValue = comboBox.getValue();
+        if (selectedValue != null) {
+            System.out.println("Selected " + description + ": " + selectedValue);
+            // Add your logic to handle the selected value, e.g., filtering reports or triggering events
+        }
     }
 
     @FXML
@@ -360,22 +328,16 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     @FXML
     void clearFilters(ActionEvent event) {
-        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, DEFAULT_SELECTION_OPTION_VALUE_FOR_REPORT_TYPE);
+        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, ReportType.ALL_REPORT_TYPE);
         resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH, DEFAULT_SELECTION_OPTION_VALUE_FOR_BRANCH);
         resetComboBoxPromptAndValue(supportedSpanSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_SUPPORTED_SPAN, DEFAULT_SELECTION_OPTION_VALUE_FOR_SUPPORTED_SPAN);
-        hideDatePicker(); // Reset the date picker
-    }
-
-    @FXML
-    public void chooseProduct(ActionEvent actionEvent) {
+        resetComboBoxPromptAndValue(purchaseTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, PurchaseType.ALL_TYPES);
+        hideDatePicker();
     }
 
     @FXML
     void getReport(ActionEvent event) {
-        if (requestHandler == null) {
-            System.err.println("Request Handler is not initialized!\n");
-            return;
-        }
+        if (isNotInitialized(requestHandler, ERROR_MESSAGE_REQUEST_HANDLER_NOT_INITIALIZED)) return;
 
         // Extracted local variables
         ReportType typeOfReport = getSelectedReportType();
@@ -418,6 +380,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         initializeReportTypeSelectionComboBox();
         initializeSupportedSpanSelectionComboBox();
         initializeBranchSelectionComboBox();
+        initializePurchasesTypesSelectionComboBox();
         initializeBranchSelectionComboBoxBasedOnEmployeeType();
         initializeDatePicker();
         setUpDatePickerVisibilityBasedOnSpanSelection();
@@ -425,7 +388,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     private void setUpDatePickerVisibilityBasedOnSpanSelection() {
         supportedSpanSelectionComboBox.setOnAction(event -> {
-            String selectedReportSpan = supportedSpanSelectionComboBox.getValue().toString();
+            String selectedReportSpan = supportedSpanSelectionComboBox.getValue();
             if (ReportsScreenConstants.DAILY_REPORT.equals(selectedReportSpan)) {
                 showDatePicker();
             } else {
@@ -435,8 +398,10 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private void initializeReportTypeSelectionComboBox() {
-        reportTypeSelectionComboBox.getItems().addAll(ReportType.REPORT_TYPE_A, ReportType.REPORT_TYPE_B, ReportType.ALL_REPORT_TYPE);
-        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, ReportType.ALL_REPORT_TYPE);
+        // Populate ComboBox with ReportType enum values directly
+        reportTypeSelectionComboBox.getItems().addAll(ReportType.values());
+        // Set the default selection to ALL_REPORT_TYPE
+        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, ALL_REPORT_TYPE);
     }
 
     private void initializeSupportedSpanSelectionComboBox() {
@@ -449,9 +414,14 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH, DEFAULT_SELECTION_OPTION_VALUE_FOR_BRANCH);
     }
 
+    private void initializePurchasesTypesSelectionComboBox() {
+        purchaseTypeSelectionComboBox.getItems().addAll(PurchaseType.values());
+        resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, DEFAULT_SELECTION_OPTION_VALUE_FOR_PURCHASABLE);
+    }
+
     private void initializeBranchSelectionComboBoxBasedOnEmployeeType() {
         if (employee != null && employee.getEmployeeType() == CHAIN_MANAGER) {
-            ObservableList comboBoxItems = branchSelectionComboBox.getItems();
+            ObservableList<String> comboBoxItems = branchSelectionComboBox.getItems();
             comboBoxItems.clear();
             List<String> branchNames = new ArrayList<>();
             branchNames.add(employee.getBranchInCharge().getBranchName());
@@ -470,7 +440,10 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
                 if (date != null && !empty) {
-                    // Apply custom logic for date styling
+                    // Example: Highlight weekends with a different background color
+                    if (date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY) {
+                        setStyle("-fx-background-color: lightgray;");
+                    }
                 }
             }
         });
@@ -485,10 +458,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     @FXML
     public void handleBackAction(ActionEvent actionEvent) {
-        if (client == null) {
-            System.err.println("Client is not initialized!\n");
-            return;
-        }
+        if (isNotInitialized(client, ERROR_MESSAGE_CLIENT_NOT_INITIALIZED)) return;
         try {
             if (actionEvent.getSource() instanceof Node) { // Check if the event source can be cast to a Node
                 Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -521,7 +491,9 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     @Override
     public void setClient(SimpleClient client) {
         this.client = client;
-        this.requestHandler = new ReportsRequestHandler(client);
+        // Use the singleton instance and initialize it with the client
+        this.requestHandler = ReportsRequestHandler.getInstance();
+        this.requestHandler.initialize(client);
     }
 
     @Override
@@ -579,28 +551,28 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private ReportSpanType getTimeSpan(String reportSpan) {
-        if (ReportsScreenConstants.DAILY_REPORT.equals(reportSpan)) {
+        if (DAILY_REPORT.equals(reportSpan)) {
             return Daily;
-        } else if (ReportsScreenConstants.MONTHLY_REPORT.equals(reportSpan)) {
+        } else if (MONTHLY_REPORT.equals(reportSpan)) {
             return Monthly;
-        } else if (ReportsScreenConstants.QUARTERLY_REPORT.equals(reportSpan)) {
+        } else if (QUARTERLY_REPORT.equals(reportSpan)) {
             return Quarterly;
-        } else if (ReportsScreenConstants.YEARLY_REPORT.equals(reportSpan)) {
-            return ReportSpanType.Yearly;
+        } else if (YEARLY_REPORT.equals(reportSpan)) {
+            return Yearly;
         } else {
-            return Monthly; // Default fallback
+            return DEFAULT_SUPPORTED_SPAN_TYPE_FALLBACK;
         }
     }
 
     private PurchaseType getPurchasableTypes(ReportType reportType) {
-        if (REPORT_TYPE_A.getValue().equals(reportType)) {
+        if (REPORT_TYPE_A.equals(reportType)) {
             return MOVIE_TICKET;
-        } else if (REPORT_TYPE_B.getValue().equals(reportType)) {
+        } else if (REPORT_TYPE_B.equals(reportType)) {
             return BOOKLET;
-        } else if (ALL_REPORT_TYPE.getValue().equals(reportType)) {
+        } else if (ALL_REPORT_TYPE.equals(reportType)) {
             return ALL_TYPES;
         } else {
-            return ALL_TYPES; // Default fallback
+            return DEFAULT_PURCHASABLE_TYPE_FALLBACK;
         }
     }
 
@@ -628,7 +600,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private String getSelectedBranch() {
-        return getSelectedValue(branchSelectionComboBox).toString();
+        return getSelectedValue(branchSelectionComboBox);
     }
 
     private LocalDate getSelectedDate() {
@@ -636,20 +608,43 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private ReportSpanType getSelectedSpanType() {
-        String span = getSelectedValue(supportedSpanSelectionComboBox).toString();
+        String span = getSelectedValue(supportedSpanSelectionComboBox);
         return getTimeSpan(span);
     }
 
+    private int getSelectedDatePart(LocalDate selectedDate, Function<LocalDate, Integer> datePartExtractor, int defaultValue) {
+        return (selectedDate != null) ? datePartExtractor.apply(selectedDate) : defaultValue;
+    }
+
+    private int getSelectedDateValue(LocalDate selectedDate, Function<LocalDate, Integer> datePartExtractor) {
+        return (selectedDate != null) ? datePartExtractor.apply(selectedDate) : datePartExtractor.apply(LocalDate.now());
+    }
+
     private int getSelectedYear(LocalDate selectedDate) {
-        return (selectedDate != null) ? selectedDate.getYear() : LocalDate.now().getYear();
+        return getSelectedDateValue(selectedDate, LocalDate::getYear);
     }
 
     private int getSelectedMonth(LocalDate selectedDate) {
-        return (selectedDate != null) ? selectedDate.getMonthValue() : LocalDate.now().getMonthValue();
+        return getSelectedDateValue(selectedDate, LocalDate::getMonthValue);
     }
 
     private ReportType getSelectedReportType() {
-        return (ReportType) reportTypeSelectionComboBox.getValue();
+        ReportType selectedReportType = reportTypeSelectionComboBox.getValue();
+        System.out.println("Selected Report Type: " + selectedReportType);
+        return selectedReportType;
     }
 
+    private boolean isNotInitialized(Object handler, String errorMessage) {
+        if (handler == null) {
+            System.err.println(errorMessage + "\n");
+            return true;
+        }
+        return false;
+    }
+
+    private Pair<Integer, Integer> getCurrentYearAndMonth() {
+        int year = LocalDate.now().getYear();
+        int month = LocalDate.now().getMonthValue();
+        return new Pair<>(year, month);
+    }
 }

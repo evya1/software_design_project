@@ -98,7 +98,7 @@
                   <String fx:value="hover-button" />
                </styleClass>
             </Button>
-            <ComboBox id="productSelectionButton" fx:id="productSelectionComboBox" layoutY="110.0" onAction="#chooseProduct" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <ComboBox id="productSelectionButton" fx:id="purchaseTypeSelectionComboBox" layoutY="110.0" onAction="#choosePurchaseType" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                <styleClass>
                   <String fx:value="rounded-corners" />
                   <String fx:value="hover-button" />

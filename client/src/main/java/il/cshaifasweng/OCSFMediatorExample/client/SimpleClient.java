@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsRequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
@@ -22,8 +23,8 @@ import static il.cshaifasweng.OCSFMediatorExample.client.FXMLUtils.loadFXML;
 public class SimpleClient extends AbstractClient {
 
     private static String ipAddress;
-
     private static int port;
+    private final ReportsRequestHandler reportsRequestHandler;
 
     public static int getClientPort() {
         return port;
@@ -35,6 +36,8 @@ public class SimpleClient extends AbstractClient {
 
     public SimpleClient(String host, int port) {
         super(host, port);
+        reportsRequestHandler = ReportsRequestHandler.getInstance();
+        reportsRequestHandler.initialize(this);
     }
 
     public static void setIpAddress(String ip) {
@@ -52,11 +55,13 @@ public class SimpleClient extends AbstractClient {
         System.out.println("Message from Server: " + messageString);
         EventBus.getDefault().post(new MessageEvent(message));
 
+        if (message.getMessage().startsWith("REPORT_"))
+            reportsRequestHandler.handleResponse(message);
 
-//
-//        String messageData = message.getData();
-//        System.out.println("LOG: new message from Server: " + messageString);
-//
+
+        String messageData = message.getData();
+        System.out.println("LOG: new message from Server: " + messageString);
+
 //        if (messageString.equals(SHOW_ALL_MOVIES)) {
 //            List<Movie> movies = message.getMovies();
 //            EventBus.getDefault().post(new GenericEvent<List<Movie>>(movies));
@@ -85,7 +90,7 @@ public class SimpleClient extends AbstractClient {
 //            switch (messageData)
 //            {
 //                case GET_BRANCHES:
-
+//
 //            }
 //
 //        }

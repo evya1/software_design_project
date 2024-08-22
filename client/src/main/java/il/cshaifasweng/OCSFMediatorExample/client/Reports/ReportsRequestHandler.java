@@ -4,12 +4,12 @@ import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.MessageUtilForReports;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.RequestData;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
+import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.REPORT_DATA_RESPONSE;
 
@@ -18,30 +18,25 @@ import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOp
  */
 public class ReportsRequestHandler {
 
-    private final SimpleClient client;
+    private static ReportsRequestHandler instance;
+    private SimpleClient client;
 
-    /**
-     * Constructs a ReportsRequestHandler with the specified client.
-     *
-     * @param client The SimpleClient instance used to communicate with the server.
-     */
-    public ReportsRequestHandler(SimpleClient client) {
-        this.client = client;
-        EventBus.getDefault().register(this); // Registering the handler
+    // Private constructor to prevent instantiation
+    private ReportsRequestHandler() {
     }
 
-    /**
-     * Subscribes to `MessageEvent` events posted on the EventBus and handles the received messages.
-     * This method extracts the `Message` object from the event and delegates the handling
-     * of the message to the `handleResponse` method.
-     *
-     * @param event The `MessageEvent` containing the message received from the server.
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        Message message = event.getMessage();
-        if (REPORT_DATA_RESPONSE.equals(message.getMessage())) {
-            EventBus.getDefault().post(new RefreshChartDataEvent(message.getReports(), message.getMessage()));
+    // Get the singleton instance
+    public static synchronized ReportsRequestHandler getInstance() {
+        if (instance == null) {
+            instance = new ReportsRequestHandler();
+        }
+        return instance;
+    }
+
+    // Initialize with the client (set the SimpleClient instance)
+    public void initialize(SimpleClient client) {
+        if (this.client == null) {
+            this.client = client;
         }
     }
 
@@ -70,7 +65,6 @@ public class ReportsRequestHandler {
             case REPORT_DATA_RESPONSE:
                 handleReportDataResponse(message);
                 break;
-            // Future cases for new message types can be added here
             default:
                 System.out.println("Unhandled message type: " + messageType);
         }
@@ -81,12 +75,20 @@ public class ReportsRequestHandler {
      *
      * @param message The message containing the report data from the server.
      */
-    private void handleReportDataResponse(Message message) {
-        EventBus.getDefault().post(new ReportDataReceivedEvent(
-                message.getReports(),
-                message.isSingleReport(),
-                message.getEmployee(),
-                message.getBranch()
-        ));
+    public void handleReportDataResponse(Message message) {
+        List<Report> reports = message.getReports();
+        if (reports != null && !reports.isEmpty()) {
+            EventBus.getDefault().post(new ReportDataReceivedEvent(
+                    reports,
+                    message.isSingleReport(),
+                    message.getEmployee(),
+                    message.getBranch()
+            ));
+
+            // Triggering the dataReceived method via EventBus
+            EventBus.getDefault().post(new MessageEvent(message));
+        } else {
+            System.out.println("No reports received from the server.");
+        }
     }
 }
