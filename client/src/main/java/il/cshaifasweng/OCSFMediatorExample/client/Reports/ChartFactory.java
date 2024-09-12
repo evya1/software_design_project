@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.ALL_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.INVALID_LABEL;
@@ -164,7 +165,7 @@ public class ChartFactory {
      * @return a List of Pair<String, Double> representing the data.
      */
     public List<Pair<String, Double>> createGenericChartData() {
-        return Arrays.asList(new Pair<>("Product A", 3000.0), new Pair<>("Product B", 1500.0), new Pair<>("Product C", 300.0));
+        return Arrays.asList(new Pair<>(MOVIE_TICKET.toString(), 3000.0), new Pair<>(MOVIE_LINK.toString(), 1500.0), new Pair<>(BOOKLET.toString(), 300.0));
     }
 
     private <T> ObservableList<T> convertToChartData(List<Pair<String, Double>> genericData, Function<Pair<String, Double>, T> mapper) {
@@ -348,7 +349,10 @@ public class ChartFactory {
 
     public void prepareAndDisplayBarChart(String contextDescription, BorderPane chartBorderPane) {
         ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
-        prepareAndDisplayChart(contextDescription, chartBorderPane, () -> createBarChart(contextDescription), barChartData);
+        Platform.runLater(() -> {
+            BarChart<String, Number> barChart = createBarChart(contextDescription);
+            populateBarChart(barChart, chartBorderPane, barChartData);
+        });
     }
 
     public void prepareAndDisplayPieChart(String contextDescription, BorderPane chartBorderPane) {

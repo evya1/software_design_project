@@ -31,11 +31,15 @@ public class ReportService {
             DataCommunicationDB db = new DataCommunicationDB();
             instance = new ReportService(db);
 
-            // Register strategies (moved from ServerConfiguration)
+            // Register strategies for specific report types
             instance.registerStrategy(REPORT_TYPE_A, Monthly, new MonthlySalesReportStrategy());
             instance.registerStrategy(REPORT_TYPE_A, Quarterly, new QuarterlySalesReportStrategy());
             instance.registerStrategy(REPORT_TYPE_B, Monthly, new MonthlyComplaintsReportStrategy());
             instance.registerStrategy(REPORT_TYPE_B, Quarterly, new QuarterlyComplaintsReportStrategy());
+
+            // Register combined strategies for ALL_REPORT_TYPE
+            instance.registerStrategy(ReportType.ALL_REPORT_TYPE, Monthly, new CombinedMonthlyReportStrategy());
+            instance.registerStrategy(ReportType.ALL_REPORT_TYPE, Quarterly, new CombinedQuarterlyReportStrategy());
         }
         return instance;
     }

@@ -2,12 +2,16 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 
 import java.io.IOException;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
@@ -64,19 +68,64 @@ public class ReportsRequestHandler implements RequestHandler {
     private void handleQuarterlyReports(RequestData requestData, ConnectionToClient client) throws IOException {
         try {
             Month month = requestData.month();
-            Month startMonth = DataCommunicationDB.getQuarterStartMonth(month);
+            Month startMonth = DataCommunicationDB.getQuarterStartMonth(month); // Get the start month of the quarter
 
-            // Make sure to pass the necessary parameters: branch, startMonth, purchaseType, and reportType
-            List<Report> reports = reportService.retrieveReportsByBranchAndMonth(
-                    requestData.branch(), startMonth, requestData.purchaseType(), requestData.reportType()
-            );
+            // Get all the months in the quarter
+            List<Month> quarterMonths = getQuarterMonths(startMonth);
 
-            client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), reports));
+            // Fetch reports for all months in the quarter using the extracted method
+            List<Report> quarterlyReports = fetchReportsForMonths(quarterMonths, requestData.branch(), requestData.purchaseType(), requestData.reportType());
+
+            // Send the combined quarterly reports to the client
+            client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), quarterlyReports));
+
         } catch (Exception e) {
-            // Handle the exception and notify the client
             System.err.println("Error retrieving quarterly reports: " + e.getMessage());
             e.printStackTrace();
-            client.sendToClient(MessageUtilForReports.createErrorMessage("Failed to retrieve quarterly reports."));
+            client.sendToClient(MessageUtilForReports.createErrorMessage("Failed to retrieve quarterly reports: " + e.getMessage()));
         }
+    }
+
+    private void handleYearlyReports(RequestData requestData, ConnectionToClient client) throws IOException {
+        try {
+            // Get all months of the year
+            List<Month> yearlyMonths = Arrays.asList(Month.values());
+
+            // Fetch reports for all months in the year
+            List<Report> yearlyReports = fetchReportsForMonths(yearlyMonths, requestData.branch(), requestData.purchaseType(), requestData.reportType());
+
+            // Send the combined yearly reports to the client
+            client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), yearlyReports));
+
+        } catch (Exception e) {
+            System.err.println("Error retrieving yearly reports: " + e.getMessage());
+            e.printStackTrace();
+            client.sendToClient(MessageUtilForReports.createErrorMessage("Failed to retrieve yearly reports: " + e.getMessage()));
+        }
+    }
+
+
+    private List<Month> getQuarterMonths(Month startMonth) {
+        List<Month> quarterMonths = new ArrayList<>();
+        quarterMonths.add(startMonth);
+
+        // Assuming a 3-month quarter, add the next two months
+        quarterMonths.add(startMonth.plus(1));  // Next month
+        quarterMonths.add(startMonth.plus(2));  // Month after next
+
+        return quarterMonths;
+    }
+
+    private List<Report> fetchReportsForMonths(List<Month> months, Branch branch, PurchaseType purchaseType, ReportType reportType) {
+        List<Report> combinedReports = new ArrayList<>();
+
+        for (Month currentMonth : months) {
+            List<Report> reportsForMonth = reportService.retrieveReportsByBranchAndMonth(
+                    branch, currentMonth, purchaseType, reportType
+            );
+            combinedReports.addAll(reportsForMonth);
+        }
+
+        return combinedReports;
     }
 }

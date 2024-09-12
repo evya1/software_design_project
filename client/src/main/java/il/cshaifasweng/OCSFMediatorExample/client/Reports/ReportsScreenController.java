@@ -101,6 +101,10 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         // Set the chartBorderPane in the ChartFactory instance
         chartFactory.setChartBorderPane(chartBorderPane);
 
+        // Display the PieChart by default on screen
+        String contextDescription = chartFactory.getContextDescription(chartContext);
+        chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
+
         Message localMessage = getLocalMessage();
 
         if (localMessage != null) {
@@ -108,11 +112,11 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             setChartContext(chartContext);
 
             // Default fetch for Monthly Purchases of Booklet type
-            fetchDefaultMonthlyBookletPurchases();
+            fetchDefault();
         }
     }
 
-    private void fetchDefaultMonthlyBookletPurchases() {
+    private void fetchDefault() {
         if (isNotInitialized(requestHandler, ERROR_MESSAGE_REQUEST_HANDLER_NOT_INITIALIZED)) return;
 
         Pair<Integer, Integer> yearAndMonth = getCurrentYearAndMonth();
@@ -123,7 +127,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
                 FETCH_MONTHLY_REPORTS,
                 REPORT_TYPE_A,
                 Monthly,
-                PurchaseType.BOOKLET,
+                ALL_TYPES,
                 employee,
                 year,
                 month
@@ -214,34 +218,39 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         }
     }
 
-    @FXML
     @Subscribe
-    private void updateChartWithData(List<Report> reports) {
+    public void updateChartWithData(List<Report> reports) {
         Platform.runLater(() -> {
-            chartFactory.onReportDataReceived(new ReportDataReceivedEvent(reports, false, employee, employee.getBranch()));
-            String contextDescription = chartFactory.getContextDescription(chartContext);
-            chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
-            chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
+            if (reports != null && !reports.isEmpty()) {
+                logReceivedData(reports);
+
+                chartFactory.onReportDataReceived(new ReportDataReceivedEvent(reports, false, employee, employee.getBranch()));
+                String contextDescription = chartFactory.getContextDescription(chartContext);
+
+                // Display the PieChart with the received data
+                chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
+            } else {
+                System.out.println("No data to display in chart.");
+            }
         });
     }
 
     @Subscribe
     public void dataReceived(MessageEvent event) {
         Message message = event.getMessage();
-        System.out.println("dataReceived - Message received: " + message.getMessage());
+        String messageContent = message.getMessage();
+        System.out.println("ReportsScreenController: dataReceived: Message received: " + messageContent);
 
-        if (REPORT_DATA_RESPONSE.equals(message.getMessage())) {
-            Platform.runLater(() -> {
-                List<Report> reports = message.getReports();
-                if (reports != null && !reports.isEmpty()) {
-                    System.out.println("Reports received: " + reports.size());
-                    updateChartWithData(reports);
-                } else {
-                    System.out.println("No reports received.");
-                    SimpleClient.showAlert(INFORMATION, "No Reports", "There are no reports available.");
-                }
-            });
-        }
+        Platform.runLater(() -> {
+            List<Report> reports = message.getReports();
+            if (reports != null && !reports.isEmpty()) {
+                logReceivedData(reports);
+                updateChartWithData(reports);
+            } else {
+                System.out.println("ReportsScreenController: dataReceived: No reports received.");
+                SimpleClient.showAlert(INFORMATION, "No Reports", messageContent);
+            }
+        });
     }
 
     /**
@@ -647,4 +656,18 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         int month = LocalDate.now().getMonthValue();
         return new Pair<>(year, month);
     }
+
+    private void logReceivedData(List<Report> reports) {
+        System.out.println("Received Reports Data:");
+        for (Report report : reports) {
+            System.out.println("Report ID: " + report.getId());
+            System.out.println("Branch: " + (report.getBranch() != null ? report.getBranch().getBranchName() : "N/A"));
+            System.out.println("Report Type: " + report.getReportType());
+            System.out.println("Report Data:");
+            report.getDataForGraphs().forEach((key, value) -> {
+                System.out.println(key + ": " + value);
+            });
+        }
+    }
+
 }
