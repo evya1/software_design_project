@@ -13,6 +13,8 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -20,7 +22,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox styleClass="PanelBackground" stylesheets="@../catalogM/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenController">
+<VBox styleClass="PanelBackground" stylesheets="@../catalogM/style.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenController">
     <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1400.0">
         <top>
             <AnchorPane prefHeight="100.0" prefWidth="1400.0" BorderPane.alignment="CENTER">
@@ -109,6 +111,17 @@
                   <URL value="@../catalogM/ComboBox.css" />
                </stylesheets>
             </ComboBox>
+            <ComboBox id="monthOrQuarterSelectionButtonID" fx:id="monthOrQuarterSelectionComboBox" layoutY="210.0" onAction="#chooseMonthOrQuarter" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+                  <String fx:value="combo-box-display-node" />
+               </styleClass>
+               <stylesheets>
+                  <URL value="@../catalogM/styleColor.css" />
+                  <URL value="@../catalogM/ComboBox.css" />
+               </stylesheets>
+            </ComboBox>
             </AnchorPane>
 
         </left>
@@ -146,6 +159,16 @@
             <right>
                 <ScrollBar orientation="VERTICAL" BorderPane.alignment="CENTER" />
             </right>
+            <left>
+               <TableView prefHeight="461.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+                 <columns>
+                   <TableColumn prefWidth="75.0" />
+                   <TableColumn prefWidth="75.0" />
+                     <TableColumn prefWidth="75.0" />
+                     <TableColumn prefWidth="75.0" />
+                 </columns>
+               </TableView>
+            </left>
         </BorderPane>
         </center>
     </BorderPane>

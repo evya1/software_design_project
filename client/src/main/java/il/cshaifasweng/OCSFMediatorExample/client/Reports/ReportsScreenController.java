@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -74,6 +75,8 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     public ComboBox<String> supportedSpanSelectionComboBox;
     @FXML
     public ComboBox<PurchaseType> purchaseTypeSelectionComboBox;
+    @FXML
+    public ComboBox<String> monthOrQuarterSelectionComboBox;
     private ReportsRequestHandler requestHandler;
     private Message localMessage;
     private SimpleClient client;
@@ -95,8 +98,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         EventBus.getDefault().register(this);
 
-        // Initialize UI components
-        initializeComponents();
+        initializeUIComponents();
 
         // Set the chartBorderPane in the ChartFactory instance
         chartFactory.setChartBorderPane(chartBorderPane);
@@ -263,6 +265,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      */
     @Subscribe
     public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
+        System.out.println("ReportsScreenController: onChartDataUpdatedEvent Called");
         String contextDescription = chartFactory.getContextDescription(event.getContextParameter());
         chartFactory.prepareAndDisplayBarChart(contextDescription, event.getChartBorderPane());
         chartFactory.prepareAndDisplayPieChart(contextDescription, event.getChartBorderPane());
@@ -342,6 +345,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         resetComboBoxPromptAndValue(supportedSpanSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_SUPPORTED_SPAN, DEFAULT_SELECTION_OPTION_VALUE_FOR_SUPPORTED_SPAN);
         resetComboBoxPromptAndValue(purchaseTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, PurchaseType.ALL_TYPES);
         hideDatePicker();
+        hideMonthOrQuarterSelection();
     }
 
     @FXML
@@ -385,31 +389,31 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         datePicker.setValue(null); // Reset the selected date
     }
 
-    private void initializeComponents() {
+    private void showMonthOrQuarterSelection() {
+        monthOrQuarterSelectionComboBox.setVisible(true);
+        monthOrQuarterSelectionComboBox.setEditable(true);
+    }
+
+    private void hideMonthOrQuarterSelection() {
+        monthOrQuarterSelectionComboBox.setVisible(false);
+        monthOrQuarterSelectionComboBox.setEditable(false);
+        monthOrQuarterSelectionComboBox.setValue(null); // Reset the selection
+    }
+
+
+    private void initializeUIComponents() {
         initializeReportTypeSelectionComboBox();
         initializeSupportedSpanSelectionComboBox();
         initializeBranchSelectionComboBox();
         initializePurchasesTypesSelectionComboBox();
         initializeBranchSelectionComboBoxBasedOnEmployeeType();
         initializeDatePicker();
-        setUpDatePickerVisibilityBasedOnSpanSelection();
-    }
-
-    private void setUpDatePickerVisibilityBasedOnSpanSelection() {
-        supportedSpanSelectionComboBox.setOnAction(event -> {
-            String selectedReportSpan = supportedSpanSelectionComboBox.getValue();
-            if (ReportsScreenConstants.DAILY_REPORT.equals(selectedReportSpan)) {
-                showDatePicker();
-            } else {
-                hideDatePicker();
-            }
-        });
+        setUpSpanSelectionListener();
+        applyInitialSpanSelection();
     }
 
     private void initializeReportTypeSelectionComboBox() {
-        // Populate ComboBox with ReportType enum values directly
         reportTypeSelectionComboBox.getItems().addAll(ReportType.values());
-        // Set the default selection to ALL_REPORT_TYPE
         resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, ALL_REPORT_TYPE);
     }
 
@@ -613,7 +617,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private LocalDate getSelectedDate() {
-        return datePicker.getValue();  // Use the DatePicker's getValue() method directly
+        return datePicker.getValue();
     }
 
     private ReportSpanType getSelectedSpanType() {
@@ -667,6 +671,53 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             report.getDataForGraphs().forEach((key, value) -> {
                 System.out.println(key + ": " + value);
             });
+        }
+    }
+
+    public void chooseMonthOrQuarter(ActionEvent actionEvent) {
+    }
+
+    private void populateButtonWithMonths() {
+        monthOrQuarterSelectionComboBox.getItems().clear();
+        for (Month month : Month.values()) {
+            monthOrQuarterSelectionComboBox.getItems().add(month.name());
+        }
+    }
+
+    private void populateButtonWithQuarters() {
+        monthOrQuarterSelectionComboBox.getItems().clear();
+        monthOrQuarterSelectionComboBox.getItems().addAll("Q1", "Q2", "Q3", "Q4");
+    }
+
+    private void setUpSpanSelectionListener() {
+        supportedSpanSelectionComboBox.setOnAction(event -> {
+            String selectedReportSpan = supportedSpanSelectionComboBox.getValue();
+            handleSpanSelection(selectedReportSpan);  // Use the combined method
+        });
+    }
+
+    private void applyInitialSpanSelection() {
+        String selectedReportSpan = supportedSpanSelectionComboBox.getValue();
+        if (selectedReportSpan != null) {
+            handleSpanSelection(selectedReportSpan);
+        }
+    }
+
+    private void handleSpanSelection(String selectedSpan) {
+        if (ReportsScreenConstants.DAILY_REPORT.equals(selectedSpan)) {
+            showDatePicker();
+            hideMonthOrQuarterSelection();
+        } else if (ReportsScreenConstants.MONTHLY_REPORT.equals(selectedSpan)) {
+            hideDatePicker();
+            showMonthOrQuarterSelection();
+            populateButtonWithMonths();
+        } else if (ReportsScreenConstants.QUARTERLY_REPORT.equals(selectedSpan)) {
+            hideDatePicker();
+            showMonthOrQuarterSelection();
+            populateButtonWithQuarters();
+        } else {
+            hideDatePicker();
+            hideMonthOrQuarterSelection();
         }
     }
 
