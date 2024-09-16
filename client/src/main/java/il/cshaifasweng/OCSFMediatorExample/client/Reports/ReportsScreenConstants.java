@@ -61,4 +61,5 @@ public class ReportsScreenConstants {
     protected static final String BAR_CHART_TYPE = "BarChart";
     protected static final String PIE_CHART_TYPE = "PieChart";
 
+    public static final double DEFAULT_PRODUCT_COUNT = 1.0;
 }

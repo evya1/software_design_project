@@ -4,7 +4,6 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.scene.chart.*;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Pair;
@@ -17,13 +16,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
+import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.ALL_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.INVALID_LABEL;
+import java.util.logging.Logger;
+
+
 
 public class ChartFactory {
 
+    private static final Logger logger = Logger.getLogger(ChartFactory.class.getName());
     public static final int PIE_CHART_LABEL_LINE_LENGTH = 50;
     public static final int PIE_CHART_START_ANGLE = 180;
     public static final int CHART_PREF_WIDTH = 800;
@@ -42,29 +45,37 @@ public class ChartFactory {
         EventBus.getDefault().register(this);
     }
 
-    /**
-     * Handles the `ReportDataReceivedEvent` posted to the EventBus.
-     * <p>
-     * This method is automatically called when a `ReportDataReceivedEvent` is posted to the EventBus.
-     * It updates the chart context and chart data based on the reports received in the event.
-     * The method also triggers a `ChartDataUpdatedEvent` to notify other components that the chart data has been updated.
-     * </p>
-     *
-     * @param event The `ReportDataReceivedEvent` containing the list of reports and associated data.
-     */
     @Subscribe
     public void onReportDataReceived(ReportDataReceivedEvent event) {
+        log("onReportDataReceived called.");
         updateChartContext(event);
         List<Report> reports = event.getReports();
 
-        // Convert the reports to chart data
-        chartData.setAll(convertReportsToChartData(reports));
-
-        // Notify that chart data has been updated
-        // Pass chartBorderPane as part of the event or call a method that handles UI updates
-        EventBus.getDefault().post(new ChartDataUpdatedEvent(chartContext, false, null, null, chartBorderPane));
+        if (reports == null || reports.isEmpty()) {
+            log("No reports received, using default chart data.");
+            updateChartData(createGenericChartData());
+        } else {
+            log("Reports received, converting to chart data...");
+            List<Pair<String, Double>> newChartData = convertReportsToChartData(reports);
+            log("Converted chart data: " + newChartData);
+            updateChartData(newChartData);
+        }
     }
 
+    private void updateChartData(List<Pair<String, Double>> newChartDataList) {
+        log("Attempting to update chart data...");
+        if (isChartDataDifferent(chartData, newChartDataList)) {
+            log("Chart data is different. Updating chart...");
+            chartData.setAll(newChartDataList);
+            log("Chart data updated: " + chartData);
+
+            // Post the update event
+            EventBus.getDefault().post(new ChartDataUpdatedEvent(chartContext, false, null, null, chartBorderPane));
+            log("ChartDataUpdatedEvent posted.");
+        } else {
+            log("Chart data is already up-to-date. No update needed.");
+        }
+    }
 
     @Subscribe
     public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
@@ -79,48 +90,66 @@ public class ChartFactory {
     }
 
     /**
-     * Converts a list of {@link Report} entities into chart data represented as a list of {@link Pair<String Double>}.
+     * Converts a list of {@link Report} entities into chart data represented as a list of {@link Pair}&lt;{@link String}, {@link Double}&gt;.
      * <p>
-     * This method processes each report, extracting the key-value pairs from the {@code dataForGraphs} map.
-     * Each key-value pair is converted into a {@link Pair} where the key is combined with metadata from the {@link Report}
-     * entity (such as branch name, report type, and month) to form a comprehensive label.
+     * This method processes each report, extracting the counts for specific products (e.g., Product A, Product B, Product C).
+     * It uses {@link #extractProductCount(List, String)} to retrieve the counts for each product.
      * The resulting list can be used directly in chart components like {@link BarChart} or {@link PieChart}.
      * </p>
      *
      * @param reports A list of {@link Report} entities to be converted into chart data.
-     * @return A list of {@link Pair<Double String>} representing the chart data, with the label containing
-     * contextual information from the report and the value representing the data point.
+     * @return A list of {@link Pair}&lt;{@link String}, {@link Double}&gt; representing the chart data, with the product name as the key
+     *         and the total count as the value.
      */
     private List<Pair<String, Double>> convertReportsToChartData(List<Report> reports) {
-        return reports.stream()
-                .flatMap(report -> report.getDataForGraphs().entrySet().stream()
-                        .map(entry -> new Pair<>(generateLabel(report, entry.getKey()), entry.getValue())))
-                .collect(Collectors.toList());
+        log("Converting reports to chart data...");
+
+        double productACount = extractProductCount(reports, PURCHASABLE_PRODUCT_A);
+        double productBCount = extractProductCount(reports, PURCHASABLE_PRODUCT_B);
+        double productCCount = extractProductCount(reports, PURCHASABLE_PRODUCT_C);
+
+        List<Pair<String, Double>> chartDataList = createChartDataList(productACount, productBCount, productCCount);
+        log("Converted chart data: " + chartDataList);
+
+        return chartDataList;
     }
 
     /**
-     * Refreshes the chart data by fetching new data in the background.
-     * <p>
-     * This method triggers a background task that fetches updated chart data, ensuring
-     * that the operation does not block the UI thread. Once the data is fetched, it updates
-     * the observable list and posts a `ChartDataUpdatedEvent` to notify that the chart data has been updated.
-     * </p>
+     * Provides a default product count when the product is missing in the report data.
+     *
+     * @param reports List of {@link Report} entities (not used but required by method signatures).
+     * @return The default product count value.
      */
-    public void refreshChartData() {
-        Task<List<Pair<String, Double>>> task = new Task<>() {
-            @Override
-            protected List<Pair<String, Double>> call() {
-                // Simulate data fetching from a database or external source
-                return createGenericChartData();  // Replace with real data fetching logic
-            }
-        };
+    private double extractProductCount(List<Report> reports, String productName) {
+        double total = reports.stream()
+                .filter(report -> report.getDataForGraphs().containsKey(productName))
+                .mapToDouble(report -> report.getDataForGraphs().get(productName))
+                .sum();
 
-        task.setOnSucceeded(event -> {
-            chartData.setAll(task.getValue());
-            EventBus.getDefault().post(new ChartDataUpdatedEvent(chartContext, false, null, null, null)); // Notify that chart data is updated
-        });
+        // If no reports contained the product, return the default value
+        return total > 0 ? total : DEFAULT_PRODUCT_COUNT;
+    }
 
-        new Thread(task).start();
+    private List<Pair<String, Double>> createChartDataList(double productACount, double productBCount, double productCCount) {
+        return Arrays.asList(
+                new Pair<>(PURCHASABLE_PRODUCT_A, productACount),
+                new Pair<>(PURCHASABLE_PRODUCT_B, productBCount),
+                new Pair<>(PURCHASABLE_PRODUCT_C, productCCount)
+        );
+    }
+
+    /**
+     * Creates a list of chart data pairs representing product counts using default values.
+     * <p>
+     * This method overloads {@link #createChartDataList(double, double, double)} to provide
+     * default product counts for the chart data.
+     * </p>
+     *
+     * @return A list of {@link Pair}&lt;{@link String}, {@link Double}&gt; containing product names and their default counts.
+     */
+
+    private List<Pair<String, Double>> createChartDataList() {
+        return createChartDataList(DEFAULT_PRODUCT_COUNT,DEFAULT_PRODUCT_COUNT,DEFAULT_PRODUCT_COUNT);
     }
 
     /**
@@ -151,90 +180,66 @@ public class ChartFactory {
     }
 
     /**
-     * Creates generic data for charts, ensuring that the values are of type Double.
-     * <p>
-     * This method generates a list of key-value pairs representing the data for charts.
-     * The data is generic and can be used for various types of charts like BarChart and PieChart.
-     * </p>
-     * <p><b>Example:</b></p>
-     * <pre>{@code
-     * List<Pair<String, Double>> data = chartFactory.createGenericChartData();
-     * // Returns: [("Product A", 3000.0), ("Product B", 1500.0), ("Product C", 300.0)]
-     * }</pre>
+     * Creates generic data for charts using default product counts.
      *
-     * @return a List of Pair<String, Double> representing the data.
+     * @return A list of {@link Pair}&lt;{@link String}, {@link Double}&gt; representing generic chart data.
      */
     public List<Pair<String, Double>> createGenericChartData() {
-        return Arrays.asList(new Pair<>(MOVIE_TICKET.toString(), 3000.0), new Pair<>(MOVIE_LINK.toString(), 1500.0), new Pair<>(BOOKLET.toString(), 300.0));
+        return createChartDataList();
     }
 
+    // Generic method for converting chart data to a specific chart type
     private <T> ObservableList<T> convertToChartData(List<Pair<String, Double>> genericData, Function<Pair<String, Double>, T> mapper) {
         return FXCollections.observableArrayList(genericData.stream().map(mapper).collect(Collectors.toList()));
     }
 
-    public ObservableList<XYChart.Data<String, Number>> convertToBarChartData(List<Pair<String, Double>> genericData) {
-        return convertToChartData(genericData, pair -> new XYChart.Data<>(pair.getKey(), pair.getValue()));
+    // For internal chart data, we can reuse the same function without passing data
+    private <T> ObservableList<T> convertToChartData(Function<Pair<String, Double>, T> mapper) {
+        return convertToChartData(this.chartData, mapper);
     }
 
-    public ObservableList<PieChart.Data> convertToPieChartData(List<Pair<String, Double>> genericData) {
-        return convertToChartData(genericData, pair -> new PieChart.Data(pair.getKey(), pair.getValue()));
-    }
-
-    /**
-     * Converts the current observable chart data to BarChart data.
-     * <p>
-     * This method transforms the observable chart data into an {@code ObservableList}
-     * that can be directly used by a {@code BarChart}. The conversion ensures that the
-     * data aligns with the expected structure for the BarChart.
-     * </p>
-     * <p><b>Usage:</b></p>
-     * <pre>{@code
-     * ObservableList<XYChart.Data<String, Number>> barChartData = chartFactory.convertToBarChartData();
-     * }</pre>
-     *
-     * @return an ObservableList of {@code XYChart.Data} for use in {@code BarChart}.
-     */
+    // Usage for internal BarChart data
     public ObservableList<XYChart.Data<String, Number>> convertToBarChartData() {
-        return FXCollections.observableArrayList(chartData.stream().map(pair -> new XYChart.Data<String, Number>(pair.getKey(), pair.getValue())).collect(Collectors.toList()));
+        return convertToChartData(pair -> new XYChart.Data<>(pair.getKey(), pair.getValue()));
     }
 
-    /**
-     * Converts the current observable chart data to PieChart data.
-     * <p>
-     * This method transforms the observable chart data into an {@code ObservableList}
-     * that can be directly used by a {@code PieChart}. The conversion ensures that the
-     * data aligns with the expected structure for the PieChart.
-     * </p>
-     * <p><b>Usage:</b></p>
-     * <pre>{@code
-     * ObservableList<PieChart.Data> pieChartData = chartFactory.convertToPieChartData();
-     * }</pre>
-     *
-     * @return an ObservableList of {@code PieChart.Data} for use in {@code PieChart}.
-     */
+    // Usage for internal PieChart data
     public ObservableList<PieChart.Data> convertToPieChartData() {
-        return FXCollections.observableArrayList(chartData.stream().map(pair -> new PieChart.Data(pair.getKey(), pair.getValue())).collect(Collectors.toList()));
+        return convertToChartData(pair -> new PieChart.Data(pair.getKey(), pair.getValue()));
     }
 
-    /**
-     * Creates and configures a BarChart based on the provided context description using the current observable chart data.
-     * <p>
-     * This method prepares a BarChart using the context description and the observable chart data.
-     * It first converts the current observable chart data to a format suitable for a BarChart.
-     * The BarChart is customized with labels, a title, and other settings.
-     * </p>
-     * <p><b>Usage:</b></p>
-     * <pre>{@code
-     * BarChart<String, Number> barChart = chartFactory.createBarChart("Branch A");
-     * }</pre>
-     *
-     * @param contextDescription the context for which the chart is created (e.g., branch name, all locations).
-     * @return a fully configured BarChart instance.
-     */
-    public BarChart<String, Number> createBarChart(String contextDescription) {
-        ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
-        return createBarChart(barChartData, contextDescription);
+    // General method for chart creation
+    private <T extends Chart> T createChart(Supplier<T> chartSupplier, String contextDescription) {
+        T chart = chartSupplier.get();
+        String chartTitle = generateTitle(contextDescription);
+
+        if (chart instanceof BarChart<?, ?>) {
+            @SuppressWarnings("unchecked")
+            BarChart<String, Number> barChart = (BarChart<String, Number>) chart;  // Safe cast
+            ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
+            barChart.setTitle(chartTitle);
+            XYChart.Series<String, Number> dataSeries = new XYChart.Series<>(barChartData);
+            barChart.getData().add(dataSeries);
+        } else if (chart instanceof PieChart pieChart) {
+            ObservableList<PieChart.Data> pieChartData = convertToPieChartData();
+            pieChart.setTitle(chartTitle);
+            pieChart.setData(pieChartData);
+        }
+
+        customizeChartAppearance(chart);
+        return chart;
     }
+
+    // Usage for BarChart
+    public BarChart<String, Number> createBarChart(String contextDescription) {
+        return createChart(() -> new BarChart<>(new CategoryAxis(), new NumberAxis()), contextDescription);
+    }
+
+    // Usage for PieChart
+    public PieChart createPieChart(String contextDescription) {
+        return createChart(PieChart::new, contextDescription);
+    }
+
 
     /**
      * Creates and configures a BarChart based on the provided context description and data.
@@ -286,26 +291,6 @@ public class ChartFactory {
     }
 
     /**
-     * Creates and configures a PieChart based on the provided context description using the current observable chart data.
-     * <p>
-     * This method prepares a PieChart using the context description and the observable chart data.
-     * It first converts the current observable chart data to a format suitable for a PieChart.
-     * The PieChart is customized with labels, a title, and other settings.
-     * </p>
-     * <p><b>Usage:</b></p>
-     * <pre>{@code
-     * PieChart pieChart = chartFactory.createPieChart("Branch A");
-     * }</pre>
-     *
-     * @param contextDescription the context for which the chart is created (e.g., branch name, all locations).
-     * @return a fully configured PieChart instance.
-     */
-    public PieChart createPieChart(String contextDescription) {
-        ObservableList<PieChart.Data> pieChartData = convertToPieChartData();
-        return createPieChart(pieChartData, contextDescription);
-    }
-
-    /**
      * Creates and configures a PieChart based on the provided context description and data.
      * <p>
      * This method is used when the data for the PieChart is already available in an ObservableList format.
@@ -340,47 +325,44 @@ public class ChartFactory {
         return pieChart;
     }
 
-    private <T> void prepareAndDisplayChart(String contextDescription, BorderPane chartBorderPane, Supplier<Chart> chartSupplier, ObservableList<T> chartData) {
+    private <T extends Chart> void prepareAndDisplayChart(String contextDescription, BorderPane chartBorderPane, Supplier<T> chartSupplier, String chartType) {
+        log("Preparing to display " + chartType + " for context: " + contextDescription);
+
+        // Run UI update on the JavaFX Application Thread
         Platform.runLater(() -> {
-            Chart chart = chartSupplier.get();
+            T chart = chartSupplier.get(); // Here, 'T' is a specific chart type (e.g., BarChart, PieChart)
             chartBorderPane.setCenter(chart);
+            log(chartType + " displayed for context: " + contextDescription);
         });
     }
 
     public void prepareAndDisplayBarChart(String contextDescription, BorderPane chartBorderPane) {
-        ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
-        Platform.runLater(() -> {
-            BarChart<String, Number> barChart = createBarChart(contextDescription);
-            populateBarChart(barChart, chartBorderPane, barChartData);
-        });
+        log("Preparing BarChart...");
+        prepareAndDisplayChart(contextDescription, chartBorderPane, () -> createBarChart(contextDescription), BAR_CHART_TYPE);
     }
 
     public void prepareAndDisplayPieChart(String contextDescription, BorderPane chartBorderPane) {
-        ObservableList<PieChart.Data> pieChartData = convertToPieChartData();
-        prepareAndDisplayChart(contextDescription, chartBorderPane, () -> createPieChart(contextDescription), pieChartData);
+        log("Preparing PieChart...");
+        prepareAndDisplayChart(contextDescription, chartBorderPane, () -> createPieChart(contextDescription), PIE_CHART_TYPE);
     }
 
-    /**
-     * Populates the BarChart with data and adds it to the provided BorderPane.
-     * <p>
-     * This method is responsible for displaying the BarChart in the UI by adding it to the specified
-     * BorderPane. It allows the BarChart to be dynamically added to any part of the UI as needed.
-     * </p>
-     * <p><b>Usage:</b></p>
-     * <pre>{@code
-     * BarChart<String, Number> barChart = ...; // Your BarChart instance
-     * chartFactory.populateBarChart(barChart, chartBorderPane);
-     * }</pre>
-     *
-     * @param barChart        the BarChart to be populated and displayed.
-     * @param chartBorderPane the BorderPane where the chart will be displayed.
-     */
     public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane, ObservableList<XYChart.Data<String, Number>> barChartData) {
-        barChart.getData().clear();
+        if (!barChartData.isEmpty()) {
+            log("Clearing old BarChart data...");
+            barChart.getData().clear();
+            log("Old BarChart data cleared.");
+        } else {
+            log("No new BarChart data to populate.");
+        }
+
+        // Proceed with populating the chart with new data
+        log("Populating new BarChart data...");
         XYChart.Series<String, Number> series = new XYChart.Series<>(barChartData);
         barChart.getData().add(series);
         chartBorderPane.setCenter(barChart);
+        log("BarChart data populated and displayed.");
     }
+
 
     /**
      * Populates the PieChart with data and adds it to the provided BorderPane.
@@ -398,9 +380,11 @@ public class ChartFactory {
      * @param chartBorderPane the BorderPane where the chart will be displayed.
      */
     public void populatePieChart(PieChart pieChart, BorderPane chartBorderPane, ObservableList<PieChart.Data> pieChartData) {
+        System.out.println("Populating PieChart with data: " + pieChartData);
         pieChart.getData().clear();
         pieChart.setData(pieChartData);
         chartBorderPane.setCenter(pieChart);
+        System.out.println("PieChart data populated and displayed.");
     }
 
     /**
@@ -519,5 +503,45 @@ public class ChartFactory {
 
     public void setChartBorderPane(BorderPane chartBorderPane) {
         this.chartBorderPane = chartBorderPane;
+    }
+
+    /**
+     * Compares two lists of chart data to determine if they are different.
+     * This method works for any type of chart data, such as {@link Pair}, {@link XYChart.Data}, or {@link PieChart.Data}.
+     *
+     * @param <T>                     The type of chart data being compared (e.g., {@link Pair}&lt;{@link String}, {@link Double}&gt;,
+     *                                 {@link XYChart.Data}, or {@link PieChart.Data}).
+     * @param oldDataList             The existing data in the chart.
+     * @param newDataList             The new data to be compared.
+     * @param keyExtractorFunction    Function to extract the key (category/label) from each data item.
+     * @param valueExtractorFunction  Function to extract the value (numeric data) from each data item.
+     * @return true if the two data sets are different, false if they are identical.
+     */
+    private <T> boolean isChartDataDifferent(List<T> oldDataList, List<T> newDataList,
+                                             Function<T, String> keyExtractorFunction, Function<T, Number> valueExtractorFunction) {
+        if (oldDataList.size() != newDataList.size()) return true;
+        for (int i = 0; i < oldDataList.size(); i++) {
+            T oldDataItem = oldDataList.get(i);
+            T newDataItem = newDataList.get(i);
+
+            String oldDataKey = keyExtractorFunction.apply(oldDataItem);
+            String newDataKey = keyExtractorFunction.apply(newDataItem);
+            Number oldDataValue = valueExtractorFunction.apply(oldDataItem);
+            Number newDataValue = valueExtractorFunction.apply(newDataItem);
+
+            if (!oldDataKey.equals(newDataKey) || Math.abs(oldDataValue.doubleValue() - newDataValue.doubleValue()) > 0.0001) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isChartDataDifferent(List<Pair<String, Double>> oldData, List<Pair<String, Double>> newData) {
+        return isChartDataDifferent(oldData, newData, Pair::getKey, Pair::getValue);
+    }
+
+    private void log(String message) {
+        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        logger.info("[ChartFactory - " + methodName + "]: " + message);
     }
 }

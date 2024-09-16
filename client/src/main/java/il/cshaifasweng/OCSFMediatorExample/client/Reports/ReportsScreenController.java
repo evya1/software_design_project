@@ -340,10 +340,10 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     @FXML
     void clearFilters(ActionEvent event) {
-        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, ReportType.ALL_REPORT_TYPE);
+        resetComboBoxPromptAndValue(reportTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE, ALL_REPORT_TYPE);
         resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH, DEFAULT_SELECTION_OPTION_VALUE_FOR_BRANCH);
         resetComboBoxPromptAndValue(supportedSpanSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_SUPPORTED_SPAN, DEFAULT_SELECTION_OPTION_VALUE_FOR_SUPPORTED_SPAN);
-        resetComboBoxPromptAndValue(purchaseTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, PurchaseType.ALL_TYPES);
+        resetComboBoxPromptAndValue(purchaseTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, ALL_TYPES);
         hideDatePicker();
         hideMonthOrQuarterSelection();
     }
@@ -668,9 +668,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             System.out.println("Branch: " + (report.getBranch() != null ? report.getBranch().getBranchName() : "N/A"));
             System.out.println("Report Type: " + report.getReportType());
             System.out.println("Report Data:");
-            report.getDataForGraphs().forEach((key, value) -> {
-                System.out.println(key + ": " + value);
-            });
+            report.getDataForGraphs().forEach((key, value) -> System.out.println(key + ": " + value));
         }
     }
 
