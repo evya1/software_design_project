@@ -7,12 +7,13 @@ import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType;
 import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.ALL_REPORT_TYPE;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.REPORT_TYPE_A;
 
 public class ReportsScreenConstants {
 
     // Report Types
     // Constants related to the selection of report types in the UI, providing default values and prompts.
-    public static final String DEFAULT_SELECTION_OPTION_VALUE_FOR_REPORT_TYPE = ALL_REPORT_TYPE.getValue();
+    public static final String DEFAULT_SELECTION_OPTION_VALUE_FOR_REPORT_TYPE = REPORT_TYPE_A.getValue();
     public static final String DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_REPORT_TYPE = "Select Report Type";
 
     // Report Span Types
@@ -38,8 +39,8 @@ public class ReportsScreenConstants {
     public static final String PURCHASABLE_PRODUCT_A = MOVIE_LINK.toString();
     public static final String PURCHASABLE_PRODUCT_B = MOVIE_TICKET.toString();
     public static final String PURCHASABLE_PRODUCT_C = BOOKLET.toString();
-    public static final String ALL_PURCHASABLE_PRODUCTS = "All Products";
-    public static final String DEFAULT_SELECTION_OPTION_VALUE_FOR_PURCHASABLE = ALL_PURCHASABLE_PRODUCTS;
+    public static final String ALL_PURCHASABLE_PRODUCTS = ALL_TYPES.toString();
+    public static final PurchaseType DEFAULT_SELECTION_OPTION_VALUE_FOR_PURCHASABLE = ALL_TYPES;
     public static final String DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE = "Select a Product type";
 
     // Employee Types
@@ -62,4 +63,26 @@ public class ReportsScreenConstants {
     protected static final String PIE_CHART_TYPE = "PieChart";
 
     public static final double DEFAULT_PRODUCT_COUNT = 1.0;
+
+    // Chart Colors
+    // Constants representing the CSS classes for different product types in the chart.
+    public static final String CHART_CSS_CLASS_PRODUCT_A = "default-color0";
+    public static final String CHART_CSS_CLASS_PRODUCT_B = "default-color1";
+    public static final String CHART_CSS_CLASS_PRODUCT_C = "default-color2";
+    public static final String CHART_CSS_CLASS_DEFAULT_PRODUCT = "default-product";
+
+    public static final String REPORTS_STYLE_PATH = "il/cshaifasweng/OCSFMediatorExample/client/reportsScreen/reportsStyle.css";
+
+    // Constants for table column names (generic)
+    public static final String COLUMN_A_TEXT = "Product";
+    public static final String COLUMN_B_TEXT = "Report";
+    public static final String COLUMN_C_TEXT = "Branch";
+    public static final String COLUMN_D_TEXT = "Amount";
+
+    // Constants representing property fields for the TableView columns (binding data fields from the Report entity)
+    public static final String REPORT_TABLE_COLUMN_A_PROPERTY_FIELD_PRODUCT_TYPE = "label";
+    public static final String REPORT_TABLE_COLUMN_B_PROPERTY_FIELD_REPORT_TYPE = "reportType";
+    public static final String REPORT_TABLE_COLUMN_C_PROPERTY_FIELD_BRANCH = "branch";
+    public static final String REPORT_TABLE_COLUMN_D_PROPERTY_FIELD_AMOUNT = "amount";
+
 }

@@ -78,7 +78,7 @@ public class Report implements Serializable {
     /**
      * Stores simple key-value pairs for chart data. The key is the label, and the value is the data point.
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "report_data", joinColumns = @JoinColumn(name = "report_id"))
     @MapKeyColumn(name = "label")
     @Column(name = "value")

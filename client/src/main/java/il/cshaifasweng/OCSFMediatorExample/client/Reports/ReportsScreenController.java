@@ -8,6 +8,8 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseTyp
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
+import javafx.collections.FXCollections;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,9 +28,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.Function;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
@@ -77,6 +77,19 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     public ComboBox<PurchaseType> purchaseTypeSelectionComboBox;
     @FXML
     public ComboBox<String> monthOrQuarterSelectionComboBox;
+    @FXML
+    private TableView<ReportDataRow> table;
+    @FXML
+    private TableColumn<ReportDataRow, String> columnA;
+    @FXML
+    private TableColumn<ReportDataRow, String> columnB;
+    @FXML
+    private TableColumn<ReportDataRow, String> columnC;
+    @FXML
+    private TableColumn<ReportDataRow, Integer> columnD;
+
+    private ObservableList<ReportDataRow> reportDataRows;
+
     private ReportsRequestHandler requestHandler;
     private Message localMessage;
     private SimpleClient client;
@@ -90,8 +103,6 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      * a data filter criterion, or any other relevant context.
      */
     private Object chartContext;
-    @FXML
-    private TableView<Report> reportTableView;
 
 
     @Override
@@ -99,6 +110,12 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         EventBus.getDefault().register(this);
 
         initializeUIComponents();
+
+        // Add the stylesheet to the scene
+        if (chartBorderPane.getScene() != null) {
+            chartBorderPane.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getClassLoader()
+                    .getResource(REPORTS_STYLE_PATH)).toExternalForm());
+        }
 
         // Set the chartBorderPane in the ChartFactory instance
         chartFactory.setChartBorderPane(chartBorderPane);
@@ -124,6 +141,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         Pair<Integer, Integer> yearAndMonth = getCurrentYearAndMonth();
         int year = yearAndMonth.getKey();
         int month = yearAndMonth.getValue();
+        Month monthEnum = Month.of(month);
 
         RequestData requestData = MessageUtilForReports.buildRequestData(
                 FETCH_MONTHLY_REPORTS,
@@ -132,8 +150,10 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
                 ALL_TYPES,
                 employee,
                 year,
-                month
+                monthEnum
         );
+        System.out.println(requestData);
+//        RequestData[requestType=Fetch Monthly Reports, reportType=Sales Report, employee=ID: 5 Manager1 Branch 1, branch=Johns Cinema, reportSpanType=Monthly, month=SEPTEMBER, year=2024, purchaseType=All Types, label=Default Label, details=Default Details, dataForGraphs={}, serializedReportData=]
 
         requestHandler.sendRequest(requestData);
     }
@@ -220,15 +240,15 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         }
     }
 
-    @Subscribe
+    @Subscribe // is it necessery? bc dataReceived call it ..
     public void updateChartWithData(List<Report> reports) {
         Platform.runLater(() -> {
             if (reports != null && !reports.isEmpty()) {
-                logReceivedData(reports);
+//                logReceivedData(reports);
 
                 chartFactory.onReportDataReceived(new ReportDataReceivedEvent(reports, false, employee, employee.getBranch()));
                 String contextDescription = chartFactory.getContextDescription(chartContext);
-
+                System.out.println("updateChartWithData:" + contextDescription);
                 // Display the PieChart with the received data
                 chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
             } else {
@@ -246,8 +266,14 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         Platform.runLater(() -> {
             List<Report> reports = message.getReports();
             if (reports != null && !reports.isEmpty()) {
-                logReceivedData(reports);
+//                logReceivedData(reports);
                 updateChartWithData(reports);
+                for (Report report : reports) {
+                    if (report.getDataForGraphs() != null) {
+                        // Populate the table using the dataForGraphs from each report
+                        populateTableWithDataForGraphs(report.getDataForGraphs());
+                    }
+                }
             } else {
                 System.out.println("ReportsScreenController: dataReceived: No reports received.");
                 SimpleClient.showAlert(INFORMATION, "No Reports", messageContent);
@@ -285,15 +311,16 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         Pair<Integer, Integer> yearAndMonth = getCurrentYearAndMonth();
         int year = yearAndMonth.getKey();
         int month = yearAndMonth.getValue();
+        Month monthEnum = Month.of(month);
 
         RequestData requestData = MessageUtilForReports.buildRequestData(
                 FETCH_LAST_QUARTER_REPORT,
-                ReportType.ALL_REPORT_TYPE,  // Example report type, change as needed
+                ALL_REPORT_TYPE,  // Example report type, change as needed
                 Quarterly,
                 ALL_TYPES,  // Assuming fetching all purchase types
                 employee,
                 year,
-                month
+                monthEnum
         );
 
         requestHandler.sendRequest(requestData);
@@ -317,7 +344,6 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     @FXML
     public void choosePurchaseType(ActionEvent actionEvent) {
         handleSelectionChange(purchaseTypeSelectionComboBox, "product");
-        requestReportData(actionEvent); // Optionally trigger report request based on selected product
     }
 
     @FXML
@@ -344,8 +370,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH, DEFAULT_SELECTION_OPTION_VALUE_FOR_BRANCH);
         resetComboBoxPromptAndValue(supportedSpanSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_SUPPORTED_SPAN, DEFAULT_SELECTION_OPTION_VALUE_FOR_SUPPORTED_SPAN);
         resetComboBoxPromptAndValue(purchaseTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, ALL_TYPES);
-        hideDatePicker();
-        hideMonthOrQuarterSelection();
+        initializeMonthOrQuarterSelectionComboBox();
     }
 
     @FXML
@@ -357,13 +382,13 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         String branch = getSelectedBranch();
         LocalDate selectedDate = getSelectedDate();
         ReportSpanType spanType = getSelectedSpanType();
-        PurchaseType purchaseType = getPurchasableTypes(typeOfReport);
+        PurchaseType purchaseType = getPurchasableTypes();
         int year = getSelectedYear(selectedDate);
-        int month = getSelectedMonth(selectedDate);
+        Month month = getSelectedMonth(selectedDate);
 
         // Build RequestData using MessageUtilForReports
         RequestData requestData = MessageUtilForReports.buildRequestData(
-                getOperationType(branch, spanType),
+                getOperationType(spanType),
                 typeOfReport,
                 spanType,
                 purchaseType,
@@ -371,6 +396,10 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
                 year,
                 month
         );
+
+        System.out.println(requestData);
+//        RequestData[requestType=Fetch Monthly Reports, reportType=All Reports, employee=ID: 5 Manager1 Branch 1, branch=Johns Cinema, reportSpanType=Monthly, month=SEPTEMBER, year=2024, purchaseType=All Types, label=Default Label, details=Default Details, dataForGraphs={}, serializedReportData=]
+//        RequestData[requestType=Fetch Monthly Reports, reportType=Sales Report, employee=ID: 5 Manager1 Branch 1, branch=Johns Cinema, reportSpanType=Monthly, month=SEPTEMBER, year=2024, purchaseType=Movie Ticket, label=Default Label, details=Default Details, dataForGraphs={}, serializedReportData=]
 
         // Send the request
         requestHandler.sendRequest(requestData);
@@ -386,7 +415,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     private void hideDatePicker() {
         datePicker.setVisible(false);
         datePicker.setEditable(false);
-        datePicker.setValue(null); // Reset the selected date
+        datePicker.setValue(null);
     }
 
     private void showMonthOrQuarterSelection() {
@@ -402,14 +431,60 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
 
     private void initializeUIComponents() {
+        initializeReportTable();
         initializeReportTypeSelectionComboBox();
         initializeSupportedSpanSelectionComboBox();
         initializeBranchSelectionComboBox();
-        initializePurchasesTypesSelectionComboBox();
+        initializePurchasesTypeSelectionComboBox();
         initializeBranchSelectionComboBoxBasedOnEmployeeType();
         initializeDatePicker();
-        setUpSpanSelectionListener();
-        applyInitialSpanSelection();
+        initializeMonthOrQuarterSelectionComboBox();
+    }
+
+    /**
+     * Initializes the observable list and binds it to the table.
+     */
+    private void initializeReportTable() {
+        // Initialize the observable list
+        reportDataRows = FXCollections.observableArrayList();
+
+        // Bind the observable list to the table
+        table.setItems(reportDataRows);
+
+        // Set headers and bind columns
+        setReportTableColumnHeaders();
+        bindReportTableColumnsToData();
+
+        // Register to EventBus for listening to incoming messages, but only if not already registered
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    /**
+     * Sets the text for each column in the report table to provide clear headers
+     * that describe the type of data shown in each column.
+     */
+    private void setReportTableColumnHeaders() {
+        columnA.setText(COLUMN_A_TEXT);
+        columnB.setText(COLUMN_B_TEXT);
+        columnC.setText(COLUMN_C_TEXT);
+        columnD.setText(COLUMN_D_TEXT);
+    }
+
+    private <T, V> void bindColumn(TableColumn<T, V> column, String propertyName, Class<T> typeClass, Class<V> valueClass) {
+        column.setCellValueFactory(new PropertyValueFactory<T, V>(propertyName));
+    }
+
+    /**
+     * Binds each column in the report table to its corresponding data field
+     * from the Report entity using a generic method.
+     */
+    private void bindReportTableColumnsToData() {
+        bindColumn(columnA, REPORT_TABLE_COLUMN_A_PROPERTY_FIELD_PRODUCT_TYPE, ReportDataRow.class, String.class);
+        bindColumn(columnB, REPORT_TABLE_COLUMN_B_PROPERTY_FIELD_REPORT_TYPE, ReportDataRow.class, String.class);
+        bindColumn(columnC, REPORT_TABLE_COLUMN_C_PROPERTY_FIELD_BRANCH, ReportDataRow.class, String.class);
+        bindColumn(columnD, REPORT_TABLE_COLUMN_D_PROPERTY_FIELD_AMOUNT, ReportDataRow.class, Integer.class);
     }
 
     private void initializeReportTypeSelectionComboBox() {
@@ -427,9 +502,14 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH, DEFAULT_SELECTION_OPTION_VALUE_FOR_BRANCH);
     }
 
-    private void initializePurchasesTypesSelectionComboBox() {
+    private void initializePurchasesTypeSelectionComboBox() {
         purchaseTypeSelectionComboBox.getItems().addAll(PurchaseType.values());
-        resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, DEFAULT_SELECTION_OPTION_VALUE_FOR_PURCHASABLE);
+        resetComboBoxPromptAndValue(purchaseTypeSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_PURCHASABLE, DEFAULT_SELECTION_OPTION_VALUE_FOR_PURCHASABLE);
+    }
+
+    private void initializeMonthOrQuarterSelectionComboBox(){
+        setUpSpanSelectionListener();
+        applyInitialSpanSelection();
     }
 
     private void initializeBranchSelectionComboBoxBasedOnEmployeeType() {
@@ -577,20 +657,11 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         }
     }
 
-    private PurchaseType getPurchasableTypes(ReportType reportType) {
-        if (REPORT_TYPE_A.equals(reportType)) {
-            return MOVIE_TICKET;
-        } else if (REPORT_TYPE_B.equals(reportType)) {
-            return BOOKLET;
-        } else if (ALL_REPORT_TYPE.equals(reportType)) {
-            return ALL_TYPES;
-        } else {
-            return DEFAULT_PURCHASABLE_TYPE_FALLBACK;
-        }
+    private PurchaseType getPurchasableTypes() {
+        return getSelectedValue(purchaseTypeSelectionComboBox);
     }
 
-    private String getOperationType(String branch, ReportSpanType spanType) {
-        if (ALL_BRANCHES.equals(branch)) {
+    private String getOperationType(ReportSpanType spanType) {
             if (spanType == Daily) {
                 return FETCH_ALL_REPORTS;
             } else if (spanType == Monthly) {
@@ -602,9 +673,6 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             } else {
                 return INVALID_LABEL;
             }
-        } else {
-            return FETCH_BRANCH_REPORTS;
-        }
     }
 
     // Extracted helper methods
@@ -637,8 +705,33 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         return getSelectedDateValue(selectedDate, LocalDate::getYear);
     }
 
-    private int getSelectedMonth(LocalDate selectedDate) {
-        return getSelectedDateValue(selectedDate, LocalDate::getMonthValue);
+    private Month getSelectedMonth(LocalDate selectedDate) {
+        ReportSpanType spanType = getSelectedSpanType();  // Get the current span type
+
+        if (spanType == Daily) {
+            // For daily span, get the month from the date picker
+            return selectedDate != null ? selectedDate.getMonth() : LocalDate.now().getMonth();
+        } else if (spanType == Monthly || spanType == Quarterly) {
+            // For monthly or quarterly span, get the value from the month/quarter selection ComboBox
+            String selectedMonthOrQuarter = getSelectedValue(monthOrQuarterSelectionComboBox);
+
+            if (selectedMonthOrQuarter != null) {
+                // Handle the case for month or quarter
+                try {
+                    return Month.valueOf(selectedMonthOrQuarter.toUpperCase());  // Convert month string to Month enum
+                } catch (IllegalArgumentException e) {
+                    // Handle quarters (Q1, Q2, Q3, Q4) by returning the first month of each quarter
+                    switch (selectedMonthOrQuarter) {
+                        case "Q1": return Month.JANUARY;   // Q1 starts in January
+                        case "Q2": return Month.APRIL;     // Q2 starts in April
+                        case "Q3": return Month.JULY;      // Q3 starts in July
+                        case "Q4": return Month.OCTOBER;   // Q4 starts in October
+                        default: throw new IllegalArgumentException("Invalid quarter or month selection.");
+                    }
+                }
+            }
+        }
+        return selectedDate != null ? selectedDate.getMonth() : LocalDate.now().getMonth();  // Fallback to current month
     }
 
     private ReportType getSelectedReportType() {
@@ -668,7 +761,8 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             System.out.println("Branch: " + (report.getBranch() != null ? report.getBranch().getBranchName() : "N/A"));
             System.out.println("Report Type: " + report.getReportType());
             System.out.println("Report Data:");
-            report.getDataForGraphs().forEach((key, value) -> System.out.println(key + ": " + value));
+//            System.out.println("Report Data:" + report.getDataForGraphs());
+//            report.getDataForGraphs().forEach((key, value) -> System.out.println(key + ": " + value));
         }
     }
 
@@ -702,14 +796,14 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private void handleSpanSelection(String selectedSpan) {
-        if (ReportsScreenConstants.DAILY_REPORT.equals(selectedSpan)) {
-            showDatePicker();
+        if (selectedSpan.equals(DAILY_REPORT)) {
             hideMonthOrQuarterSelection();
-        } else if (ReportsScreenConstants.MONTHLY_REPORT.equals(selectedSpan)) {
+            showDatePicker();
+        } else if (selectedSpan.equals(MONTHLY_REPORT)) {
             hideDatePicker();
             showMonthOrQuarterSelection();
             populateButtonWithMonths();
-        } else if (ReportsScreenConstants.QUARTERLY_REPORT.equals(selectedSpan)) {
+        } else if (selectedSpan.equals(QUARTERLY_REPORT)) {
             hideDatePicker();
             showMonthOrQuarterSelection();
             populateButtonWithQuarters();
@@ -719,4 +813,38 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         }
     }
 
+    private void populateTableWithDataForGraphs(Report report) {
+        if (report.getDataForGraphs() != null) {
+            populateTableWithDataForGraphs(report.getDataForGraphs());
+        }
+    }
+
+    private void populateTableWithDataForGraphs(List<Report> reports) {
+        reportDataRows.clear();  // Clear previous data
+        for (Report report : reports) {
+            if (report.getDataForGraphs() != null) {
+                populateTableWithDataForGraphs(report.getDataForGraphs());
+            }
+        }
+    }
+
+    // Method to populate the table from dataForGraphs in a Report entity
+    @Subscribe
+    private void populateTableWithDataForGraphs(Map<String, Double> dataForGraphs) {
+        Platform.runLater(() -> {
+            reportDataRows.clear();
+            for (Map.Entry<String, Double> entry : dataForGraphs.entrySet()) {
+                reportDataRows.add(new ReportDataRow(entry.getKey(), entry.getValue()));
+            }
+        });
+    }
+
+    /**
+     * Method to unregister the controller from the EventBus when it's no longer needed.
+     */
+    public void unregister() {
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
 }

@@ -9,6 +9,42 @@ import java.util.List;
 
 public class MessageUtilForReports {
 
+    public static RequestData buildRequestData(String operationType,
+                                               ReportType reportType,
+                                               ReportSpanType spanType,
+                                               PurchaseType purchaseType,
+                                               Employee employee,
+                                               int year,
+                                               Month month) {
+        return new RequestDataBuilder()
+                .setRequestType(operationType)
+                .setReportType(reportType)
+                .setReportSpanType(spanType)
+                .setPurchaseType(purchaseType)
+                .setEmployee(employee)
+                .setYear(year)
+                .setMonth(month)
+                .build();
+    }
+
+    public static RequestData buildBasicRequestData(String operationType,
+                                                    ReportType reportType,
+                                                    ReportSpanType spanType,
+                                                    Employee employee,
+                                                    int year,
+                                                    Month month,
+                                                    PurchaseType purchaseType) {
+        return new RequestDataBuilder()
+                .setRequestType(operationType)
+                .setReportType(reportType)
+                .setReportSpanType(spanType)
+                .setPurchaseType(purchaseType)
+                .setEmployee(employee)
+                .setYear(year)
+                .setMonth(month)
+                .build(); // No need to set defaults explicitly here
+    }
+
     /**
      * Creates a Message object configured for report-related requests.
      *
@@ -30,60 +66,6 @@ public class MessageUtilForReports {
         message.setDataForGraphs(requestData.dataForGraphs());
         message.setSerializedReportData(requestData.serializedReportData());
         return message;
-    }
-
-    /**
-     * Builds a RequestData object based on the given parameters.
-     *
-     * @param operationType The operation type for the request.
-     * @param typeOfReport  The report type.
-     * @param spanType      The span type of the report.
-     * @param purchaseType  The purchase type associated with the report.
-     * @param employee      The employee requesting the report.
-     * @param year          The year for the report.
-     * @param month         The month for the report.
-     * @return The constructed RequestData object.
-     */
-    public static RequestData buildRequestData(String operationType, ReportType typeOfReport, ReportSpanType spanType, PurchaseType purchaseType, Employee employee, int year, int month) {
-        return new RequestData(
-                operationType,
-                typeOfReport,
-                employee,
-                employee.getBranch(),
-                spanType,
-                Month.of(month),
-                year,
-                purchaseType,
-                null, // Label
-                null, // Details
-                null, // Data for graphs
-                null  // Serialized report data
-        );
-    }
-
-
-    public static RequestData buildBasicRequestData(String operationType,
-                                                    ReportType reportType,
-                                                    ReportSpanType spanType,
-                                                    Employee employee,
-                                                    int year,
-                                                    int month,
-                                                    PurchaseType purchaseType) {
-        // Create a new RequestData object using the constructor
-        return new RequestData(
-                operationType, // Assuming requestType is a String
-                reportType,
-                employee,
-                null, // Branch is null for now, can be set later if needed
-                spanType,
-                Month.of(month),
-                year,
-                purchaseType,
-                null, // Label can be set later
-                null, // Details can be set later
-                null, // Data for graphs can be set later
-                null  // Serialized report data can be set later
-        );
     }
 
     /**

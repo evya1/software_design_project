@@ -13,8 +13,7 @@ import java.util.Map;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.Monthly;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.Quarterly;
-import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.REPORT_TYPE_A;
-import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.REPORT_TYPE_B;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.*;
 
 public class ReportService {
     private static ReportService instance;
@@ -38,8 +37,8 @@ public class ReportService {
             instance.registerStrategy(REPORT_TYPE_B, Quarterly, new QuarterlyComplaintsReportStrategy());
 
             // Register combined strategies for ALL_REPORT_TYPE
-            instance.registerStrategy(ReportType.ALL_REPORT_TYPE, Monthly, new CombinedMonthlyReportStrategy());
-            instance.registerStrategy(ReportType.ALL_REPORT_TYPE, Quarterly, new CombinedQuarterlyReportStrategy());
+            instance.registerStrategy(ALL_REPORT_TYPE, Monthly, new CombinedMonthlyReportStrategy());
+            instance.registerStrategy(ALL_REPORT_TYPE, Quarterly, new CombinedQuarterlyReportStrategy());
         }
         return instance;
     }
@@ -51,36 +50,42 @@ public class ReportService {
                 .put(spanType, strategy);
     }
 
-    public Report generateReport(ReportType reportType, ReportSpanType spanType, Branch branch, Month month, PurchaseType purchaseType) {
-        ReportStrategy strategy = getStrategy(reportType, spanType);
-        List<?> dataItems = gatherReportData(reportType, branch, month, purchaseType);
-        return strategy.generateReport(dataItems, branch, month);
+    public Report generateReport(RequestData requestData) {
+        ReportStrategy strategy = getStrategy(requestData);
+        List<?> dataItems = gatherReportData(requestData);
+        return strategy.generateReport(dataItems, requestData);
     }
 
-    private ReportStrategy getStrategy(ReportType reportType, ReportSpanType spanType) {
+    private ReportStrategy getStrategy(RequestData requestData) {
+        ReportType reportType = requestData.reportType();
+        ReportSpanType reportSpanType = requestData.reportSpanType();
         Map<ReportSpanType, ReportStrategy> strategiesBySpan = strategyRegistry.get(reportType);
         if (strategiesBySpan != null) {
-            ReportStrategy strategy = strategiesBySpan.get(spanType);
+            ReportStrategy strategy = strategiesBySpan.get(reportSpanType);
             if (strategy != null) {
                 return strategy;
             }
         }
-        throw new IllegalArgumentException("No strategy found for report type: " + reportType + " and span type: " + spanType);
+        throw new IllegalArgumentException("No strategy found for report type: " + reportType + " and span type: " + reportSpanType);
     }
 
-    private List<Object> gatherReportData(ReportType reportType, Branch branch, Month month, PurchaseType purchaseType) {
+    private List<Object> gatherReportData(RequestData requestData) {
+        ReportType reportType = requestData.reportType();
+        Branch branch = requestData.branch();
+        Month month = requestData.month();
+        PurchaseType purchaseType = requestData.purchaseType();
         List<Object> combinedResults = new ArrayList<>();
 
         switch (reportType) {
             case REPORT_TYPE_A:  // Fetch purchases
-                combinedResults.addAll(db.retrieveAllPurchasesByBranchAndMonth(branch, month, purchaseType));
+                combinedResults.addAll(db.retrieveAllPurchasesByBranchAndMonth(requestData));
                 break;
             case REPORT_TYPE_B:  // Fetch complaints
-                combinedResults.addAll(db.retrieveComplaintsByBranchAndMonth(branch, month));
+                combinedResults.addAll(db.retrieveComplaintsByBranchAndMonth(requestData));
                 break;
             case ALL_REPORT_TYPE:  // Fetch both purchases and complaints
-                combinedResults.addAll(db.retrieveAllPurchasesByBranchAndMonth(branch, month, purchaseType));
-                combinedResults.addAll(db.retrieveComplaintsByBranchAndMonth(branch, month));
+                combinedResults.addAll(db.retrieveAllPurchasesByBranchAndMonth(requestData));
+                combinedResults.addAll(db.retrieveComplaintsByBranchAndMonth(requestData));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown report type: " + reportType);
@@ -88,23 +93,29 @@ public class ReportService {
         return combinedResults;
     }
 
-    public Report createAndPersistReport(ReportType reportType, ReportSpanType spanType, Branch branch, Month month, PurchaseType purchaseType) {
-        ReportStrategy strategy = getStrategy(reportType, spanType);
-        List<?> dataItems = gatherReportData(reportType, branch, month, purchaseType);
-        Report report = strategy.generateReport(dataItems, branch, month); // I need to add "purchaseType" param later
+    public Report createAndPersistReport(RequestData requestData) {
+        // Retrieve the appropriate strategy
+        ReportStrategy strategy = getStrategy(requestData);
+        // Gather data items based on the report details
+        List<?> dataItems = gatherReportData(requestData);
 
-        // Save the generated report to the database
+        // Generate the report
+        Report report = strategy.generateReport(dataItems, requestData);
+
+        // Persist the report to the database
         db.persistReport(report);
 
         return report;
     }
 
-    public List<Report> retrieveReportsByBranchAndMonth(Branch branch, Month month, PurchaseType purchaseType, ReportType reportType) {
-        List<Report> retrievedReports = db.retrieveReportsForBranchAndMonth(branch, month);
+    public List<Report> retrieveReportsByBranchAndMonth(Month month, RequestData requestData) {
 
-        // If no existing retrievedReports, generate new ones
+        // Retrieve the reports based on branch and month from the database
+        List<Report> retrievedReports = db.retrieveReportsForBranchAndMonth(month, requestData);
+
+        // If no existing reports are found, create and persist a new report
         if (retrievedReports.isEmpty()) {
-            Report newReport = createAndPersistReport(reportType, ReportSpanType.Monthly, branch, month, purchaseType);
+            Report newReport = createAndPersistReport(requestData);
             retrievedReports.add(newReport);
         }
 

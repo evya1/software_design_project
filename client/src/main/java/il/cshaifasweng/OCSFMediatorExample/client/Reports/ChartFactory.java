@@ -1,15 +1,18 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import javax.sound.midi.SysexMessage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -107,6 +110,9 @@ public class ChartFactory {
         double productACount = extractProductCount(reports, PURCHASABLE_PRODUCT_A);
         double productBCount = extractProductCount(reports, PURCHASABLE_PRODUCT_B);
         double productCCount = extractProductCount(reports, PURCHASABLE_PRODUCT_C);
+
+        // Ensure we have distinct values for each product
+        log("Product A Count: " + productACount + ", Product B Count: " + productBCount + ", Product C Count: " + productCCount);
 
         List<Pair<String, Double>> chartDataList = createChartDataList(productACount, productBCount, productCCount);
         log("Converted chart data: " + chartDataList);
@@ -213,21 +219,84 @@ public class ChartFactory {
         T chart = chartSupplier.get();
         String chartTitle = generateTitle(contextDescription);
 
-        if (chart instanceof BarChart<?, ?>) {
-            @SuppressWarnings("unchecked")
-            BarChart<String, Number> barChart = (BarChart<String, Number>) chart;  // Safe cast
-            ObservableList<XYChart.Data<String, Number>> barChartData = convertToBarChartData();
-            barChart.setTitle(chartTitle);
-            XYChart.Series<String, Number> dataSeries = new XYChart.Series<>(barChartData);
-            barChart.getData().add(dataSeries);
-        } else if (chart instanceof PieChart pieChart) {
-            ObservableList<PieChart.Data> pieChartData = convertToPieChartData();
-            pieChart.setTitle(chartTitle);
-            pieChart.setData(pieChartData);
+        if (chart instanceof BarChart) {
+            setupBarChart((BarChart) chart, chartTitle, convertToBarChartData());
+        } else if (chart instanceof PieChart) {
+            setupPieChart((PieChart) chart, chartTitle, convertToPieChartData());
         }
 
         customizeChartAppearance(chart);
         return chart;
+    }
+
+    private void setupBarChart(BarChart<String, Number> barChart, String chartTitle, ObservableList<XYChart.Data<String, Number>> dataList) {
+        barChart.setTitle(chartTitle);
+        XYChart.Series<String, Number> dataSeries = new XYChart.Series<>(dataList);
+
+        // Ensure that each data point corresponds to a product and is styled differently
+        applyCssClasses(dataSeries.getData(), XYChart.Data::getXValue); // Ensure proper CSS class for each bar
+
+        barChart.getData().add(dataSeries);
+    }
+
+    // Method to set up PieChart
+    private void setupPieChart(PieChart pieChart, String chartTitle, ObservableList<PieChart.Data> dataList) {
+        pieChart.setTitle(chartTitle);
+
+        applyCssClasses(dataList, PieChart.Data::getName);
+
+        pieChart.setData(dataList);
+    }
+
+    // Method to apply CSS class based on product type, with a listener to handle late node creation
+    private <D> void applyCssClasses(ObservableList<D> dataList, Function<D, String> productExtractor) {
+        for (D data : dataList) {
+            String product = productExtractor.apply(data);
+            Node node = getNodeFromData(data);
+
+            // If the node doesn't exist yet, listen for its creation and apply the style later
+            if (node == null) {
+                if (data instanceof XYChart.Data<?, ?> xyData) {
+                    xyData.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                        if (newNode != null) {
+                            applyCssClassForProduct(product, newNode);
+                        }
+                    });
+                } else if (data instanceof PieChart.Data pieData) {
+                    pieData.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                        if (newNode != null) {
+                            applyCssClassForProduct(product, newNode);
+                        }
+                    });
+                }
+            } else {
+                applyCssClassForProduct(product, node);
+            }
+        }
+    }
+
+    // Applies a specific CSS class to a node based on the product name
+    private void applyCssClassForProduct(String product, Node node) {
+        if (PURCHASABLE_PRODUCT_A.equals(product)) {
+            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_A);
+        } else if (PURCHASABLE_PRODUCT_B.equals(product)) {
+            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_B);
+        } else if (PURCHASABLE_PRODUCT_C.equals(product)) {
+            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_C);
+        } else {
+            // Optionally handle unknown product types
+            node.getStyleClass().add(CHART_CSS_CLASS_DEFAULT_PRODUCT);
+        }
+    }
+
+    // Helper method to retrieve Node from different chart data types
+    private Node getNodeFromData(Object data) {
+        if (data instanceof XYChart.Data) {
+            return ((XYChart.Data<?, ?>) data).getNode();
+        } else if (data instanceof PieChart.Data) {
+            return ((PieChart.Data) data).getNode();
+        }
+        return null;
     }
 
     // Usage for BarChart
@@ -330,7 +399,8 @@ public class ChartFactory {
 
         // Run UI update on the JavaFX Application Thread
         Platform.runLater(() -> {
-            T chart = chartSupplier.get(); // Here, 'T' is a specific chart type (e.g., BarChart, PieChart)
+            T chart = chartSupplier.get();
+            System.out.println(chart.toString()); // Here, 'T' is a specific chart type (e.g., BarChart, PieChart)
             chartBorderPane.setCenter(chart);
             log(chartType + " displayed for context: " + contextDescription);
         });

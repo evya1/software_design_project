@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.ALL_TYPES;
+
 /**
  * AbstractReportStrategy is an abstract class that provides a template for generating reports based on specific
  * strategies. Subclasses are required to define the specific report type, span type, operation type, and how to
@@ -66,14 +68,15 @@ public abstract class AbstractReportStrategy<T> implements ReportStrategy {
      */
     @Override
     public RequestData assembleRequestData(Employee employee, int year, int month) {
+        Month monthEnum = Month.of(month);
         return MessageUtilForReports.buildBasicRequestData(
                 getReportOperationType(),
                 getReportType(),
                 getReportSpanType(),
                 employee,
                 year,
-                month,
-                PurchaseType.ALL_TYPES  // Default to ALL_TYPES unless overridden in subclass
+                monthEnum,
+                ALL_TYPES  // Default to ALL_TYPES unless overridden in subclass
         );
     }
 

@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
 import static java.time.Month.*;
 
@@ -247,19 +248,19 @@ public class DataCommunicationDB {
             //complaints
 
             Complaint comp = new Complaint("bad booklet", "i dont want the booklet anymore, i've used 5 tickets out of 20",
-                    LocalDateTime.now(), "Open", PurchaseType.BOOKLET, "000000001", customer4, -1);
+                    LocalDateTime.now(), "Open", BOOKLET, "000000001", customer4, -1);
             Complaint comp1 = new Complaint("bad link", "the link is not working",
-                    LocalDateTime.now(), "Open", PurchaseType.MOVIE_LINK, "000000001", customer4, -1);
+                    LocalDateTime.now(), "Open", MOVIE_LINK, "000000001", customer4, -1);
             Complaint comp2 = new Complaint("bad ticket", "i don't want the ticket anymore",
-                    LocalDateTime.now(), "Open", PurchaseType.MOVIE_TICKET, "000000001", customer4, -1);
+                    LocalDateTime.now(), "Open", MOVIE_TICKET, "000000001", customer4, -1);
             Complaint comp3 = new Complaint("not good movie", "the dark knight is not as i expected",
-                    LocalDateTime.now(), "Open", PurchaseType.BOOKLET, "000000001", customer4, -1);
+                    LocalDateTime.now(), "Open", BOOKLET, "000000001", customer4, -1);
             Complaint comp4 = new Complaint("bad booklet", "the booklet is not working and i cant use it",
-                    LocalDateTime.now(), "Open", PurchaseType.BOOKLET, "888888888", customer3, -1);
+                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
             Complaint comp5 = new Complaint("link corrupt", "the stream stops in the middle ",
-                    LocalDateTime.now(), "Open", PurchaseType.BOOKLET, "888888888", customer3, -1);
+                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
             Complaint comp6 = new Complaint("link corrupt", "the stream stops in the middle ",
-                    LocalDateTime.now(), "Open", PurchaseType.BOOKLET, "345345345", customer2, -1);
+                    LocalDateTime.now(), "Open", BOOKLET, "345345345", customer2, -1);
             List<Complaint> complaints = Arrays.asList(comp1, comp2, comp3, comp4, comp5, comp6);
             for (Complaint complaint : complaints) {
                 session.save(complaint);
@@ -1223,7 +1224,7 @@ public class DataCommunicationDB {
         Purchase purchase = new Purchase();
         purchase.setCustomerPID(customer.getPersonalID());
         purchase.setPurchasedMovieTicket(ticket);
-        purchase.setPurchaseType(PurchaseType.MOVIE_TICKET);
+        purchase.setPurchaseType(MOVIE_TICKET);
         purchase.SetPrice(session.get(PriceConstants.class, 1));
         purchase.setPriceByItem(purchase.getPurchaseType());
         purchase.setDateOfPurchase(LocalDateTime.now());
@@ -1239,7 +1240,7 @@ public class DataCommunicationDB {
         Purchase purchase = new Purchase();
         purchase.setCustomerPID(customer.getPersonalID());
         purchase.setPurchasedMovieLink(link);
-        purchase.setPurchaseType(PurchaseType.MOVIE_LINK);
+        purchase.setPurchaseType(MOVIE_LINK);
         purchase.SetPrice(session.get(PriceConstants.class, 1));
         purchase.setPriceByItem(purchase.getPurchaseType());
         purchase.setDateOfPurchase(LocalDateTime.now());
@@ -1276,7 +1277,7 @@ public class DataCommunicationDB {
     private static void assignBookletToCustomer(Customer customer, Booklet booklet, Session session) {
         Purchase purchase = new Purchase();
         purchase.setPurchasedBooklet(booklet);
-        purchase.setPurchaseType(PurchaseType.BOOKLET);
+        purchase.setPurchaseType(BOOKLET);
         purchase.setDateOfPurchase(LocalDateTime.now());
         purchase.setCustomerPID(customer.getPersonalID());
         purchase.setCustomer(customer);
@@ -1311,7 +1312,10 @@ public class DataCommunicationDB {
         }
     }
 
-    public List<Purchase> retrievePurchasesByBranchAndMonth(Branch branch, Month month, PurchaseType purchaseType) {
+    public List<Purchase> retrievePurchasesByBranchAndMonth(RequestData requestData) {
+        Branch branch = requestData.branch();
+        Month month = requestData.month();
+        PurchaseType purchaseType = requestData.purchaseType();
         return getSession().createQuery(
                         "FROM Purchase WHERE branch = :branch AND purchaseType = :purchaseType AND MONTH(dateOfPurchase) = :month",
                         Purchase.class)
@@ -1348,15 +1352,14 @@ public class DataCommunicationDB {
         session.getTransaction().commit();
     }
 
-    public List<Report> retrieveReportsForBranchAndMonth(Branch branch, Month month) {
+    public List<Report> retrieveReportsForBranchAndMonth(Month month, RequestData requestData) {
         Session session = ensureSession();
         Transaction transaction = null;
-        List<Report> reports = null;
-
+        List<Report> reports;
         try {
             transaction = startTransaction(session);
 
-            reports = executeReportQuery(session, branch, month);
+            reports = executeReportQuery(session, month, requestData);
 
             commitTransaction(transaction);
         } catch (Exception e) {
@@ -1367,15 +1370,14 @@ public class DataCommunicationDB {
         return reports;
     }
 
-    public List<Complaint> retrieveComplaintsByBranchAndMonth(Branch branch, Month month) {
+    public List<Complaint> retrieveComplaintsByBranchAndMonth(RequestData requestData) {
         Session session = ensureSession();
         Transaction transaction = null;
-        List<Complaint> complaints = null;
-
+        List<Complaint> complaints;
         try {
             transaction = startTransaction(session);
 
-            complaints = executeComplaintQuery(session, branch, month);
+            complaints = executeComplaintQuery(session, requestData);
 
             commitTransaction(transaction);
         } catch (Exception e) {
@@ -1386,15 +1388,14 @@ public class DataCommunicationDB {
         return complaints;
     }
 
-    public List<Purchase> retrieveAllPurchasesByBranchAndMonth(Branch branch, Month month, PurchaseType purchaseType) {
+    public List<Purchase> retrieveAllPurchasesByBranchAndMonth(RequestData requestData) {
         Session session = ensureSession();
         Transaction transaction = null;
-        List<Purchase> purchases = null;
-
+        List<Purchase> purchases;
         try {
             transaction = startTransaction(session);
 
-            purchases = executePurchaseQuery(session, branch, month, purchaseType);
+            purchases = executePurchaseQuery(session, requestData);
 
             commitTransaction(transaction);
         } catch (Exception e) {
@@ -1405,24 +1406,24 @@ public class DataCommunicationDB {
         return purchases;
     }
 
-    private List<Complaint> executeComplaintQuery(Session session, Branch branch, Month month) {
+    private List<Complaint> executeComplaintQuery(Session session, RequestData requestData) {
         String sql = "SELECT * FROM complaints WHERE branch_id = :branchId AND MONTH(dateOfComplaint) = :month";
 
         return session.createNativeQuery(sql, Complaint.class)
-                .setParameter("branchId", branch.getId())
-                .setParameter("month", month.getValue()) // Assuming date_of_complaint is a date or timestamp column
+                .setParameter("branchId", requestData.branch().getId())
+                .setParameter("month", requestData.month().getValue()) // Assuming date_of_complaint is a date or timestamp column
                 .getResultList();
     }
 
-    private List<Purchase> executePurchaseQuery(Session session, Branch branch, Month month, PurchaseType purchaseType) {
+    private List<Purchase> executePurchaseQuery(Session session, RequestData requestData) {
         String tableName = Purchase.class.getName();
         System.out.println(tableName);
         String sql = "SELECT * FROM purchase WHERE branch_id = :branchId AND purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
 
         return session.createNativeQuery(sql, Purchase.class)
-                .setParameter("branchId", branch.getId())
-                .setParameter("purchaseType", purchaseType.name()) // Use name() to get the string representation of the enum
-                .setParameter("month", month.getValue()) // Assuming date_of_purchase is a date or timestamp column
+                .setParameter("branchId",  requestData.branch().getId())
+                .setParameter("purchaseType", requestData.reportType().name()) // Use name() to get the string representation of the enum
+                .setParameter("month", requestData.month().getValue()) // Assuming date_of_purchase is a date or timestamp column
                 .getResultList();
     }
 
@@ -1451,12 +1452,18 @@ public class DataCommunicationDB {
         }
     }
 
-    private List<Report> executeReportQuery(Session session, Branch branch, Month month) {
-        String sql = "SELECT * FROM Report WHERE branch_id = :branchId AND month = :month";
+    private List<Report> executeReportQuery(Session session, Month month, RequestData requestData) {
+        String sql = "SELECT * FROM Report JOIN report_data ON Report.id = report_data.report_id " +
+                    "WHERE branch_id = :branchId AND month = :month AND purchaseType = :purchaseType";
+//        "SELECT * FROM Report JOIN report_data ON Report.id = report_data.report_id WHERE branch_id = :branchId AND month = :month\n"
 
-        return session.createNativeQuery(sql, Report.class)
-                .setParameter("branchId", branch.getId())
-                .setParameter("month", month.getValue())
+        int ordinal = requestData.purchaseType().ordinal();
+        List<Report> resultList = session.createNativeQuery(sql, Report.class)
+                .setParameter("branchId", requestData.branch().getId())
+                .setParameter("month", month.name())
+                .setParameter("purchaseType", ordinal)
                 .getResultList();
+        System.out.println(resultList);
+        return resultList;
     }
 }

@@ -100,7 +100,7 @@
                   <String fx:value="hover-button" />
                </styleClass>
             </Button>
-            <ComboBox id="productSelectionButton" fx:id="purchaseTypeSelectionComboBox" layoutY="110.0" onAction="#choosePurchaseType" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <ComboBox id="purchaseTypeSelectionBtn" fx:id="purchaseTypeSelectionComboBox" layoutY="110.0" onAction="#choosePurchaseType" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                <styleClass>
                   <String fx:value="rounded-corners" />
                   <String fx:value="hover-button" />
@@ -126,10 +126,10 @@
 
         </left>
         <right>
-            <AnchorPane prefHeight="550.0" prefWidth="75.0" BorderPane.alignment="CENTER" />
+            <AnchorPane prefHeight="550.0" prefWidth="75.0" stylesheets="@reportsStyle.css" BorderPane.alignment="CENTER" />
         </right>
         <bottom>
-            <AnchorPane prefHeight="25.0" prefWidth="1400.0" BorderPane.alignment="CENTER" />
+            <AnchorPane prefHeight="25.0" prefWidth="1400.0" stylesheets="@reportsStyle.css" BorderPane.alignment="CENTER" />
         </bottom>
         <center>
         <BorderPane id="ChartBorderPane" fx:id="chartBorderPane" prefHeight="200.0" prefWidth="200.0" stylesheets="@reportsStyle.css">
@@ -160,12 +160,12 @@
                 <ScrollBar orientation="VERTICAL" BorderPane.alignment="CENTER" />
             </right>
             <left>
-               <TableView prefHeight="461.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+               <TableView fx:id="table" prefHeight="461.0" prefWidth="300.0" BorderPane.alignment="CENTER">
                  <columns>
-                   <TableColumn prefWidth="75.0" />
-                   <TableColumn prefWidth="75.0" />
-                     <TableColumn prefWidth="75.0" />
-                     <TableColumn prefWidth="75.0" />
+                   <TableColumn fx:id="columnA" prefWidth="75.0" />
+                   <TableColumn fx:id="columnB" prefWidth="75.0" />
+                     <TableColumn fx:id="columnC" prefWidth="75.0" />
+                     <TableColumn fx:id="columnD" prefWidth="75.0" />
                  </columns>
                </TableView>
             </left>

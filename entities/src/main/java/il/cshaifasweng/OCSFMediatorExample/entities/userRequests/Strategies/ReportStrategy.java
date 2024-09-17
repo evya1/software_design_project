@@ -33,6 +33,20 @@ public interface ReportStrategy {
      * on the implementation of the strategy.
      * </p>
      *
+     * @return The generated {@code Report}.
+     */
+    default Report generateReport(List<?> items, RequestData requestData) {
+        return generateReport(items, requestData.branch(), requestData.month());
+    }
+
+    /**
+     * Generates a report based on the provided data, branch, and month.
+     * <p>
+     * This method takes in a list of data items (e.g., purchases, complaints) and generates
+     * a {@code Report} object. The specific logic for report generation will vary depending
+     * on the implementation of the strategy.
+     * </p>
+     *
      * @param items The data items (e.g., purchases, complaints) to be included in the report.
      * @param branch The branch for which the report is generated.
      * @param month The month for which the report is generated.

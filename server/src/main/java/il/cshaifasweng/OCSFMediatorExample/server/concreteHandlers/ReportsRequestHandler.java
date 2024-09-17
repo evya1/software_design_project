@@ -54,9 +54,7 @@ public class ReportsRequestHandler implements RequestHandler {
 
     private void handleMonthlyReports(RequestData requestData, ConnectionToClient client) throws IOException {
         try {
-            List<Report> reports = reportService.retrieveReportsByBranchAndMonth(
-                    requestData.branch(), requestData.month(), requestData.purchaseType(), requestData.reportType()
-            );
+            List<Report> reports = reportService.retrieveReportsByBranchAndMonth(requestData.month(), requestData);
             client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), reports));
         } catch (Exception e) {
             System.err.println("Error retrieving monthly reports: " + e.getMessage());
@@ -74,7 +72,7 @@ public class ReportsRequestHandler implements RequestHandler {
             List<Month> quarterMonths = getQuarterMonths(startMonth);
 
             // Fetch reports for all months in the quarter using the extracted method
-            List<Report> quarterlyReports = fetchReportsForMonths(quarterMonths, requestData.branch(), requestData.purchaseType(), requestData.reportType());
+            List<Report> quarterlyReports = fetchReportsForMonths(quarterMonths, requestData);
 
             // Send the combined quarterly reports to the client
             client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), quarterlyReports));
@@ -88,22 +86,27 @@ public class ReportsRequestHandler implements RequestHandler {
 
     private void handleYearlyReports(RequestData requestData, ConnectionToClient client) throws IOException {
         try {
+            // Extract values to local variables for readability
+            String requestType = requestData.requestType();
+
             // Get all months of the year
             List<Month> yearlyMonths = Arrays.asList(Month.values());
 
-            // Fetch reports for all months in the year
-            List<Report> yearlyReports = fetchReportsForMonths(yearlyMonths, requestData.branch(), requestData.purchaseType(), requestData.reportType());
+            // Fetch reports for all months in the year using the local variables
+            List<Report> yearlyReports = fetchReportsForMonths(yearlyMonths, requestData);
 
-            // Send the combined yearly reports to the client
-            client.sendToClient(MessageUtilForReports.createReportMessage(requestData.requestType(), yearlyReports));
+            // Create and send the report message to the client
+            Message reportMessage = MessageUtilForReports.createReportMessage(requestType, yearlyReports);
+            client.sendToClient(reportMessage);
 
         } catch (Exception e) {
+            // Log the error and send the error message to the client
+            String errorMessage = "Failed to retrieve yearly reports: " + e.getMessage();
             System.err.println("Error retrieving yearly reports: " + e.getMessage());
             e.printStackTrace();
-            client.sendToClient(MessageUtilForReports.createErrorMessage("Failed to retrieve yearly reports: " + e.getMessage()));
+            client.sendToClient(MessageUtilForReports.createErrorMessage(errorMessage));
         }
     }
-
 
     private List<Month> getQuarterMonths(Month startMonth) {
         List<Month> quarterMonths = new ArrayList<>();
@@ -116,16 +119,13 @@ public class ReportsRequestHandler implements RequestHandler {
         return quarterMonths;
     }
 
-    private List<Report> fetchReportsForMonths(List<Month> months, Branch branch, PurchaseType purchaseType, ReportType reportType) {
+    private List<Report> fetchReportsForMonths(List<Month> months, RequestData requestData) {
         List<Report> combinedReports = new ArrayList<>();
 
         for (Month currentMonth : months) {
-            List<Report> reportsForMonth = reportService.retrieveReportsByBranchAndMonth(
-                    branch, currentMonth, purchaseType, reportType
-            );
+            List<Report> reportsForMonth = reportService.retrieveReportsByBranchAndMonth(currentMonth, requestData);
             combinedReports.addAll(reportsForMonth);
         }
-
         return combinedReports;
     }
 }
