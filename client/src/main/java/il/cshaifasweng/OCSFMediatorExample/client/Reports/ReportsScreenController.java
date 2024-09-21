@@ -103,11 +103,13 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      * a data filter criterion, or any other relevant context.
      */
     private Object chartContext;
+    private List<Report> reports;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         EventBus.getDefault().register(this);
+        reports = new ArrayList<>();
 
         initializeUIComponents();
 
@@ -177,7 +179,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     private void handleShowChart(ActionEvent actionEvent, String chartType) {
         String contextDescription = chartFactory.getContextDescription(chartContext);
         if (BAR_CHART_TYPE.equals(chartType)) {
-            chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
+            chartFactory.updateChartWithReports(reports);
         } else if (PIE_CHART_TYPE.equals(chartType)) {
             chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
         }
@@ -241,7 +243,8 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         System.out.println("ReportsScreenController: dataReceived: Message received: " + messageContent);
 
         Platform.runLater(() -> {
-            List<Report> reports = message.getReports();
+            reports.clear();
+            reports = message.getReports();
 
             if (reports != null && !reports.isEmpty()) {
                 System.out.println("ReportsScreenController: dataReceived: " + "size of reports: " + reports.size() + "first  reprot: " + reports.getFirst().toString());

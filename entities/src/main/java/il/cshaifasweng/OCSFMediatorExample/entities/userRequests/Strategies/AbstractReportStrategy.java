@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
+
 /**
  * AbstractReportStrategy is an abstract class that provides a template for generating reports based on specific
  * strategies. Subclasses are required to define the specific report type, span type, operation type, and how to
@@ -85,14 +87,47 @@ public abstract class AbstractReportStrategy<T> implements ReportStrategy {
      * @param items the list of items of type T to be processed.
      * @return a map representing the aggregated data for graphs.
      */
+    /**
+     * Extracts data for graphs by processing items of type T. This method aggregates the data into a map where
+     * the keys are labels (e.g., purchase types), and the values are the corresponding data points (e.g., total sales).
+     *
+     * @param items the list of items of type T to be processed.
+     * @return a map representing the aggregated data for graphs.
+     */
     protected Map<String, Double> extractDataForGraphs(List<T> items) {
         Map<String, Double> dataForGraphs = new HashMap<>();
         Function<T, PurchaseType> purchaseTypeExtractor = getPurchaseTypeExtractor();
 
+        // Initialize counters for complaint statuses
+        double openCount = 0.0;
+        double closedCount = 0.0;
+
         for (T item : items) {
+            // Handle PurchaseType as before
             PurchaseType purchaseType = purchaseTypeExtractor.apply(item);
-            String key = (purchaseType != null) ? purchaseType.name() : "Unknown";
+            String key = (purchaseType != null) ? purchaseType.name() : PURCHASE_TYPE_UNKNOWN;
             dataForGraphs.merge(key, 1.0, Double::sum);
+
+            // If item is a Complaint, handle complaint status as well
+            if (item instanceof Complaint) {
+                Complaint complaint = (Complaint) item;
+                String complaintStatus = complaint.getComplaintStatus();
+
+                // Increment open/closed counters based on the status
+                if (COMPLAINT_STATUS_OPEN.equalsIgnoreCase(complaintStatus)) {
+                    openCount++;
+                } else if (COMPLAINT_STATUS_CLOSED.equalsIgnoreCase(complaintStatus)) {
+                    closedCount++;
+                }
+            }
+        }
+
+        // Add "Open" and "Closed" statuses to the map if processing complaints
+        if (openCount > 0) {
+            dataForGraphs.put(COMPLAINT_STATUS_OPEN, openCount);
+        }
+        if (closedCount > 0) {
+            dataForGraphs.put(COMPLAINT_STATUS_CLOSED, closedCount);
         }
 
         return dataForGraphs;

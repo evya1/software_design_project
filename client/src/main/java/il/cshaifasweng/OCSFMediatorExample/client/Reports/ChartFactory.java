@@ -61,7 +61,7 @@ public class ChartFactory {
 //        }
 //    }
 
-    public void updateChartWithReports(List<Report> reports) {
+    public void  updateChartWithReports(List<Report> reports) {
         List<Pair<String, Double>> newChartData;
         if (reports == null || reports.isEmpty()) {
             newChartData = createGenericChartData();  // Use generic data if no reports are available
@@ -88,6 +88,12 @@ public class ChartFactory {
             pieChart.setData((ObservableList<PieChart.Data>) newChartData);  // Set new data
             pieChart.setLabelsVisible(true);  // Ensure labels are visible
             pieChart.layout();  // Force layout refresh
+        } else if (chart instanceof BarChart) {
+            BarChart<String, Number> barChart = (BarChart<String, Number>) chart;
+            barChart.getData().clear();  // Clear existing data
+            XYChart.Series<String, Number> dataSeries = new XYChart.Series<>((ObservableList<XYChart.Data<String, Number>>) newChartData);
+            barChart.getData().add(dataSeries);  // Set new data
+            barChart.layout();  // Force layout refresh
         } else {
             log("Unsupported chart type for data update.");
         }
