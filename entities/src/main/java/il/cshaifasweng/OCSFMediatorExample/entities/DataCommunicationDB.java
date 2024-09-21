@@ -167,13 +167,7 @@ public class DataCommunicationDB {
         // Print all Reports
         List<Report> reports = session.createQuery("FROM Report", Report.class).list();
         for (Report report : reports) {
-            System.out.println("Report ID: " + report.getId());
-
-            // Print Branch associated with Report
-            Branch branch = report.getBranch();
-            if (branch != null) {
-                System.out.println("\tBranch: " + branch.getBranchName());
-            }
+            System.out.println(report);
         }
 
         System.out.println("Print all the Branch Movies");
@@ -1489,11 +1483,11 @@ public class DataCommunicationDB {
                     "WHERE branch_id = :branchId AND month = :month AND purchaseType = :purchaseType";
 //        "SELECT * FROM Report JOIN report_data ON Report.id = report_data.report_id WHERE branch_id = :branchId AND month = :month\n"
 
-        int ordinal = requestData.purchaseType().ordinal();
+        String purchaseTypeName = requestData.purchaseType().name();    // Get the string name for the enum
         List<Report> resultList = session.createNativeQuery(sql, Report.class)
                 .setParameter("branchId", requestData.branch().getId())
                 .setParameter("month", month.name())
-                .setParameter("purchaseType", ordinal)
+                .setParameter("purchaseType", purchaseTypeName)
                 .getResultList();
         System.out.println(resultList);
         return resultList;

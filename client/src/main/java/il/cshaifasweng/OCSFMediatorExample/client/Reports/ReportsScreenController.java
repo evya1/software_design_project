@@ -739,7 +739,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         for (Report report : reports) {
             System.out.println("Report ID: " + report.getId());
             System.out.println("Branch: " + (report.getBranch() != null ? report.getBranch().getBranchName() : "N/A"));
-            System.out.println("Report Type: " + report.getReportType());
+            System.out.println("Report Type: " + report.getSpanType());
             System.out.println("Report Data:");
 //            System.out.println("Report Data:" + report.getDataForGraphs());
 //            report.getDataForGraphs().forEach((key, value) -> System.out.println(key + ": " + value));

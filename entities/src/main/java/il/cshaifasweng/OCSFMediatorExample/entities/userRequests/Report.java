@@ -7,7 +7,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +32,10 @@ public class Report implements Serializable {
     @JoinColumn(name = "branch_id", nullable = false)
     private Branch branch;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private ReportType reportType;
+
     /**
      * Represents the span type of the report (e.g., Daily, Monthly, Quarterly, etc.).
      */
@@ -40,7 +43,7 @@ public class Report implements Serializable {
     @Column(name = "report_span_type", nullable = false)
     private ReportSpanType reportSpanType;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column
     private PurchaseType purchaseType;
 
@@ -128,18 +131,10 @@ public class Report implements Serializable {
         this.branch = branch;
     }
 
-    /**
-     * Gets the report type.
-     * @return the report type
-     */
-    public ReportSpanType getReportType() {
+    public ReportSpanType getSpanType() {
         return reportSpanType;
     }
 
-    /**
-     * Sets the report type.
-     * @param reportSpanType the report type
-     */
     public void setReportSpanType(ReportSpanType reportSpanType) {
         this.reportSpanType = reportSpanType;
     }
@@ -208,6 +203,14 @@ public class Report implements Serializable {
         this.purchaseType = purchaseType;
     }
 
+    public void setReportType(ReportType reportType) {
+        this.reportType = reportType;
+    }
+
+    public ReportType getReportType() {
+        return this.reportType;
+    }
+
     /**
      * Builder class for Report.
      */
@@ -223,6 +226,7 @@ public class Report implements Serializable {
         private String serializedReportData;
         private String dataFilePath;
         private String label;
+        private ReportType reportType;
 
         public Builder() {}
 
@@ -233,6 +237,11 @@ public class Report implements Serializable {
 
         public Builder withPurchaseType(PurchaseType purchaseType) {
             this.purchaseType = purchaseType;
+            return this;
+        }
+
+        public Builder withReportType(ReportType reportType) {
+            this.reportType = reportType;
             return this;
         }
 
@@ -287,6 +296,14 @@ public class Report implements Serializable {
          */
         public Report build() {
             return new Report(this);
+        }
+
+        public ReportType getReportType() {
+            return reportType;
+        }
+
+        public void setReportType(ReportType reportType) {
+            this.reportType = reportType;
         }
     }
 

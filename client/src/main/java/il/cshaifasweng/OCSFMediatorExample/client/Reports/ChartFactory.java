@@ -586,7 +586,7 @@ public class ChartFactory {
      */
     private String generateLabel(Report report, String dataKey) {
         String branchName = report.getBranch() != null ? report.getBranch().getBranchName() : "";
-        String reportSpanType = report.getReportType().toString();
+        String reportSpanType = report.getSpanType().toString();
         String month = report.getMonth() != null ? report.getMonth().name() : "";
 
         StringBuilder label = new StringBuilder();
