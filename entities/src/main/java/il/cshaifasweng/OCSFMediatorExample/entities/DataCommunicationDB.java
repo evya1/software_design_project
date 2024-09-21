@@ -1394,8 +1394,13 @@ public class DataCommunicationDB {
         List<Purchase> purchases;
         try {
             transaction = startTransaction(session);
+            PurchaseType purchaseType = requestData.purchaseType();
 
-            purchases = executePurchaseQuery(session, requestData);
+            if (purchaseType == ALL_TYPES) {
+                purchases = retrievePurchasesForAllTypes(session, requestData);
+            } else {
+                purchases = executePurchaseQueryForSpecificType(session, requestData, purchaseType);
+            }
 
             commitTransaction(transaction);
         } catch (Exception e) {
@@ -1406,24 +1411,48 @@ public class DataCommunicationDB {
         return purchases;
     }
 
+    private List<Purchase> retrievePurchasesForAllTypes(Session session, RequestData requestData) {
+        List<Purchase> purchases = new ArrayList<>();
+
+        for (PurchaseType type : PurchaseType.values()) {
+            if (type != ALL_TYPES) {
+                purchases.addAll(executePurchaseQueryForSpecificType(session, requestData, type));
+            }
+        }
+
+        return purchases;
+    }
+
+    private List<Purchase> executePurchaseQueryForSpecificType(Session session, RequestData requestData, PurchaseType purchaseType) {
+        // Define the base SQL query
+        String sql = "SELECT * FROM purchase WHERE purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
+
+        // Extend the SQL query if the purchase type requires branch_id
+        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+            sql += " AND branch_id = :branchId";
+        }
+
+        int monthOrdinal = requestData.month().getValue();
+
+        var query = session.createNativeQuery(sql, Purchase.class)
+                .setParameter("purchaseType", purchaseType.name())  // Use .name() for enum name as in DB
+                .setParameter("month", monthOrdinal);
+
+        // Only add branch_id parameter if necessary
+        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+            query.setParameter("branchId", requestData.branch().getId());
+        }
+
+        return query.getResultList();
+    }
+
+
     private List<Complaint> executeComplaintQuery(Session session, RequestData requestData) {
         String sql = "SELECT * FROM complaints WHERE branch_id = :branchId AND MONTH(dateOfComplaint) = :month";
 
         return session.createNativeQuery(sql, Complaint.class)
                 .setParameter("branchId", requestData.branch().getId())
                 .setParameter("month", requestData.month().getValue()) // Assuming date_of_complaint is a date or timestamp column
-                .getResultList();
-    }
-
-    private List<Purchase> executePurchaseQuery(Session session, RequestData requestData) {
-        String tableName = Purchase.class.getName();
-        System.out.println(tableName);
-        String sql = "SELECT * FROM purchase WHERE branch_id = :branchId AND purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
-
-        return session.createNativeQuery(sql, Purchase.class)
-                .setParameter("branchId",  requestData.branch().getId())
-                .setParameter("purchaseType", requestData.reportType().name()) // Use name() to get the string representation of the enum
-                .setParameter("month", requestData.month().getValue()) // Assuming date_of_purchase is a date or timestamp column
                 .getResultList();
     }
 
