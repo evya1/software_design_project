@@ -1312,19 +1312,6 @@ public class DataCommunicationDB {
         }
     }
 
-    public List<Purchase> retrievePurchasesByBranchAndMonth(RequestData requestData) {
-        Branch branch = requestData.branch();
-        Month month = requestData.month();
-        PurchaseType purchaseType = requestData.purchaseType();
-        return getSession().createQuery(
-                        "FROM Purchase WHERE branch = :branch AND purchaseType = :purchaseType AND MONTH(dateOfPurchase) = :month",
-                        Purchase.class)
-                .setParameter("branch", branch)
-                .setParameter("purchaseType", purchaseType)
-                .setParameter("month", month.getValue())
-                .getResultList();
-    }
-
     // Method to save a Report to the database
     public void persistReport(Report report) {
         Session session = getSession();
@@ -1377,7 +1364,12 @@ public class DataCommunicationDB {
         try {
             transaction = startTransaction(session);
 
+            // First query: Fetch complaints based on purchaseType and month
             complaints = executeComplaintQuery(session, requestData);
+
+            // Fallback query: If no complaints found, fetch all complaints
+            if (complaints.isEmpty())
+                complaints = fetchAllComplaints(session);
 
             commitTransaction(transaction);
         } catch (Exception e) {
@@ -1428,7 +1420,7 @@ public class DataCommunicationDB {
         String sql = "SELECT * FROM purchase WHERE purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
 
         // Extend the SQL query if the purchase type requires branch_id
-        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+        if (purchaseType == MOVIE_TICKET) {
             sql += " AND branch_id = :branchId";
         }
 
@@ -1439,21 +1431,32 @@ public class DataCommunicationDB {
                 .setParameter("month", monthOrdinal);
 
         // Only add branch_id parameter if necessary
-        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+        if (purchaseType == MOVIE_TICKET) {
             query.setParameter("branchId", requestData.branch().getId());
         }
 
         return query.getResultList();
     }
 
-
     private List<Complaint> executeComplaintQuery(Session session, RequestData requestData) {
-        String sql = "SELECT * FROM complaints WHERE branch_id = :branchId AND MONTH(dateOfComplaint) = :month";
+        // Define the base SQL query to filter complaints by purchaseType and month
+        String sql = "SELECT * FROM complaints WHERE purchaseType = :purchaseType AND MONTH(dateOfComplaint) = :month";
 
-        return session.createNativeQuery(sql, Complaint.class)
-                .setParameter("branchId", requestData.branch().getId())
-                .setParameter("month", requestData.month().getValue()) // Assuming date_of_complaint is a date or timestamp column
-                .getResultList();
+        int monthOrdinal = requestData.month().getValue();
+        int purchaseTypeOrdinal = requestData.purchaseType().ordinal();  // Get the ordinal value for the enum
+
+        var query = session.createNativeQuery(sql, Complaint.class)
+                .setParameter("purchaseType", purchaseTypeOrdinal)  // Set the ordinal value for purchaseType
+                .setParameter("month", monthOrdinal);
+
+        return query.getResultList();
+    }
+
+    private List<Complaint> fetchAllComplaints(Session session) {
+        // Fallback query: Fetch all complaints if the first query returns an empty result
+        String sql = "SELECT * FROM complaints";
+
+        return session.createNativeQuery(sql, Complaint.class).getResultList();
     }
 
     private Session ensureSession() {
