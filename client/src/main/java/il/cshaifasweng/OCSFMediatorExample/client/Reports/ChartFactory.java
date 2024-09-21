@@ -1,6 +1,5 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -12,9 +11,9 @@ import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import javax.sound.midi.SysexMessage;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -39,7 +38,6 @@ public class ChartFactory {
      * Observable list holding the chart data, allowing for automatic UI updates when data changes.
      */
     private final ObservableList<Pair<String, Double>> chartData;
-    private Object chartContext; // Holds the current context for the chart
     private BorderPane chartBorderPane;
 
     // Constructor updated to initialize the observable chart data
@@ -48,35 +46,50 @@ public class ChartFactory {
         EventBus.getDefault().register(this);
     }
 
-    @Subscribe
-    public void onReportDataReceived(ReportDataReceivedEvent event) {
-        log("onReportDataReceived called.");
-        updateChartContext(event);
-        List<Report> reports = event.getReports();
+//    @Subscribe
+//    public void onReportDataReceived(ReportDataReceivedEvent event) {
+//        log("onReportDataReceived called.");
+//
+//        List<Report> reports = event.getReports();
+//        if (reports == null || reports.isEmpty()) {
+//            log("No reports received, using default chart data.");
+//            updateExistingChart(chartBorderPane, createGenericChartData());
+//        } else {
+//            log("Reports received, converting to chart data...");
+//            List<Pair<String, Double>> newChartData = convertReportsToChartData(reports);
+//            updateExistingChart(chartBorderPane, newChartData);
+//        }
+//    }
 
+    public void updateChartWithReports(List<Report> reports) {
+        List<Pair<String, Double>> newChartData;
         if (reports == null || reports.isEmpty()) {
-            log("No reports received, using default chart data.");
-            updateChartData(createGenericChartData());
+            newChartData = createGenericChartData();  // Use generic data if no reports are available
         } else {
-            log("Reports received, converting to chart data...");
-            List<Pair<String, Double>> newChartData = convertReportsToChartData(reports);
-            log("Converted chart data: " + newChartData);
-            updateChartData(newChartData);
+            newChartData = convertReportsToChartData(reports);  // Convert reports to chart data
+        }
+
+        Node currentChart = chartBorderPane.getCenter();
+        System.out.println("chartFactory: updateChartWithReports: " + newChartData);  // Debug print for new chart data
+
+        if (currentChart instanceof PieChart) {
+            // Update the existing PieChart with the new data
+            updateChartWithNewData((PieChart) currentChart, convertToPieChartData(newChartData));
+        } else {
+            // Create and display a new PieChart with the updated data
+            prepareAndDisplayPieChart("Updated Data", chartBorderPane);  // Set context for updated chart
         }
     }
 
-    private void updateChartData(List<Pair<String, Double>> newChartDataList) {
-        log("Attempting to update chart data...");
-        if (isChartDataDifferent(chartData, newChartDataList)) {
-            log("Chart data is different. Updating chart...");
-            chartData.setAll(newChartDataList);
-            log("Chart data updated: " + chartData);
-
-            // Post the update event
-            EventBus.getDefault().post(new ChartDataUpdatedEvent(chartContext, false, null, null, chartBorderPane));
-            log("ChartDataUpdatedEvent posted.");
+    private <T extends Chart> void updateChartWithNewData(T chart, ObservableList<?> newChartData) {
+        if (chart instanceof PieChart) {
+            PieChart pieChart = (PieChart) chart;
+            pieChart.getData().clear();  // Clear existing data
+            pieChart.setData((ObservableList<PieChart.Data>) newChartData);  // Set new data
+            pieChart.setLabelsVisible(true);  // Ensure labels are visible
+            pieChart.layout();  // Force layout refresh
         } else {
-            log("Chart data is already up-to-date. No update needed.");
+            log("Unsupported chart type for data update.");
         }
     }
 
@@ -96,7 +109,7 @@ public class ChartFactory {
      * Converts a list of {@link Report} entities into chart data represented as a list of {@link Pair}&lt;{@link String}, {@link Double}&gt;.
      * <p>
      * This method processes each report, extracting the counts for specific products (e.g., Product A, Product B, Product C).
-     * It uses {@link #extractProductCount(List, String)} to retrieve the counts for each product.
+     * It uses {@link #calculateTotalProductValueAcrossAllReports(List, String)} to retrieve the counts for each product.
      * The resulting list can be used directly in chart components like {@link BarChart} or {@link PieChart}.
      * </p>
      *
@@ -105,35 +118,48 @@ public class ChartFactory {
      *         and the total count as the value.
      */
     private List<Pair<String, Double>> convertReportsToChartData(List<Report> reports) {
-        log("Converting reports to chart data...");
+        System.out.println("Converting reports to chart data...");
 
-        double productACount = extractProductCount(reports, PURCHASABLE_PRODUCT_A);
-        double productBCount = extractProductCount(reports, PURCHASABLE_PRODUCT_B);
-        double productCCount = extractProductCount(reports, PURCHASABLE_PRODUCT_C);
+        // Extract counts for each product from the reports
+        double productACount = calculateTotalProductValueAcrossAllReports(reports, PURCHASABLE_PRODUCT_A);
+        double productBCount = calculateTotalProductValueAcrossAllReports(reports, PURCHASABLE_PRODUCT_B);
+        double productCCount = calculateTotalProductValueAcrossAllReports(reports, PURCHASABLE_PRODUCT_C);
 
-        // Ensure we have distinct values for each product
-        log("Product A Count: " + productACount + ", Product B Count: " + productBCount + ", Product C Count: " + productCCount);
+        // Print the extracted counts for each product
+        System.out.println("Product A Count: " + productACount);
+        System.out.println("Product B Count: " + productBCount);
+        System.out.println("Product C Count: " + productCCount);
 
+        // Create a list of chart data pairs using the extracted counts
         List<Pair<String, Double>> chartDataList = createChartDataList(productACount, productBCount, productCCount);
-        log("Converted chart data: " + chartDataList);
+
+        // Print the final chart data list
+        System.out.println("Converted chart data: " + chartDataList);
 
         return chartDataList;
     }
 
-    /**
-     * Provides a default product count when the product is missing in the report data.
-     *
-     * @param reports List of {@link Report} entities (not used but required by method signatures).
-     * @return The default product count value.
-     */
-    private double extractProductCount(List<Report> reports, String productName) {
-        double total = reports.stream()
-                .filter(report -> report.getDataForGraphs().containsKey(productName))
-                .mapToDouble(report -> report.getDataForGraphs().get(productName))
-                .sum();
+    private double calculateTotalProductValueAcrossAllReports(List<Report> reports, String productName) {
+        System.out.println("Calculating total value for product: " + productName);
 
-        // If no reports contained the product, return the default value
-        return total > 0 ? total : DEFAULT_PRODUCT_COUNT;
+        // Normalize the provided product name: convert to lowercase, replace underscores with spaces, and trim whitespace
+        String normalizedProductName = normalizeProductNameForCaseInsensitiveComparison(productName);
+
+        // Log each report's data for debugging purposes
+        logReportDataForGraphs(reports);
+
+        // Calculate the total value for the specified product across all reports
+        double totalProductValue = reports.stream()
+                // Filter out reports that contain the normalized product name (case-insensitive check)
+                .filter(report -> doesReportContainNormalizedProductName(report, normalizedProductName))
+                // Extract the product value from the filtered reports
+                .mapToDouble(report -> extractProductValueFromReportData(report, normalizedProductName))
+                .sum(); // Sum all the values for the product across reports
+
+        System.out.println("Total value for " + productName + ": " + totalProductValue);
+
+        // Return the total value, or the default value if no valid value was found
+        return totalProductValue > 0 ? totalProductValue : DEFAULT_PRODUCT_COUNT;
     }
 
     private List<Pair<String, Double>> createChartDataList(double productACount, double productBCount, double productCCount) {
@@ -196,20 +222,38 @@ public class ChartFactory {
 
     // Generic method for converting chart data to a specific chart type
     private <T> ObservableList<T> convertToChartData(List<Pair<String, Double>> genericData, Function<Pair<String, Double>, T> mapper) {
-        return FXCollections.observableArrayList(genericData.stream().map(mapper).collect(Collectors.toList()));
+        return FXCollections.observableArrayList(
+                genericData.stream()
+                        .map(mapper)
+                        .collect(Collectors.toList())
+        );
     }
 
-    // For internal chart data, we can reuse the same function without passing data
+    // For internal chart data, we can reuse the same function without passing external data
     private <T> ObservableList<T> convertToChartData(Function<Pair<String, Double>, T> mapper) {
         return convertToChartData(this.chartData, mapper);
     }
 
-    // Usage for internal BarChart data
+    // Convert list of Pair<String, Double> to BarChart data
+    public ObservableList<XYChart.Data<String, Number>> convertToBarChartData(List<Pair<String, Double>> chartData) {
+        return convertToChartData(chartData, pair -> new XYChart.Data<>(pair.getKey(), pair.getValue()));
+    }
+
+    // Convert list of Pair<String, Double> to PieChart data with proper labels
+    public ObservableList<PieChart.Data> convertToPieChartData(List<Pair<String, Double>> chartData) {
+        return FXCollections.observableArrayList(
+                chartData.stream()
+                        .map(pair -> new PieChart.Data(pair.getKey(), pair.getValue()))  // Set the label (key) and value
+                        .collect(Collectors.toList())
+        );
+    }
+
+    // Usage for internal BarChart data without passing the external chartData list
     public ObservableList<XYChart.Data<String, Number>> convertToBarChartData() {
         return convertToChartData(pair -> new XYChart.Data<>(pair.getKey(), pair.getValue()));
     }
 
-    // Usage for internal PieChart data
+    // Usage for internal PieChart data without passing the external chartData list
     public ObservableList<PieChart.Data> convertToPieChartData() {
         return convertToChartData(pair -> new PieChart.Data(pair.getKey(), pair.getValue()));
     }
@@ -433,6 +477,27 @@ public class ChartFactory {
         log("BarChart data populated and displayed.");
     }
 
+    private <T extends Chart> void updateChart(T chart, List<Pair<String, Double>> newChartData) {
+        ObservableList<?> chartData;
+        if (chart instanceof BarChart) {
+            chartData = convertToBarChartData(newChartData);
+        } else if (chart instanceof PieChart) {
+            chartData = convertToPieChartData(newChartData);
+        } else {
+            log("Unsupported chart type for updating chart.");
+            return;
+        }
+        updateChartWithNewData(chart, chartData);
+    }
+
+    private void updateExistingChart(BorderPane chartBorderPane, List<Pair<String, Double>> newChartData) {
+        Node currentChart = chartBorderPane.getCenter();
+        if (currentChart instanceof Chart) {
+            updateChart((Chart) currentChart, newChartData);
+        } else {
+            log("No chart found in the BorderPane.");
+        }
+    }
 
     /**
      * Populates the PieChart with data and adds it to the provided BorderPane.
@@ -548,25 +613,6 @@ public class ChartFactory {
         return finalLabel;
     }
 
-    /**
-     * Updates the chart context based on the details provided in the `ReportDataReceivedEvent`.
-     * <p>
-     * This method sets the `chartContext` field using the `getContextDescription` method,
-     * determining the context based on whether the event is related to a chain manager or a specific branch.
-     * </p>
-     *
-     * @param event The `ReportDataReceivedEvent` containing information about the employee type and branch.
-     */
-    private void updateChartContext(ReportDataReceivedEvent event) {
-        if (event.getEmployeeType() == CHAIN_MANAGER) {
-            this.chartContext = getContextDescription(ALL_BRANCHES); // Use existing method to get the description
-        } else if (event.getBranch() != null) {
-            this.chartContext = getContextDescription(event.getBranchName()); // Use existing method for branch context
-        } else {
-            this.chartContext = getContextDescription("Unknown Context"); // Use existing method for fallback context
-        }
-    }
-
     public BorderPane getChartBorderPane() {
         return chartBorderPane;
     }
@@ -613,5 +659,58 @@ public class ChartFactory {
     private void log(String message) {
         String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
         logger.info("[ChartFactory - " + methodName + "]: " + message);
+    }
+
+    /**
+     * Normalizes the product name by converting it to lowercase, replacing underscores with spaces,
+     * and trimming any leading or trailing whitespace.
+     *
+     * @param productName The original product name to be normalized.
+     * @return The normalized product name for case-insensitive comparison.
+     */
+    private String normalizeProductNameForCaseInsensitiveComparison(String productName) {
+        return productName.toLowerCase().replace('_', ' ').strip();
+    }
+
+    /**
+     * Logs the dataForGraphs map for each report in the list, useful for debugging and understanding the reports.
+     *
+     * @param reports The list of reports whose dataForGraphs maps should be printed.
+     */
+    private void logReportDataForGraphs(List<Report> reports) {
+        for (Report report : reports) {
+            System.out.println("Report Data for Graphs: " + report.getDataForGraphs());
+        }
+    }
+
+    /**
+     * Checks if a given report contains the normalized product name in its dataForGraphs map
+     * (case-insensitive check, considering underscores replaced by spaces).
+     *
+     * @param report The report to check.
+     * @param normalizedProductName The normalized product name to look for.
+     * @return True if the report contains the product, otherwise false.
+     */
+    private boolean doesReportContainNormalizedProductName(Report report, String normalizedProductName) {
+        return report.getDataForGraphs().keySet().stream()
+                .anyMatch(productKey -> normalizeProductNameForCaseInsensitiveComparison(productKey)
+                        .equals(normalizedProductName));
+    }
+
+    /**
+     * Extracts the value of the specified product from the report's dataForGraphs map
+     * (case-insensitive check, considering underscores replaced by spaces).
+     *
+     * @param report The report from which to extract the product value.
+     * @param normalizedProductName The normalized product name for which to extract the value.
+     * @return The value associated with the product in the report, or 0.0 if not found.
+     */
+    private double extractProductValueFromReportData(Report report, String normalizedProductName) {
+        return report.getDataForGraphs().entrySet().stream()
+                .filter(entry -> normalizeProductNameForCaseInsensitiveComparison(entry.getKey())
+                        .equals(normalizedProductName))
+                .mapToDouble(Map.Entry::getValue)
+                .findFirst()
+                .orElse(0.0);
     }
 }

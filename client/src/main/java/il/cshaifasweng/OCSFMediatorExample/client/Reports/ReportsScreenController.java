@@ -231,43 +231,23 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         }
     }
 
-    @Subscribe
-    public void onRefreshChartDataEvent(RefreshChartDataEvent event) {
-        if (!event.isEmpty()) {
-            updateChartWithData(event.getReports());
-        } else {
-            System.out.println("No reports available for the selected criteria.");
-        }
-    }
-
-    @Subscribe // is it necessery? bc dataReceived call it ..
-    public void updateChartWithData(List<Report> reports) {
-        Platform.runLater(() -> {
-            if (reports != null && !reports.isEmpty()) {
-//                logReceivedData(reports);
-
-                chartFactory.onReportDataReceived(new ReportDataReceivedEvent(reports, false, employee, employee.getBranch()));
-                String contextDescription = chartFactory.getContextDescription(chartContext);
-                System.out.println("updateChartWithData:" + contextDescription);
-                // Display the PieChart with the received data
-                chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
-            } else {
-                System.out.println("No data to display in chart.");
-            }
-        });
-    }
+    // Removed onRefreshChartDataEvent as it is no longer used
 
     @Subscribe
     public void dataReceived(MessageEvent event) {
+
         Message message = event.getMessage();
         String messageContent = message.getMessage();
         System.out.println("ReportsScreenController: dataReceived: Message received: " + messageContent);
 
         Platform.runLater(() -> {
             List<Report> reports = message.getReports();
+
             if (reports != null && !reports.isEmpty()) {
-//                logReceivedData(reports);
-                updateChartWithData(reports);
+                System.out.println("ReportsScreenController: dataReceived: " + "size of reports: " + reports.size() + "first  reprot: " + reports.getFirst().toString());
+                // Delegating everything to ChartFactory
+                chartFactory.updateChartWithReports(reports);
+
                 for (Report report : reports) {
                     if (report.getDataForGraphs() != null) {
                         // Populate the table using the dataForGraphs from each report
@@ -281,21 +261,21 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         });
     }
 
-    /**
-     * Handles events when the chart data is updated.
-     * <p>
-     * This method listens for {@link ChartDataUpdatedEvent} and triggers the update of the charts in the UI.
-     * </p>
-     *
-     * @param event The event that triggers the UI update.
-     */
-    @Subscribe
-    public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
-        System.out.println("ReportsScreenController: onChartDataUpdatedEvent Called");
-        String contextDescription = chartFactory.getContextDescription(event.getContextParameter());
-        chartFactory.prepareAndDisplayBarChart(contextDescription, event.getChartBorderPane());
-        chartFactory.prepareAndDisplayPieChart(contextDescription, event.getChartBorderPane());
-    }
+//    /**
+//     * Handles events when the chart data is updated.
+//     * <p>
+//     * This method listens for {@link ChartDataUpdatedEvent} and triggers the update of the charts in the UI.
+//     * </p>
+//     *
+//     * @param event The event that triggers the UI update.
+//     */
+//    @Subscribe
+//    public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
+//        System.out.println("ReportsScreenController: onChartDataUpdatedEvent Called");
+//        String contextDescription = chartFactory.getContextDescription(event.getContextParameter());
+//        chartFactory.prepareAndDisplayBarChart(contextDescription, event.getChartBorderPane());
+//        chartFactory.prepareAndDisplayPieChart(contextDescription, event.getChartBorderPane());
+//    }
 
     /**
      * Handles the action event triggered by the user to request report data from the server.

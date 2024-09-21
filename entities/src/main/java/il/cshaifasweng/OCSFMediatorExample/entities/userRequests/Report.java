@@ -289,4 +289,58 @@ public class Report implements Serializable {
             return new Report(this);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Report Details:\n");
+
+        // ID
+        sb.append("  ID: ").append(id).append("\n");
+
+        // Branch (customized details)
+        if (branch != null) {
+            sb.append("  Branch: [ID: ").append(branch.getId())
+                    .append(", Name: ").append(branch.getBranchName()).append("]\n");
+        } else {
+            sb.append("  Branch: N/A\n");
+        }
+
+        // Report Span Type
+        sb.append("  Report Span Type: ").append(reportSpanType != null ? reportSpanType.name() : "N/A").append("\n");
+
+        // Purchase Type
+        sb.append("  Purchase Type: ").append(purchaseType != null ? purchaseType.name() : "N/A").append("\n");
+
+        // Month
+        sb.append("  Month: ").append(month != null ? month.name() : "N/A").append("\n");
+
+        // Year
+        sb.append("  Year: ").append(year).append("\n");
+
+        // Report Date
+        sb.append("  Report Date: ").append(reportDate != null ? reportDate.toString() : "N/A").append("\n");
+
+        // Label
+        sb.append("  Label: ").append(label != null && !label.isEmpty() ? label : "N/A").append("\n");
+
+        // Details
+        sb.append("  Details: ").append(details != null && !details.isEmpty() ? details : "N/A").append("\n");
+
+        // Data for Graphs (Map)
+        sb.append("  Data for Graphs: ");
+        if (dataForGraphs != null && !dataForGraphs.isEmpty()) {
+            sb.append("\n");
+            dataForGraphs.forEach((key, value) -> sb.append("    ").append(key).append(": ").append(value).append("\n"));
+        } else {
+            sb.append("N/A\n");
+        }
+
+        // Serialized Report Data
+        sb.append("  Serialized Report Data: ")
+                .append(serializedReportData != null && !serializedReportData.isEmpty() ? serializedReportData : "N/A")
+                .append("\n");
+
+        return sb.toString();
+    }
 }
