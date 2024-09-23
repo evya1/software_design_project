@@ -3,7 +3,9 @@ package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
+import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
@@ -588,17 +590,49 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private void initializeBranchSelectionComboBoxBasedOnEmployeeType() {
-        if (employee != null && employee.getEmployeeType() == CHAIN_MANAGER) {
+        if (employee == null) {
+            branchSelectionComboBox.setVisible(false);
+            return;
+        }
+
+        // Check if the employee is a Chain Manager
+        if (employee.getEmployeeType() == CHAIN_MANAGER) {
+            // Chain Managers should see a list of branches
             ObservableList<String> comboBoxItems = branchSelectionComboBox.getItems();
             comboBoxItems.clear();
-            List<String> branchNames = new ArrayList<>();
-            branchNames.add(employee.getBranchInCharge().getBranchName());
+
+            // Fetch all branches
+            List<Branch> allBranches = DataCommunicationDB.getBranches();
+            if (allBranches == null || allBranches.isEmpty()) {
+                System.out.println("No branches available for chain manager.");
+                branchSelectionComboBox.setVisible(false);
+                return;
+            }
+
+            // Populate ComboBox with branch names
+            allBranches.stream().map(Branch::getBranchName).forEach(comboBoxItems::add);
             branchSelectionComboBox.setVisible(true);
-            resetComboBoxPromptAndValue(branchSelectionComboBox,
-                    DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH,
-                    branchNames.getFirst());
+
+            // Optionally set the first branch as the default
+            resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH, comboBoxItems.get(0));
+
+        } else if (employee.getEmployeeType() == BRANCH_MANAGER) {
+            // Branch Managers are tied to a specific branch
+            Branch assignedBranch = employee.getBranchInCharge();
+            if (assignedBranch != null) {
+                ObservableList<String> comboBoxItems = branchSelectionComboBox.getItems();
+                comboBoxItems.clear();
+                comboBoxItems.add(assignedBranch.getBranchName());
+                branchSelectionComboBox.setVisible(false);  // Not visible as they can't select
+            } else {
+                System.out.println("Branch Manager has no assigned branch.");
+                branchSelectionComboBox.setVisible(false);
+            }
+
         } else {
+            // For other employee types, hide the ComboBox
             branchSelectionComboBox.setVisible(false);
+            System.out.println("Employee has no branch-related access.");
         }
     }
 

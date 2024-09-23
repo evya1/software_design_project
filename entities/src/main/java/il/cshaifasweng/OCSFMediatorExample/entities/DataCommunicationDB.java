@@ -1371,12 +1371,24 @@ public class DataCommunicationDB {
         }
     }
 
-    // Method to save a Report to the database
     public void persistReport(Report report) {
         Session session = getSession();
-        session.beginTransaction();
-        session.merge(report);
-        session.getTransaction().commit();
+        try {
+            session.beginTransaction();
+
+            // If the branch is null (for example, for Chain Managers), set a placeholder branch
+            if (report.getBranch() == null) {
+                Branch placeholderBranch = new Branch();
+                placeholderBranch.setId(-1);  // Assign -1 to indicate no specific branch
+                report.setBranch(placeholderBranch);
+            }
+
+            session.merge(report);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            throw e;
+        }
     }
 
     // Method to fetch a report by its ID
@@ -1478,20 +1490,30 @@ public class DataCommunicationDB {
         // Define the base SQL query
         String sql = "SELECT * FROM purchase WHERE purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
 
-        // Extend the SQL query if the purchase type requires branch_id
-        if (purchaseType == MOVIE_TICKET) {
+        // Check if the query needs to filter by branch based on employee type
+        boolean isBranchManager = requestData.employee() != null &&
+                requestData.employee().getEmployeeType() == EmployeeType.BRANCH_MANAGER;
+
+        // Only branch managers should filter by branch ID
+        if (isBranchManager) {
             sql += " AND branch_id = :branchId";
         }
 
         int monthOrdinal = requestData.month().getValue();
 
+        // Create the query and set parameters
         var query = session.createNativeQuery(sql, Purchase.class)
-                .setParameter("purchaseType", purchaseType.name())  // Use .name() for enum name as in DB
+                .setParameter("purchaseType", purchaseType.name())
                 .setParameter("month", monthOrdinal);
 
-        // Only add branch_id parameter if necessary
-        if (purchaseType == MOVIE_TICKET) {
+        // Apply branch filtering only for branch managers
+        if (isBranchManager && requestData.branch() != null) {
+            System.out.println("Branch Manager - Applying branch filtering for branch ID: " + requestData.branch().getId());
             query.setParameter("branchId", requestData.branch().getId());
+        } else if (isBranchManager && requestData.branch() == null) {
+            System.out.println("Branch Manager - No branch assigned, skipping filtering.");
+        } else {
+            System.out.println("No branch filtering required for Chain Manager or other employee type.");
         }
 
         return query.getResultList();
