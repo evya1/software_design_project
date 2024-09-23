@@ -4,6 +4,7 @@ import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
@@ -31,6 +32,7 @@ import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.NEW_TICKETS;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.ALL_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
@@ -42,7 +44,6 @@ import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSp
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.*;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
-import static javafx.scene.control.Alert.AlertType.INFORMATION;
 
 public class ReportsScreenController implements ClientDependent, Initializable, AutoCloseable {
 
@@ -179,7 +180,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     private void handleShowChart(ActionEvent actionEvent, String chartType) {
         String contextDescription = chartFactory.getContextDescription(chartContext);
         if (BAR_CHART_TYPE.equals(chartType)) {
-            chartFactory.updateChartWithReports(reports);
+            chartFactory.refreshChartWithReportData(reports);
         } else if (PIE_CHART_TYPE.equals(chartType)) {
             chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
         }
@@ -237,48 +238,139 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     @Subscribe
     public void dataReceived(MessageEvent event) {
-
         Message message = event.getMessage();
         String messageContent = message.getMessage();
         System.out.println("ReportsScreenController: dataReceived: Message received: " + messageContent);
 
         Platform.runLater(() -> {
-            reports.clear();
+            if (reports == null) {
+                reports = new ArrayList<>();  // Initialize the reports list if it's null
+            }
+
+            reports.clear();  // Clear the list before adding new data
             reports = message.getReports();
 
             if (reports != null && !reports.isEmpty()) {
-                System.out.println("ReportsScreenController: dataReceived: " + "size of reports: " + reports.size() + "first  reprot: " + reports.getFirst().toString());
-                // Delegating everything to ChartFactory
-                chartFactory.updateChartWithReports(reports);
+                System.out.println("ReportsScreenController: dataReceived: " + "size of reports: " + reports.size() + " first report: " + reports.getFirst().toString());
+                chartFactory.refreshChartWithReportData(reports);
 
                 for (Report report : reports) {
                     if (report.getDataForGraphs() != null) {
-                        // Populate the table using the dataForGraphs from each report
                         populateTableWithDataForGraphs(report.getDataForGraphs());
                     }
                 }
             } else {
-                System.out.println("ReportsScreenController: dataReceived: No reports received.");
-                SimpleClient.showAlert(INFORMATION, "No Reports", messageContent);
+                System.out.println("ReportsScreenController: dataReceived: Received a message BUT No reports received.");
             }
         });
     }
 
-//    /**
-//     * Handles events when the chart data is updated.
-//     * <p>
-//     * This method listens for {@link ChartDataUpdatedEvent} and triggers the update of the charts in the UI.
-//     * </p>
-//     *
-//     * @param event The event that triggers the UI update.
-//     */
-//    @Subscribe
-//    public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
-//        System.out.println("ReportsScreenController: onChartDataUpdatedEvent Called");
-//        String contextDescription = chartFactory.getContextDescription(event.getContextParameter());
-//        chartFactory.prepareAndDisplayBarChart(contextDescription, event.getChartBorderPane());
-//        chartFactory.prepareAndDisplayPieChart(contextDescription, event.getChartBorderPane());
-//    }
+    @Subscribe
+    public void incrementAppropriateTableRow(MessageEvent event) {
+        Message message = event.getMessage();
+        String messageContent = message.getMessage();
+        System.out.println("ReportsScreenController: incrementAppropriateTableRow: Message received: " + messageContent);
+
+        if (!NEW_PURCHASE_MESSAGE.equals(messageContent)) {
+            return;  // Skip if the message is not a "New Purchase" message
+        }
+
+        Platform.runLater(() -> {
+            Purchase messagePurchase = message.getPurchase();
+            if (messagePurchase == null) {
+                System.out.println("ReportsScreenController: messagePurchase is null, skipping row update.");
+                return;
+            }
+
+            // Check if the purchase involves a branch (e.g., Movie Tickets have a branch, but Booklet/MovieLink do not)
+            boolean purchaseHasBranch = messagePurchase.getBranch() != null;
+            boolean branchIsTheSameAsNewPurchaseBranch = purchaseHasBranch &&
+                    employee.getBranch().getId() == messagePurchase.getBranch().getId();
+
+            boolean employeeIsChainManager = employee.getEmployeeType() == CHAIN_MANAGER;
+
+            if (branchIsTheSameAsNewPurchaseBranch || employeeIsChainManager || !purchaseHasBranch) {
+                // Normalize the purchase type from the message
+                String normalizedProductType = chartFactory.normalizeProductNameForCaseInsensitiveComparison(messagePurchase.getPurchaseType().toString());
+
+                // Extract local variables for better readability
+                String normalizedMovieTicket = chartFactory.normalizeProductNameForCaseInsensitiveComparison(MOVIE_TICKET.toString());
+                String normalizedBooklet = chartFactory.normalizeProductNameForCaseInsensitiveComparison(BOOKLET.toString());
+                String normalizedMovieLink = chartFactory.normalizeProductNameForCaseInsensitiveComparison(MOVIE_LINK.toString());
+
+                // Self-documenting variables for the comparison
+                boolean isPurchaseForMovieTicket = normalizedProductType.equals(normalizedMovieTicket);
+                boolean isPurchaseForBooklet = normalizedProductType.equals(normalizedBooklet);
+                boolean isPurchaseForMovieLink = normalizedProductType.equals(normalizedMovieLink);
+
+                // Check if the purchase is for Movie Tickets
+                if (isPurchaseForMovieTicket) {
+                    int purchasedAmount = message.getChosenSeats().size();
+                    incrementAppropriateTableRowOfMovieTicket(purchasedAmount);
+                    chartFactory.updateChartForSpecificPurchaseTypeAndAmount(MOVIE_TICKET, purchasedAmount);
+
+                    // Check if the purchase is for Booklet
+                } else if (isPurchaseForBooklet) {
+                    incrementAppropriateTableRowOfBooklet(DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+                    chartFactory.updateChartForSpecificPurchaseTypeAndAmount(BOOKLET, DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+
+                    // Check if the purchase is for Movie Link
+                } else if (isPurchaseForMovieLink) {
+                    incrementAppropriateTableRowOfMovieLink(DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+                    chartFactory.updateChartForSpecificPurchaseTypeAndAmount(MOVIE_LINK, DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+                }
+            }
+        });
+    }
+
+    private void incrementAppropriateTableRowOfBooklet(int amountOfPurchasedBooklets) {
+        for (ReportDataRow row : reportDataRows) {
+            String normalizedRowLabel = chartFactory.normalizeProductNameForCaseInsensitiveComparison(row.getLabel());
+            String normalizedBooklet = chartFactory.normalizeProductNameForCaseInsensitiveComparison(BOOKLET.toString());
+
+            if (normalizedRowLabel.equals(normalizedBooklet)) {
+                Double updatedAmount = row.getAmount() + amountOfPurchasedBooklets;
+                row.setAmount(updatedAmount);
+                table.refresh();
+                break;
+            }
+        }
+    }
+
+    private void incrementAppropriateTableRowOfMovieLink(int amountOfPurchasedMovieLinks) {
+        for (ReportDataRow row : reportDataRows) {
+            String normalizedRowLabel = chartFactory.normalizeProductNameForCaseInsensitiveComparison(row.getLabel());
+            String normalizedMovieLink = chartFactory.normalizeProductNameForCaseInsensitiveComparison(MOVIE_LINK.toString());
+
+            if (normalizedRowLabel.equals(normalizedMovieLink)) {
+                Double updatedAmount = row.getAmount() + amountOfPurchasedMovieLinks;
+                row.setAmount(updatedAmount);
+                table.refresh();
+                break;
+            }
+        }
+    }
+
+    private void incrementAppropriateTableRowOfMovieTicket(int amountOfPurchasedTickets) {
+        for (ReportDataRow row : reportDataRows) {
+            String rowLabel = row.getLabel();
+            System.out.println("incrementAppropriateTableRowOfMovieTicket: " + rowLabel + " and MOVIE_TICKET is " + MOVIE_TICKET);
+
+            // Normalize both strings by replacing spaces and underscores, then convert to lowercase
+            boolean areEqual = rowLabel.replaceAll("[_ ]", "").equalsIgnoreCase(MOVIE_TICKET.toString().replaceAll("[_ ]", ""));
+            if (areEqual) {
+                System.out.println("The strings are equal!");
+
+                // Directly set the new amount for the row
+                Double updatedAmount = row.getAmount() + amountOfPurchasedTickets;
+                row.setAmount(updatedAmount);  // This should trigger the UI update if the amount is observable
+
+                // Optionally, force table refresh (though usually not needed with observable properties)
+                table.refresh();
+                break;
+            }
+        }
+    }
 
     /**
      * Handles the action event triggered by the user to request report data from the server.

@@ -21,8 +21,11 @@ import org.hibernate.query.Query;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.*;
 
 public class NewPurchaseHandler implements RequestHandler {
@@ -48,9 +51,10 @@ public class NewPurchaseHandler implements RequestHandler {
             PriceConstants price = DataCommunicationDB.getPrices();
             // Checking if the request is to create a new purchase.
             if ("New Booklet".equals(message.getMessage())) {
-                handleNewPurchase(message, PurchaseType.BOOKLET, session, price);
+                handleNewPurchase(message, BOOKLET, session, price);
+
             } else if ("New Movielink".equals(message.getMessage().toString())) {
-                handleNewPurchase(message, PurchaseType.MOVIE_LINK, session, price);
+                handleNewPurchase(message, MOVIE_LINK, session, price);
 
             } else if ("New Movie Ticket".equals(message.getMessage().toString())) {
                 if (message.getChosenSeats() == null || message.getChosenSeats().isEmpty()) {
@@ -59,14 +63,16 @@ public class NewPurchaseHandler implements RequestHandler {
                     return;
                 }
                 int size = message.getChosenSeats().size();
+                answer.setChosenSeats(new ArrayList<>(message.getChosenSeats()));
                 for (int i = 0; i < size; i++) {
                     System.out.println("The current num of seats are : " + i);
-                    handleNewPurchase(message, PurchaseType.MOVIE_TICKET, session, price);
+                    handleNewPurchase(message, MOVIE_TICKET, session, price);
                 }
             }
 
             answer.setData(message.getPurchase().getPurchaseType().toString());
             answer.setPurchase(message.getPurchase());
+            server.sendToAllClients(answer);
             client.sendToClient(answer);
 
             if ("New Movie Ticket".equals(message.getMessage().toString())) {
@@ -188,11 +194,11 @@ public class NewPurchaseHandler implements RequestHandler {
 
 
             // Log for checking IDs
-            if (purchaseType == PurchaseType.BOOKLET) {
+            if (purchaseType == BOOKLET) {
                 System.out.println("New booklet created with ID: " + purchase.getPurchasedBooklet().getId());
-            } else if (purchaseType == PurchaseType.MOVIE_LINK) {
+            } else if (purchaseType == MOVIE_LINK) {
                 System.out.println("New movie link created with ID: " + purchase.getPurchasedMovieLink().getId());
-            } else if (purchaseType == PurchaseType.MOVIE_TICKET) {
+            } else if (purchaseType == MOVIE_TICKET) {
                 System.out.println("New movie ticket created with ID: " + purchase.getPurchasedMovieTicket().getId());
             }
 
@@ -298,6 +304,7 @@ public class NewPurchaseHandler implements RequestHandler {
                 session.save(movieTicket);
                 System.out.println("The current movie ticket: " + movieTicket.getId());
                 purchase.setPurchasedMovieTicket(movieTicket);
+                purchase.setBranch(localMessage.getMovieSlot().getBranch());
 
                 System.out.println("this is the current purchase: " + purchase.getPurchasedMovieTicket().getId());
                 break;

@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -46,56 +47,91 @@ public class ChartFactory {
         EventBus.getDefault().register(this);
     }
 
-//    @Subscribe
-//    public void onReportDataReceived(ReportDataReceivedEvent event) {
-//        log("onReportDataReceived called.");
-//
-//        List<Report> reports = event.getReports();
-//        if (reports == null || reports.isEmpty()) {
-//            log("No reports received, using default chart data.");
-//            updateExistingChart(chartBorderPane, createGenericChartData());
-//        } else {
-//            log("Reports received, converting to chart data...");
-//            List<Pair<String, Double>> newChartData = convertReportsToChartData(reports);
-//            updateExistingChart(chartBorderPane, newChartData);
-//        }
-//    }
+    public void updateChartForSpecificPurchaseTypeAndAmount(PurchaseType purchaseType, int purchasedItemCount) {
+        System.out.println("ChartFactory: updateChartForSpecificPurchaseTypeAndAmount: PurchaseType = " + purchaseType + ", Amount = " + purchasedItemCount);
 
-    public void  updateChartWithReports(List<Report> reports) {
-        List<Pair<String, Double>> newChartData;
-        if (reports == null || reports.isEmpty()) {
-            newChartData = createGenericChartData();  // Use generic data if no reports are available
-        } else {
-            newChartData = convertReportsToChartData(reports);  // Convert reports to chart data
+        // Normalize the purchase type name for consistent string comparison
+        String normalizedPurchaseTypeName = normalizeProductNameForCaseInsensitiveComparison(purchaseType.name());
+        ObservableList<Pair<String, Double>> currentChartDataList = this.chartData;
+        boolean existingEntryFoundAndUpdated = false;
+
+        // Iterate through the current chart data to find a matching entry
+        for (int index = 0; index < currentChartDataList.size(); index++) {
+            Pair<String, Double> currentChartEntry = currentChartDataList.get(index);
+            String normalizedKey = normalizeProductNameForCaseInsensitiveComparison(currentChartEntry.getKey());
+
+            // Create a boolean variable with a self-documenting name for the guard condition
+            boolean isNormalizedPurchaseTypeMatchingChartEntry = normalizedKey.equals(normalizedPurchaseTypeName);
+
+            if (isNormalizedPurchaseTypeMatchingChartEntry) {
+                // Update the value for the matching purchase type
+                System.out.println("ChartFactory: updateChartForSpecificPurchaseTypeAndAmount: Found matching entry. Updating value...");
+                currentChartDataList.set(index, new Pair<>(currentChartEntry.getKey(), currentChartEntry.getValue() + purchasedItemCount));
+                existingEntryFoundAndUpdated = true;
+                break;
+            }
         }
 
-        Node currentChart = chartBorderPane.getCenter();
-        System.out.println("chartFactory: updateChartWithReports: " + newChartData);  // Debug print for new chart data
-
-        if (currentChart instanceof PieChart) {
-            // Update the existing PieChart with the new data
-            updateChartWithNewData((PieChart) currentChart, convertToPieChartData(newChartData));
-        } else {
-            // Create and display a new PieChart with the updated data
-            prepareAndDisplayPieChart("Updated Data", chartBorderPane);  // Set context for updated chart
+        // If no existing entry was found, add a new one for this purchase type
+        if (!existingEntryFoundAndUpdated) {
+            System.out.println("ChartFactory: updateChartForSpecificPurchaseTypeAndAmount: No existing entry found. Adding new entry for: " + normalizedPurchaseTypeName);
+            currentChartDataList.add(new Pair<>(normalizedPurchaseTypeName, (double) purchasedItemCount));
         }
+
+        // Update and refresh the chart with the updated data
+        refreshAndUpdateChartWithCurrentData(chartBorderPane, currentChartDataList);
+        System.out.println("ChartFactory: updateChartForSpecificPurchaseTypeAndAmount: Chart updated for PurchaseType = " + purchaseType + ".");
     }
 
-    private <T extends Chart> void updateChartWithNewData(T chart, ObservableList<?> newChartData) {
-        if (chart instanceof PieChart) {
-            PieChart pieChart = (PieChart) chart;
+    private List<Pair<String, Double>> prepareChartDataFromReportEntities(List<Report> reportEntityList) {
+        // Check if report data is null or empty, and use generic data if so
+        if (reportEntityList == null || reportEntityList.isEmpty()) {
+            return createGenericChartData();  // Use generic chart data when no reports are provided
+        }
+        // Convert report entities into chart data
+        return convertReportsToChartData(reportEntityList);
+    }
+
+    public void refreshChartWithReportData(List<Report> reportEntityList) {
+        System.out.println("ChartFactory: refreshChartWithReportData: Received " + reportEntityList.size() + " reports.");
+        if (reportEntityList.isEmpty()) {
+            System.out.println("ChartFactory: refreshChartWithReportData: No reports provided. Using default chart data.");
+        }
+
+        List<Pair<String, Double>> newChartData = prepareChartDataFromReportEntities(reportEntityList);
+
+        System.out.println("ChartFactory: refreshChartWithReportData: Prepared chart data: " + newChartData);
+        refreshAndUpdateChartWithCurrentData(chartBorderPane, FXCollections.observableArrayList(newChartData));
+
+        System.out.println("ChartFactory: refreshChartWithReportData: Chart refreshed with new report data.");
+    }
+
+    private <T extends Chart> void updateChartWithNewData(T chartToUpdate, ObservableList<?> newChartData) {
+        if (chartToUpdate instanceof PieChart) {
+            PieChart pieChart = (PieChart) chartToUpdate;
             pieChart.getData().clear();  // Clear existing data
-            pieChart.setData((ObservableList<PieChart.Data>) newChartData);  // Set new data
-            pieChart.setLabelsVisible(true);  // Ensure labels are visible
-            pieChart.layout();  // Force layout refresh
-        } else if (chart instanceof BarChart) {
-            BarChart<String, Number> barChart = (BarChart<String, Number>) chart;
+
+            // Convert the data from Pair<String, Double> to PieChart.Data
+            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+            for (Object entry : newChartData) {
+                Pair<String, Double> pair = (Pair<String, Double>) entry;
+                pieChartData.add(new PieChart.Data(pair.getKey(), pair.getValue()));
+            }
+
+            pieChart.setData(pieChartData);  // Set new data
+            pieChart.setLabelsVisible(true);  // Make sure labels are visible
+            pieChart.layout();  // Force layout refresh to display changes
+        } else if (chartToUpdate instanceof BarChart) {
+            BarChart<String, Number> barChart = (BarChart<String, Number>) chartToUpdate;
             barChart.getData().clear();  // Clear existing data
+
+            // Assuming newChartData is a List of XYChart.Data<String, Number>
             XYChart.Series<String, Number> dataSeries = new XYChart.Series<>((ObservableList<XYChart.Data<String, Number>>) newChartData);
             barChart.getData().add(dataSeries);  // Set new data
-            barChart.layout();  // Force layout refresh
+            barChart.layout();  // Force layout refresh to display changes
         } else {
-            log("Unsupported chart type for data update.");
+            // Log unsupported chart type for the data update
+            System.out.println("Unsupported chart type for updating with new data.");
         }
     }
 
@@ -240,16 +276,18 @@ public class ChartFactory {
         return convertToChartData(this.chartData, mapper);
     }
 
-    // Convert list of Pair<String, Double> to BarChart data
     public ObservableList<XYChart.Data<String, Number>> convertToBarChartData(List<Pair<String, Double>> chartData) {
-        return convertToChartData(chartData, pair -> new XYChart.Data<>(pair.getKey(), pair.getValue()));
+        return FXCollections.observableArrayList(
+                chartData.stream()
+                        .map(pair -> new XYChart.Data<>(pair.getKey(), (Number) pair.getValue()))  // Cast Double to Number
+                        .collect(Collectors.toList())
+        );
     }
 
-    // Convert list of Pair<String, Double> to PieChart data with proper labels
     public ObservableList<PieChart.Data> convertToPieChartData(List<Pair<String, Double>> chartData) {
         return FXCollections.observableArrayList(
                 chartData.stream()
-                        .map(pair -> new PieChart.Data(pair.getKey(), pair.getValue()))  // Set the label (key) and value
+                        .map(pair -> new PieChart.Data(pair.getKey(), pair.getValue()))  // Convert Pair<String, Double> to PieChart.Data
                         .collect(Collectors.toList())
         );
     }
@@ -483,12 +521,12 @@ public class ChartFactory {
         log("BarChart data populated and displayed.");
     }
 
-    private <T extends Chart> void updateChart(T chart, List<Pair<String, Double>> newChartData) {
+    private <T extends Chart> void updateChart(T chart, ObservableList<Pair<String, Double>> newChartData) {
         ObservableList<?> chartData;
-        if (chart instanceof BarChart) {
-            chartData = convertToBarChartData(newChartData);
-        } else if (chart instanceof PieChart) {
-            chartData = convertToPieChartData(newChartData);
+        if (chart instanceof PieChart) {
+            chartData = convertToPieChartData(FXCollections.observableArrayList(newChartData));  // Casting back to List if needed
+        } else if (chart instanceof BarChart) {
+            chartData = convertToBarChartData(FXCollections.observableArrayList(newChartData));  // Casting back to List if needed
         } else {
             log("Unsupported chart type for updating chart.");
             return;
@@ -496,12 +534,17 @@ public class ChartFactory {
         updateChartWithNewData(chart, chartData);
     }
 
-    private void updateExistingChart(BorderPane chartBorderPane, List<Pair<String, Double>> newChartData) {
-        Node currentChart = chartBorderPane.getCenter();
-        if (currentChart instanceof Chart) {
-            updateChart((Chart) currentChart, newChartData);
+    private void refreshAndUpdateChartWithCurrentData(BorderPane chartDisplayPane, ObservableList<Pair<String, Double>> updatedChartDataList) {
+        // Get the current chart from the display pane (either BarChart or PieChart)
+        Node existingChartNode = chartDisplayPane.getCenter();
+
+        // Check the type of chart and update accordingly
+        if (existingChartNode instanceof Chart chartToUpdate) {
+            // Cast the node to a Chart and update its data
+            updateChartWithNewData(chartToUpdate, updatedChartDataList);
         } else {
-            log("No chart found in the BorderPane.");
+            // Log that no chart was found in the center of the BorderPane
+            System.out.println("No existing chart found in the BorderPane to update.");
         }
     }
 
@@ -674,7 +717,7 @@ public class ChartFactory {
      * @param productName The original product name to be normalized.
      * @return The normalized product name for case-insensitive comparison.
      */
-    private String normalizeProductNameForCaseInsensitiveComparison(String productName) {
+    public String normalizeProductNameForCaseInsensitiveComparison(String productName) {
         return productName.toLowerCase().replace('_', ' ').strip();
     }
 

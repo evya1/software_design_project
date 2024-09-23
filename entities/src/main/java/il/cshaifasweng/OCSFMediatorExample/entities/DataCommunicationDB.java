@@ -30,6 +30,8 @@ import java.util.*;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.COMPLAINT_STATUS_CLOSED;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.COMPLAINT_STATUS_OPEN;
 import static java.time.Month.*;
 
 public class DataCommunicationDB {
@@ -250,12 +252,12 @@ public class DataCommunicationDB {
             Complaint comp3 = new Complaint("not good movie", "the dark knight is not as i expected",
                     LocalDateTime.now(), "Open", BOOKLET, "000000001", customer4, -1);
             Complaint comp4 = new Complaint("bad booklet", "the booklet is not working and i cant use it",
-                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
+                    LocalDateTime.now(), COMPLAINT_STATUS_CLOSED, BOOKLET, "888888888", customer3, -1);
             Complaint comp5 = new Complaint("link corrupt", "the stream stops in the middle ",
-                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
+                    LocalDateTime.now(), COMPLAINT_STATUS_OPEN, BOOKLET, "888888888", customer3, -1);
             Complaint comp6 = new Complaint("link corrupt", "the stream stops in the middle ",
-                    LocalDateTime.now(), "Open", BOOKLET, "345345345", customer2, -1);
-            List<Complaint> complaints = Arrays.asList(comp1, comp2, comp3, comp4, comp5, comp6);
+                    LocalDateTime.now(), COMPLAINT_STATUS_OPEN, BOOKLET, "345345345", customer2, -1);
+            List<Complaint> complaints = Arrays.asList(comp, comp1, comp2, comp3, comp4, comp5, comp6);
             for (Complaint complaint : complaints) {
                 session.save(complaint);
             }
@@ -265,6 +267,7 @@ public class DataCommunicationDB {
             session.save(prices);
 
             // Create 3 Branches
+
             String[] branchNames = {"Johns Cinema", "General Bay Cinema", "Selection Cinema"};
             Movie[][] branchMovies = {
                     {movie1, movie2}, // Johns Cinema
@@ -282,8 +285,8 @@ public class DataCommunicationDB {
                 branchManager.setEmail("manager" + (i + 1) + "@branch.com");
                 branchManager.setFirstName("Manager" + (i + 1));
                 branchManager.setLastName("Branch " + (i + 1));
-                branchManager.setUsername("manager" + (i + 1));
-                branchManager.setPassword("password" + (i + 1));
+                branchManager.setUsername("bm" + (i + 1));
+                branchManager.setPassword("" + (i + 1));
                 session.save(branchManager);
 
                 branch.setBranchManager(branchManager);
@@ -422,6 +425,68 @@ public class DataCommunicationDB {
             session.save(customer1);
             session.flush();
 
+
+            session.getTransaction().commit();
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
+    public static void createAndAssignMovieTicketsToCustomers() throws Exception {
+        try {
+            session.beginTransaction();
+            Random random = new Random();
+
+            // Create movie tickets for branch id 1 ("Johns Cinema")
+            MovieTicket ticket1 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 2, 1, 1, session.get(MovieSlot.class, 24));
+            MovieTicket ticket2 = new MovieTicket(session.get(Movie.class, 2), session.get(Branch.class, 1), "The Matrix", "Johns Cinema", 1, 1, 1, session.get(MovieSlot.class, 11));
+            MovieTicket ticket5 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 1, 2, 1, session.get(MovieSlot.class, 5));
+
+            // 3 additional tickets for "Johns Cinema" (branch id 1)
+            MovieTicket ticket6 = new MovieTicket(session.get(Movie.class, 6), session.get(Branch.class, 1), "Pulp Fiction", "Johns Cinema", 3, 2, 1, session.get(MovieSlot.class, 35));
+            MovieTicket ticket7 = new MovieTicket(session.get(Movie.class, 5), session.get(Branch.class, 1), "Fight Club", "Johns Cinema", 2, 2, 1, session.get(MovieSlot.class, 42));
+            MovieTicket ticket8 = new MovieTicket(session.get(Movie.class, 7), session.get(Branch.class, 1), "Forrest Gump", "Johns Cinema", 4, 2, 1, session.get(MovieSlot.class, 55));
+
+            // Create movie tickets for branch id 2 ("General Bay Cinema")
+            MovieTicket ticket3 = new MovieTicket(session.get(Movie.class, 3), session.get(Branch.class, 2), "Interstellar", "General Bay Cinema", 5, 1, 1, session.get(MovieSlot.class, 90));
+            MovieTicket ticket4 = new MovieTicket(session.get(Movie.class, 4), session.get(Branch.class, 2), "The Dark Knight", "General Bay Cinema", 4, 2, 1, session.get(MovieSlot.class, 76));
+
+            // 3 additional tickets for "General Bay Cinema" (branch id 2)
+            MovieTicket ticket9 = new MovieTicket(session.get(Movie.class, 8), session.get(Branch.class, 2), "The Shawshank Redemption", "General Bay Cinema", 1, 2, 1, session.get(MovieSlot.class, 101));
+            MovieTicket ticket10 = new MovieTicket(session.get(Movie.class, 9), session.get(Branch.class, 2), "Gladiator", "General Bay Cinema", 3, 2, 1, session.get(MovieSlot.class, 115));
+            MovieTicket ticket11 = new MovieTicket(session.get(Movie.class, 10), session.get(Branch.class, 2), "The Godfather", "General Bay Cinema", 5, 2, 1, session.get(MovieSlot.class, 120));
+
+            // Save all tickets to the database
+            List<MovieTicket> tickets = Arrays.asList(ticket1, ticket2, ticket3, ticket4, ticket5, ticket6, ticket7, ticket8, ticket9, ticket10, ticket11);
+            for (MovieTicket ticket : tickets) {
+                session.save(ticket);
+            }
+
+            // Assign tickets to new or existing customers
+            Customer newCustomer1 = new Customer("Sarah", "Connor", "sconnor@gmail.com", "987654321", new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
+            Customer newCustomer2 = new Customer("Kyle", "Reese", "kyle@gmail.com", "876543210", new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
+
+            session.save(newCustomer1);
+            session.save(newCustomer2);
+
+            // Assign tickets to customers
+            assignTicketToCustomer(newCustomer1, ticket1, session);
+            assignTicketToCustomer(newCustomer2, ticket2, session);
+            assignTicketToCustomer(session.get(Customer.class, 3), ticket3, session);
+            assignTicketToCustomer(session.get(Customer.class, 4), ticket4, session);
+            assignTicketToCustomer(newCustomer1, ticket5, session);
+
+            // Assign additional tickets to customers
+            assignTicketToCustomer(newCustomer1, ticket6, session);
+            assignTicketToCustomer(newCustomer2, ticket7, session);
+            assignTicketToCustomer(session.get(Customer.class, 3), ticket8, session);
+            assignTicketToCustomer(session.get(Customer.class, 4), ticket9, session);
+            assignTicketToCustomer(newCustomer1, ticket10, session);
+            assignTicketToCustomer(newCustomer2, ticket11, session);
 
             session.getTransaction().commit();
         } catch (Exception exception) {
