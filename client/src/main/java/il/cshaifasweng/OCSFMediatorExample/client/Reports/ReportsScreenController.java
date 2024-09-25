@@ -3,7 +3,6 @@ package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
-import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
@@ -11,9 +10,8 @@ import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseTyp
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
-import javafx.collections.FXCollections;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -34,7 +33,8 @@ import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
 
-import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.NEW_TICKETS;
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.BRANCH_THEATER_INFORMATION;
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.ALL_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
@@ -43,7 +43,8 @@ import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.*;
-import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.ALL_REPORT_TYPE;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.REPORT_TYPE_A;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 
@@ -107,12 +108,14 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      */
     private Object chartContext;
     private List<Report> reports;
+    private ObservableList<String> branchList;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         EventBus.getDefault().register(this);
         reports = new ArrayList<>();
+        branchList = FXCollections.observableArrayList();
 
         initializeUIComponents();
 
@@ -454,16 +457,20 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     void getReport(ActionEvent event) {
         if (isNotInitialized(requestHandler, ERROR_MESSAGE_REQUEST_HANDLER_NOT_INITIALIZED)) return;
 
-        // Extracted local variables
+        // Extract relevant fields for the report request
         ReportType typeOfReport = getSelectedReportType();
-        String branch = getSelectedBranch();
+        String branch = getSelectedBranch();  // Ensure this fetches the correct branch
         LocalDate selectedDate = getSelectedDate();
         ReportSpanType spanType = getSelectedSpanType();
         PurchaseType purchaseType = getPurchasableTypes();
         int year = getSelectedYear(selectedDate);
         Month month = getSelectedMonth(selectedDate);
 
-        // Build RequestData using MessageUtilForReports
+        // Ensure branch is assigned for Branch Managers
+        if (employee.getEmployeeType() == BRANCH_MANAGER && employee.getBranchInCharge() != null) {
+            branch = employee.getBranchInCharge().getBranchName();
+        }
+
         RequestData requestData = MessageUtilForReports.buildRequestData(
                 getOperationType(spanType),
                 typeOfReport,
@@ -474,13 +481,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
                 month
         );
 
-        System.out.println(requestData);
-//        RequestData[requestType=Fetch Monthly Reports, reportType=All Reports, employee=ID: 5 Manager1 Branch 1, branch=Johns Cinema, reportSpanType=Monthly, month=SEPTEMBER, year=2024, purchaseType=All Types, label=Default Label, details=Default Details, dataForGraphs={}, serializedReportData=]
-//        RequestData[requestType=Fetch Monthly Reports, reportType=Sales Report, employee=ID: 5 Manager1 Branch 1, branch=Johns Cinema, reportSpanType=Monthly, month=SEPTEMBER, year=2024, purchaseType=Movie Ticket, label=Default Label, details=Default Details, dataForGraphs={}, serializedReportData=]
-
-        // Send the request
         requestHandler.sendRequest(requestData);
-
         System.out.println("Report request sent with type: " + typeOfReport + ", span: " + spanType + ", branch: " + branch + ", date: " + selectedDate);
     }
 
@@ -595,44 +596,47 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
             return;
         }
 
-        // Check if the employee is a Chain Manager
         if (employee.getEmployeeType() == CHAIN_MANAGER) {
-            // Chain Managers should see a list of branches
-            ObservableList<String> comboBoxItems = branchSelectionComboBox.getItems();
-            comboBoxItems.clear();
-
-            // Fetch all branches
-            List<Branch> allBranches = DataCommunicationDB.getBranches();
-            if (allBranches == null || allBranches.isEmpty()) {
-                System.out.println("No branches available for chain manager.");
-                branchSelectionComboBox.setVisible(false);
-                return;
-            }
-
-            // Populate ComboBox with branch names
-            allBranches.stream().map(Branch::getBranchName).forEach(comboBoxItems::add);
-            branchSelectionComboBox.setVisible(true);
-
-            // Optionally set the first branch as the default
-            resetComboBoxPromptAndValue(branchSelectionComboBox, DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH, comboBoxItems.get(0));
-
-        } else if (employee.getEmployeeType() == BRANCH_MANAGER) {
-            // Branch Managers are tied to a specific branch
-            Branch assignedBranch = employee.getBranchInCharge();
-            if (assignedBranch != null) {
-                ObservableList<String> comboBoxItems = branchSelectionComboBox.getItems();
-                comboBoxItems.clear();
-                comboBoxItems.add(assignedBranch.getBranchName());
-                branchSelectionComboBox.setVisible(false);  // Not visible as they can't select
-            } else {
-                System.out.println("Branch Manager has no assigned branch.");
-                branchSelectionComboBox.setVisible(false);
-            }
-
-        } else {
-            // For other employee types, hide the ComboBox
+            System.out.println("Chain Manager detected. Requesting branches from the server.");
+            Message msg = new Message();
+            msg.setMessage(BRANCH_THEATER_INFORMATION);
+            msg.setData(GET_BRANCHES);
+            client.sendMessage(msg);
+        } else if (employee.getEmployeeType() == BRANCH_MANAGER && employee.getBranchInCharge() != null) {
+            branchList.clear();
+            branchList.add(employee.getBranchInCharge().getBranchName());
             branchSelectionComboBox.setVisible(false);
-            System.out.println("Employee has no branch-related access.");
+        } else {
+            branchSelectionComboBox.setVisible(false);
+        }
+    }
+
+    @Subscribe
+    public void onBranchesReceived(MessageEvent event) {
+        Message message = event.getMessage();
+        if (message.equals(BRANCH_THEATER_INFORMATION)) {
+            List<Branch> allBranches = message.getBranches();
+
+            if (allBranches != null && !allBranches.isEmpty()) {
+                // Handle branch list on the JavaFX thread
+                Platform.runLater(() -> {
+                    branchList.clear();
+
+
+                    allBranches.stream()
+                            .filter(Objects::nonNull)
+                            .map(Branch::getBranchName)
+                            .forEach(branchList::add);
+
+                    // Make the combo box visible only if there are branches to display
+                    branchSelectionComboBox.setVisible(true);
+                });
+            } else {
+                branchSelectionComboBox.setVisible(false); // Hide if no branches
+            }
+
+            System.out.println("Received " + branchList.size());
+
         }
     }
 
@@ -955,5 +959,9 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+    }
+
+    public void setBranchList(ObservableList<String> branchList) {
+        this.branchList = branchList;
     }
 }
