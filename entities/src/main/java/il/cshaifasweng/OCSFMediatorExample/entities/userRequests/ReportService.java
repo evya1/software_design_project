@@ -1,8 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.entities.userRequests;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Strategies.*;
 
 import java.time.Month;
@@ -107,21 +106,19 @@ public class ReportService {
 
     public List<Report> retrieveReportsByBranchAndMonth(Month month, RequestData requestData) {
 
-//        // Retrieve the reports based on branch and month from the database
-//        // the line below can be removed if i want to make each time a report..
-//        List<Report> retrievedReports = db.retrieveReportsForBranchAndMonth(month, requestData);
-//
-//        // If no existing reports are found, create and persist a new report
-//        if (retrievedReports.isEmpty()) {
-//            Report newReport = createAndPersistReport(requestData);
-//            retrievedReports.add(newReport);
-//        }
-
         List<Report> retrievedReports = new ArrayList<>();
 
         Report newReport = createAndPersistReport(requestData);
         retrievedReports.add(newReport);
 
         return retrievedReports;
+    }
+
+    public List<Complaint> retrieveAllComplaints() {
+        return db.fetchAllComplaints();
+    }
+
+    public List<Purchase> retrieveAllPurchases() {
+        return db.fetchAllPurchases();
     }
 }

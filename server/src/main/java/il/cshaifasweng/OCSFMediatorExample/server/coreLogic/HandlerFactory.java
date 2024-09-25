@@ -42,8 +42,11 @@ public class HandlerFactory {
         handlers.put(RequestTypes.EMPLOYEE_INFORMATION, new EmployeeModificationHandler(server));
         handlers.put(RequestTypes.UPDATE_PURCHASE, new UpdatePurchaseHandler());
         // Register report request handlers
+        handlers.put(FETCH_DAILY_REPORTS, new ReportsRequestHandler(reportService));
         handlers.put(FETCH_MONTHLY_REPORTS, new ReportsRequestHandler(reportService));
         handlers.put(FETCH_LAST_QUARTER_REPORT, new ReportsRequestHandler(reportService));
+        handlers.put(FETCH_ALL_REPORTS, new ReportsRequestHandler(reportService));
+        handlers.put(FETCH_PURCHASES_AND_COMPLAINTS, new ReportsRequestHandler(reportService));
     }
 
     public static synchronized HandlerFactory getInstance(SimpleServer server, ReportService reportService) {

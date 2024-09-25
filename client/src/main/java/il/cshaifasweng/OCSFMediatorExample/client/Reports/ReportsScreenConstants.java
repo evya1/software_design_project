@@ -88,4 +88,21 @@ public class ReportsScreenConstants {
     public static final String NEW_PURCHASE_MESSAGE = "New Purchase";
     public static final int DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK = 1;
 
+    public static final String PURCHASE_SERIES_NAME = "Purchases";
+    public static final String COMPLAINT_SERIES_NAME = "Complaints";
+    public static final String DATE_FORMAT_PATTERN = "MM-dd";
+
+    // Chart label style constants
+    public static final String CHART_LABEL_CSS_CLASS = "chart-data-label";
+
+    // Label offsets for positioning above bars
+    public static final double LABEL_HORIZONTAL_OFFSET_RATIO = 0.5; // Center horizontally
+    public static final double LABEL_VERTICAL_OFFSET_RATIO = 0.5; // Move vertically by this ratio
+
+    // Chart label layout ratios (for centering labels correctly)
+    public static final double LABEL_CENTERING_X_RATIO = 2.0; // Used to calculate the center horizontally
+    public static final double LABEL_CENTERING_Y_RATIO = 0.5; // Vertical positioning adjustment
+
+    // Chart label font size
+    public static final String CHART_LABEL_FONT_SIZE = "12"; // Font size for labels
 }

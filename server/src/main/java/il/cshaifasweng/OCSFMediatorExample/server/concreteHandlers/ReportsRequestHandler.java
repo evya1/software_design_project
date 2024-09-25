@@ -2,7 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.DataCommunicationDB;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
@@ -38,6 +38,8 @@ public class ReportsRequestHandler implements RequestHandler {
                 case FETCH_LAST_QUARTER_REPORT:
                     handleQuarterlyReports(requestData, client);
                     break;
+                case FETCH_PURCHASES_AND_COMPLAINTS:
+                    handlePurchasesAndComplaints(client);
                 // Add more cases for different report types
                 default:
                     client.sendToClient(MessageUtilForReports.createErrorMessage(INVALID_REPORT_REQUEST));
@@ -48,6 +50,25 @@ public class ReportsRequestHandler implements RequestHandler {
             System.err.println("Error handling report request: " + e.getMessage());
             e.printStackTrace();
             client.sendToClient(MessageUtilForReports.createErrorMessage("An error occurred while processing the report request."));
+        }
+    }
+
+    private void handlePurchasesAndComplaints(ConnectionToClient client) throws IOException {
+        try {
+            // Fetch purchases and complaints from the database using the ReportService
+            List<Purchase> purchases = reportService.retrieveAllPurchases();
+            List<Complaint> complaints = reportService.retrieveAllComplaints();
+
+            // Create a Message with both purchases and complaints and send it to the client
+            Message msg = new Message();
+            msg.setPurchases(purchases);
+            msg.setComplaints(complaints);
+            client.sendToClient(msg);
+
+        } catch (Exception e) {
+            System.err.println("Error retrieving purchases and complaints: " + e.getMessage());
+            e.printStackTrace();
+            client.sendToClient(MessageUtilForReports.createErrorMessage("Failed to retrieve purchases and complaints."));
         }
     }
 

@@ -34,7 +34,8 @@ public final class ReportOperationTypes {
 
     public static final String COMPLAINT_STATUS_OPEN = "Open";
     public static final String COMPLAINT_STATUS_CLOSED = "Closed";
-    public static final String PURCHASE_TYPE_UNKNOWN = "Unknown";
+    public static final String PURCHASE_TYPE_UNKNOWN = "All Products";
+    public static final String FETCH_PURCHASES_AND_COMPLAINTS = "Fetch Purchases and Complaints";
 
     // Prevent instantiation
     private ReportOperationTypes() {

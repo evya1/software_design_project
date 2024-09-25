@@ -19,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
@@ -27,6 +28,7 @@ import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.Month;
@@ -109,17 +111,26 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     private Object chartContext;
     private List<Report> reports;
     private ObservableList<String> branchList;
+    private ObservableList<Purchase> purchasesList = FXCollections.observableArrayList();
+    private ObservableList<Complaint> complaintsList = FXCollections.observableArrayList();
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         EventBus.getDefault().register(this);
+
+        // Initialize the reports list and branch list
         reports = new ArrayList<>();
         branchList = FXCollections.observableArrayList();
 
+        // Initialize ObservableLists for purchases and complaints
+        purchasesList = FXCollections.observableArrayList();
+        complaintsList = FXCollections.observableArrayList();
+
+        // Initialize UI components (e.g., ComboBoxes, Tables)
         initializeUIComponents();
 
-        // Add the stylesheet to the scene
+        // Add the stylesheet to the scene if the chartBorderPane has a scene
         if (chartBorderPane.getScene() != null) {
             chartBorderPane.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getClassLoader()
                     .getResource(REPORTS_STYLE_PATH)).toExternalForm());
@@ -128,15 +139,23 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         // Set the chartBorderPane in the ChartFactory instance
         chartFactory.setChartBorderPane(chartBorderPane);
 
-        // Display the PieChart by default on screen
+        // Pass the ObservableLists for purchases and complaints to ChartFactory
+        chartFactory.setPurchasesList(purchasesList);
+        chartFactory.setComplaintsList(complaintsList);
+
+        // Display the PieChart by default
         String contextDescription = chartFactory.getContextDescription(chartContext);
         chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
 
+        // Get the local message and set employee and chart context
         Message localMessage = getLocalMessage();
 
         if (localMessage != null) {
             setEmployee(localMessage.getEmployee());
             setChartContext(chartContext);
+
+            // Fetch purchases and complaints from the server
+            fetchPurchasesAndComplaints();
 
             // Default fetch for Monthly Purchases of Booklet type
             fetchDefault();
@@ -191,13 +210,17 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         }
     }
 
-    /**
-     * Handles the action event to display a BarChart in the UI.
-     * @param actionEvent The action event triggered by user interaction, such as clicking a button.
-     */
     @FXML
     public void handleShowBarChart(ActionEvent actionEvent) {
-        handleShowChart(actionEvent, BAR_CHART_TYPE);
+        // Clear the table rows
+        table.getItems().clear();
+
+        // Prepare the data for the BarChart (Purchases and Complaints)
+        ObservableList<XYChart.Series<String, Number>> barChartData = chartFactory.convertPurchasesAndComplaintsToChartData(purchasesList, complaintsList);
+
+        // Create the BarChart and populate it
+        BarChart<String, Number> barChart = chartFactory.createBarChart("Purchases and Complaints by Date");
+        chartFactory.populateBarChart(barChart, chartBorderPane, barChartData);
     }
 
     /**
@@ -207,6 +230,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     @FXML
     public void handleShowPieChart(ActionEvent actionEvent) {
         handleShowChart(actionEvent, PIE_CHART_TYPE);
+        fetchDefault();
     }
 
     @FXML
@@ -963,5 +987,47 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     public void setBranchList(ObservableList<String> branchList) {
         this.branchList = branchList;
+    }
+
+    public ObservableList<Purchase> getPurchasesList() {
+        return purchasesList;
+    }
+
+    public void setPurchasesList(ObservableList<Purchase> purchasesList) {
+        this.purchasesList = purchasesList;
+    }
+
+    public ObservableList<Complaint> getComplaintsList() {
+        return complaintsList;
+    }
+
+    public void setComplaintsList(ObservableList<Complaint> complaintsList) {
+        this.complaintsList = complaintsList;
+    }
+
+    private void fetchPurchasesAndComplaints(){
+        Message msg = new Message();
+        msg.setMessage(FETCH_PURCHASES_AND_COMPLAINTS);
+        try {
+            client.sendToServer(msg);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Subscribe
+    public void handlePurchasesAndComplaintsResponse(MessageEvent event) {
+        Message message = event.getMessage();
+
+        // Ensure the message contains purchases and complaints
+        if (message.getPurchases() != null && message.getComplaints() != null) {
+            System.out.println("Received Purchases and Complaints from server");
+
+            // Update the observable lists
+            purchasesList.setAll(message.getPurchases());
+            complaintsList.setAll(message.getComplaints());
+        } else {
+            System.err.println("Received message does not contain purchases and complaints.");
+        }
     }
 }

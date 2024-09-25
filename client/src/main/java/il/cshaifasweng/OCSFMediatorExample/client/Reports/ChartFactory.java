@@ -1,29 +1,37 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Text;
 import javafx.util.Pair;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.ALL_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.INVALID_LABEL;
-import java.util.logging.Logger;
 
 
 
@@ -40,6 +48,9 @@ public class ChartFactory {
      */
     private final ObservableList<Pair<String, Double>> chartData;
     private BorderPane chartBorderPane;
+    private ObservableList<Purchase> purchasesList;
+    private ObservableList<Complaint> complaintsList;
+
 
     // Constructor updated to initialize the observable chart data
     public ChartFactory() {
@@ -302,6 +313,73 @@ public class ChartFactory {
         return convertToChartData(pair -> new PieChart.Data(pair.getKey(), pair.getValue()));
     }
 
+    // Converts Purchases to XYChart.Series data, grouped by purchase date
+    public XYChart.Series<String, Number> convertPurchasesToChartSeriesGroupedByDate(ObservableList<Purchase> purchases) {
+        return convertToChartSeriesGroupedByDate(
+                purchases,
+                Purchase::getDateOfPurchase,
+                PURCHASE_SERIES_NAME);
+    }
+
+    // Converts Complaints to XYChart.Series data, grouped by complaint date
+    public XYChart.Series<String, Number> convertComplaintsToChartSeriesGroupedByDate(ObservableList<Complaint> complaints) {
+        return convertToChartSeriesGroupedByDate(
+                complaints,
+                Complaint::getDateOfComplaint,
+                COMPLAINT_SERIES_NAME);
+    }
+
+    private <T> XYChart.Series<String, Number> convertToChartSeriesGroupedByDate(
+            ObservableList<T> items,
+            Function<T, LocalDateTime> dateExtractor,
+            String seriesName) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN);
+
+        // Initialize the series with a name for legend visibility
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName(seriesName);
+
+        // Collect the counts grouped by the date, now storing LocalDate for proper sorting
+        Map<LocalDate, Long> itemCountByDate = items.stream()
+                .collect(Collectors.groupingBy(
+                        item -> dateExtractor.apply(item).toLocalDate(),  // Extract LocalDate for sorting
+                        Collectors.counting()));
+
+        // Sort the dates in ascending order using LocalDate sorting
+        List<Map.Entry<LocalDate, Long>> sortedByDate = new ArrayList<>(itemCountByDate.entrySet());
+        sortedByDate.sort(Map.Entry.<LocalDate, Long>comparingByKey().reversed());
+
+        // Populate the series with the sorted data, converting LocalDate back to string format
+        for (Map.Entry<LocalDate, Long> entry : sortedByDate) {
+            String formattedDate = entry.getKey().format(formatter); // Convert LocalDate to formatted string
+            XYChart.Data<String, Number> data = new XYChart.Data<>(formattedDate, entry.getValue());
+
+            // Add a label above each bar to display the value (amount)
+            data.nodeProperty().addListener((observable, oldNode, newNode) -> {
+                if (newNode != null) {
+                    displayValueAboveBar(newNode, entry.getValue());
+                }
+            });
+
+            series.getData().add(data);
+        }
+
+        return series;
+    }
+
+    // Converts Purchases and Complaints to XYChart data, grouped by date
+    public ObservableList<XYChart.Series<String, Number>> convertPurchasesAndComplaintsToChartData(
+            ObservableList<Purchase> purchases, ObservableList<Complaint> complaints) {
+
+        // Generate series for Purchases and Complaints
+        XYChart.Series<String, Number> purchaseSeries = convertPurchasesToChartSeriesGroupedByDate(purchases);
+        XYChart.Series<String, Number> complaintSeries = convertComplaintsToChartSeriesGroupedByDate(complaints);
+
+        // Return both series to be displayed on the bar chart
+        return FXCollections.observableArrayList(purchaseSeries, complaintSeries);
+    }
+
     // General method for chart creation
     private <T extends Chart> T createChart(Supplier<T> chartSupplier, String contextDescription) {
         T chart = chartSupplier.get();
@@ -442,7 +520,7 @@ public class ChartFactory {
     }
 
     private void customizeChartAppearance(Chart chart) {
-        chart.setLegendVisible(false);
+        chart.setLegendVisible(true);
         chart.setAnimated(false);
         chart.setPrefSize(CHART_PREF_WIDTH, CHART_PREF_HEIGHT);
     }
@@ -504,21 +582,15 @@ public class ChartFactory {
         prepareAndDisplayChart(contextDescription, chartBorderPane, () -> createPieChart(contextDescription), PIE_CHART_TYPE);
     }
 
-    public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane, ObservableList<XYChart.Data<String, Number>> barChartData) {
-        if (!barChartData.isEmpty()) {
-            log("Clearing old BarChart data...");
-            barChart.getData().clear();
-            log("Old BarChart data cleared.");
-        } else {
-            log("No new BarChart data to populate.");
-        }
+    public void populateBarChart(BarChart<String, Number> barChart, BorderPane chartBorderPane, ObservableList<XYChart.Series<String, Number>> barChartData) {
+        // Clear previous data
+        barChart.getData().clear();
 
-        // Proceed with populating the chart with new data
-        log("Populating new BarChart data...");
-        XYChart.Series<String, Number> series = new XYChart.Series<>(barChartData);
-        barChart.getData().add(series);
+        // Add the new series data to the bar chart
+        barChart.getData().addAll(barChartData);
+
+        // Ensure the chart is displayed in the designated pane
         chartBorderPane.setCenter(barChart);
-        log("BarChart data populated and displayed.");
     }
 
     private <T extends Chart> void updateChart(T chart, ObservableList<Pair<String, Double>> newChartData) {
@@ -761,5 +833,45 @@ public class ChartFactory {
                 .mapToDouble(Map.Entry::getValue)
                 .findFirst()
                 .orElse(0.0);
+    }
+
+    public ObservableList<Purchase> getPurchasesList() {
+        return purchasesList;
+    }
+
+    public void setPurchasesList(ObservableList<Purchase> purchasesList) {
+        this.purchasesList = purchasesList;
+    }
+
+    public ObservableList<Complaint> getComplaintsList() {
+        return complaintsList;
+    }
+
+    public void setComplaintsList(ObservableList<Complaint> complaintsList) {
+        this.complaintsList = complaintsList;
+    }
+
+    // Utility method to display values above bars with externalized constants
+    private void displayValueAboveBar(Node node, Long value) {
+        final Text dataLabel = new Text(value.toString());
+        dataLabel.getStyleClass().add(CHART_LABEL_CSS_CLASS); // Apply CSS class
+
+        node.parentProperty().addListener((obs, oldParent, newParent) -> {
+            if (newParent != null) {
+                ((Group) newParent).getChildren().add(dataLabel);
+            }
+
+        });
+
+        // Reposition label based on node bounds and using constants
+        node.boundsInParentProperty().addListener((obs, oldBounds, newBounds) -> {
+            double labelX = newBounds.getMinX() + (newBounds.getWidth() / LABEL_CENTERING_X_RATIO)
+                    - dataLabel.prefWidth(-1) * LABEL_HORIZONTAL_OFFSET_RATIO;
+            double labelY = newBounds.getMinY() - dataLabel.prefHeight(-1) * LABEL_VERTICAL_OFFSET_RATIO;
+
+            // Use constants for offsets to avoid magic numbers
+            dataLabel.setLayoutX(labelX);
+            dataLabel.setLayoutY(labelY);
+        });
     }
 }

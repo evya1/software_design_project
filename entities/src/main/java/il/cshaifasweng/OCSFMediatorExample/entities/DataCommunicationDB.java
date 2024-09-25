@@ -25,8 +25,10 @@ import org.hibernate.service.ServiceRegistry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
@@ -503,6 +505,127 @@ public class DataCommunicationDB {
             System.err.println("An error occurred, changes have been rolled back.");
             exception.printStackTrace();
         }
+    }
+
+    public static void generateMovieTicketsAndComplaints() throws Exception {
+        try {
+            session.beginTransaction();
+            Random random = new Random();
+
+            // Fetch existing movies and branches
+            Movie movie1 = session.get(Movie.class, 1);
+            Movie movie2 = session.get(Movie.class, 2);
+            Movie movie3 = session.get(Movie.class, 3);
+            Movie movie4 = session.get(Movie.class, 4);
+            Movie movie5 = session.get(Movie.class, 5);
+
+            Branch branch1 = session.get(Branch.class, 1); // Johns Cinema
+            Branch branch2 = session.get(Branch.class, 2); // General Bay Cinema
+
+            // Create random MovieSlot objects
+            MovieSlot slot1 = createRandomMovieSlot(movie1, branch1);
+            MovieSlot slot2 = createRandomMovieSlot(movie2, branch1);
+            MovieSlot slot3 = createRandomMovieSlot(movie3, branch2);
+            MovieSlot slot4 = createRandomMovieSlot(movie4, branch2);
+            MovieSlot slot5 = createRandomMovieSlot(movie1, branch1);
+
+            // Create movie tickets with random MovieSlot objects
+            MovieTicket ticket1 = new MovieTicket(movie1, branch1, "Inception", "Johns Cinema", 2, 1, 1, slot1);
+            MovieTicket ticket2 = new MovieTicket(movie2, branch1, "The Matrix", "Johns Cinema", 1, 1, 1, slot2);
+            MovieTicket ticket3 = new MovieTicket(movie3, branch2, "Interstellar", "General Bay Cinema", 5, 1, 1, slot3);
+            MovieTicket ticket4 = new MovieTicket(movie4, branch2, "The Dark Knight", "General Bay Cinema", 4, 2, 1, slot4);
+            MovieTicket ticket5 = new MovieTicket(movie1, branch1, "Inception", "Johns Cinema", 1, 2, 1, slot5);
+
+            List<MovieTicket> tickets = Arrays.asList(ticket1, ticket2, ticket3, ticket4, ticket5);
+
+            // Save tickets and MovieSlots to the database
+            for (MovieTicket ticket : tickets) {
+                session.save(ticket);
+            }
+
+            // Fetch existing customers
+            Customer customer1 = session.get(Customer.class, 1); // Replace with correct ID
+            Customer customer2 = session.get(Customer.class, 2);
+            Customer customer3 = session.get(Customer.class, 3);
+            Customer customer4 = session.get(Customer.class, 4);
+
+            // Assign tickets to customers
+            assignTicketToCustomer(customer1, ticket1, session);
+            assignTicketToCustomer(customer2, ticket2, session);
+            assignTicketToCustomer(customer3, ticket3, session);
+            assignTicketToCustomer(customer4, ticket4, session);
+            assignTicketToCustomer(customer1, ticket5, session);
+
+            // Generate random complaints and assign to customers
+            for (int i = 0; i < 5; i++) {
+                boolean isOpen = random.nextBoolean();
+                Complaint complaint = new Complaint(
+                        "Complaint " + (i + 1),
+                        "Complaint description " + (i + 1),
+                        getRandomDateInCurrentMonth(),
+                        isOpen ? COMPLAINT_STATUS_OPEN : COMPLAINT_STATUS_CLOSED,
+                        MOVIE_TICKET, // Type of complaint
+                        customer1.getPersonalID(),
+                        customer1,
+                        -1
+                );
+                session.save(complaint);
+            }
+
+            for (int i = 0; i < 5; i++) {
+                boolean isOpen = random.nextBoolean();
+                Complaint complaint = new Complaint(
+                        "Complaint " + (i + 6),
+                        "Complaint description " + (i + 6),
+                        getRandomDateInCurrentMonth(),
+                        isOpen ? COMPLAINT_STATUS_OPEN : COMPLAINT_STATUS_CLOSED,
+                        BOOKLET, // Type of complaint
+                        customer2.getPersonalID(),
+                        customer2,
+                        -1
+                );
+                session.save(complaint);
+            }
+
+            // Commit the transaction
+            session.getTransaction().commit();
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
+    // Helper method to create random MovieSlot within the current month, not in the future
+    public static MovieSlot createRandomMovieSlot(Movie movie, Branch branch) {
+        Random random = new Random();
+        LocalDateTime startOfMonth = LocalDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0);
+        LocalDateTime currentDateTime = LocalDateTime.now(); // Current date and time
+
+        // Get the number of days passed in the current month until today
+        int dayOffset = random.nextInt(currentDateTime.getDayOfMonth()) + 1; // Ensure valid day in the past or today
+        LocalDateTime randomStartDateTime = startOfMonth.plusDays(dayOffset - 1).withHour(random.nextInt(10, currentDateTime.getHour() + 1)); // Random past time on that day
+        LocalDateTime randomEndDateTime = randomStartDateTime.plusHours(2); // Movie duration of 2 hours
+
+        // Create and return the MovieSlot
+        MovieSlot movieSlot = new MovieSlot(movie, randomStartDateTime, randomEndDateTime, null); // Theater will be assigned
+        movieSlot.setBranch(branch);
+        session.save(movieSlot); // Persist the MovieSlot
+        return movieSlot;
+    }
+
+    // Helper method to get a random date within the current month up to today
+    public static LocalDateTime getRandomDateInCurrentMonth() {
+        Random random = new Random();
+        LocalDateTime startOfMonth = LocalDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0);
+        LocalDateTime currentDateTime = LocalDateTime.now(); // Current date and time
+
+        // Get the number of days passed in the current month until today
+        int dayOffset = random.nextInt(currentDateTime.getDayOfMonth()) + 1; // Days range from 1 to today
+
+        return startOfMonth.plusDays(dayOffset - 1).withHour(random.nextInt(24)).withMinute(random.nextInt(60));
     }
 
     public static void printBranchMovies(int branchId) {
@@ -1507,7 +1630,7 @@ public class DataCommunicationDB {
 
         // Check if the query needs to filter by branch based on employee type
         boolean isBranchManager = requestData.employee() != null &&
-                requestData.employee().getEmployeeType() == EmployeeType.BRANCH_MANAGER;
+                requestData.employee().getEmployeeType() == BRANCH_MANAGER;
 
         // Only branch managers should filter by branch ID
         if (isBranchManager) {
@@ -1546,6 +1669,23 @@ public class DataCommunicationDB {
                 .setParameter("month", monthOrdinal);
 
         return query.getResultList();
+    }
+
+    public List<Purchase> fetchAllPurchases() {
+        Session session = ensureSession();
+        return fetchAllPurchases(session);
+    }
+
+    private List<Purchase> fetchAllPurchases(Session session) {
+        // Fallback query: Fetch all complaints if the first query returns an empty result
+        String sql = "SELECT * FROM purchase";
+
+        return session.createNativeQuery(sql, Purchase.class).getResultList();
+    }
+
+    public List<Complaint> fetchAllComplaints() {
+        Session session = ensureSession();
+        return fetchAllComplaints(session);
     }
 
     private List<Complaint> fetchAllComplaints(Session session) {

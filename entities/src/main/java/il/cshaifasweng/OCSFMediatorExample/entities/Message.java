@@ -97,6 +97,7 @@ public class Message implements Serializable {
     private String reportDetails;
     private Map<String, Double> dataForGraphs;
     private String serializedReportData;
+    private List<Purchase> purchases;
 
 
     public List<Theater> getTheaters() {
@@ -350,5 +351,13 @@ public class Message implements Serializable {
 
     public void setSerializedReportData(String serializedReportData) {
         this.serializedReportData = serializedReportData;
+    }
+
+    public List<Purchase> getPurchases() {
+        return purchases;
+    }
+
+    public void setPurchases(List<Purchase> purchases) {
+        this.purchases = purchases;
     }
 }

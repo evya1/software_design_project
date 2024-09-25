@@ -27,8 +27,6 @@
 }
 
 /* Colors for Product A, B, and C in the pie chart */
-
-/* Colors for Product A, B, and C in the pie chart */
 .default-color0.chart-pie {
     -fx-pie-color: #ff9999; /* Soft Red */
 }
@@ -41,15 +39,18 @@
     -fx-pie-color: #ff7f50; /* Coral */
 }
 
-/* Colors for Product A, B, and C in the bar chart */
 .default-color0.chart-bar {
-    -fx-bar-fill: #ff9999; /* Soft Red */
+    -fx-bar-fill: #007bff; /* Blue for Complaints */
 }
 
 .default-color1.chart-bar {
-    -fx-bar-fill: #ffa07a; /* Light Salmon */
+    -fx-bar-fill: #ff69b4; /* Pink for Purchases */
 }
 
-.default-color2.chart-bar {
-    -fx-bar-fill: #ff7f50; /* Coral */
+/* Chart Data Labels */
+.chart-data-label {
+    -fx-font-size: 12px;
+    -fx-fill: black;
+    -fx-font-weight: bold;
 }
+
