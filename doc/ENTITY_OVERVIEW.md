@@ -101,7 +101,7 @@ classDiagram
   class Report {
     int id
     Branch branch
-    ReportType reportType
+    ReportType reportSpanType
     Month month
     LocalDate reportDate
     String details

@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server;
 
 import com.mysql.cj.xdevapi.Client;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportService;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.HandlerFactory;
 import il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestHandler;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
@@ -17,7 +18,8 @@ public class SimpleServer extends AbstractServer {
 
     public SimpleServer(int port) {
         super(port);
-        this.handlerFactory = HandlerFactory.getInstance(this);
+        ReportService reportService = ReportService.getInstance();
+        this.handlerFactory = HandlerFactory.getInstance(this, reportService);
     }
 
     @Override

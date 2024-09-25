@@ -1,12 +1,22 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.*;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Chain;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Seat;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Theater;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.Movie;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieGenre;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.TypeOfMovie;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.*;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Customer;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
-import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
-import org.hibernate.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
@@ -16,23 +26,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.Month;
 import java.util.*;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
+import static java.time.Month.*;
 
-public class DataCommunicationDB
-{
+public class DataCommunicationDB {
     //region Attributes
     private static Session session;
     private static String password;
     //endregion
 
     //region Hibernate Session Methods
-    public static String getPassword() { return password; }
-    public static void setPassword(String password) { DataCommunicationDB.password = password; }
+    public static String getPassword() {
+        return password;
+    }
+
+    public static void setPassword(String password) {
+        DataCommunicationDB.password = password;
+    }
+
     public static Session getSession() {
         return session;
     }
+
     public static void setSession(Session session) {
         DataCommunicationDB.session = session;
     }
@@ -168,16 +187,16 @@ public class DataCommunicationDB
             Random random = new Random();
 
             // Create 10 specific Movies
-            Movie movie1 = new Movie("Inception", "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page, Cillian Murphy, Marion Cotillard, Michael Caine", null, "Christopher Nolan", "Inception is a sci-fi thriller where a team of dream thieves led by Leonardo DiCaprio try to plant an idea in a CEO's mind by infiltrating his dreams.", 148, new ArrayList<>(), null, MovieGenre.DRAMA,"האשליה");
-            Movie movie2 = new Movie("The Matrix", "Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Hugo Weaving", null, "Lana Wachowski, Lilly Wachowski", "A computer hacker learns the world he lives in is a simulation and joins a rebellion against the machines.", 136, new ArrayList<>(), null,MovieGenre.COMEDY, "המטריקס");
-            Movie movie3 = new Movie("Interstellar", "Matthew McConaughey, Anne Hathaway, Jessica Chastain, Michael Caine", null, "Christopher Nolan", "A team of astronauts travel through a wormhole in search of a new home for humanity.", 169, new ArrayList<>(), null,MovieGenre.DOCUMENTARY,"בין כוכבים");
-            Movie movie4 = new Movie("The Dark Knight", "Christian Bale, Heath Ledger, Aaron Eckhart, Maggie Gyllenhaal", null, "Christopher Nolan", "Batman faces a new challenge from the Joker, who descends Gotham City into chaos.", 152, new ArrayList<>(), null,MovieGenre.DOCUMENTARY, "האביר האפל");
-            Movie movie5 = new Movie("Fight Club", "Brad Pitt, Edward Norton, Helena Bonham Carter, Meat Loaf", null, "David Fincher", "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much, much more.", 139, new ArrayList<>(), null,MovieGenre.ACTION,"מועדון קרב");
-            Movie movie6 = new Movie("Pulp Fiction", " John Travolta, Samuel L. Jackson, Uma Thurman, Bruce Willis", null, "Quentin Tarantino", "A hit man with a philosophical bent, a boxer on the fix, and their wives weave a darkly comedic tapestry.", 154, new ArrayList<>(), null,MovieGenre.COMEDY, "ספרות זולה");
-            Movie movie7 = new Movie("Forrest Gump", "Tom Hanks, Robin Wright, Gary Sinise, Sally Field", null, "Robert Zemeckis", "A simple man with a low IQ but a big heart runs through key events in American history.", 142, new ArrayList<>(), null,MovieGenre.ADVENTURE,"פורסט גאמפ");
-            Movie movie8 = new Movie("The Shawshank Redemption", "Tim Robbins, Morgan Freeman, Bob Gunton, William Sadler", null, "Frank Darabont", "A wrongly convicted man plans his escape from prison over a long period of time.", 142, new ArrayList<>(), null,MovieGenre.COMEDY,"חומות של תקווה");
-            Movie movie9 = new Movie("Gladiator", "Russell Crowe, Joaquin Phoenix, Connie Nielsen, Richard Harris", null, "Ridley Scott", "A former Roman general becomes a reluctant gladiator seeking revenge for the murder of his family.", 155, new ArrayList<>(), null,MovieGenre.HORROR, "הגלדיאטור");
-            Movie movie10 = new Movie("The Godfather", "Marlon Brando, Al Pacino, James Caan, Robert Duvall", null, "Francis Ford Coppola", "The aging patriarch of a powerful Italian-American crime family tries to maintain control of his empire.", 175, new ArrayList<>(), null, MovieGenre.DRAMA,"הסנדק");
+            Movie movie1 = new Movie("Inception", "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page, Cillian Murphy, Marion Cotillard, Michael Caine", null, "Christopher Nolan", "Inception is a sci-fi thriller where a team of dream thieves led by Leonardo DiCaprio try to plant an idea in a CEO's mind by infiltrating his dreams.", 148, new ArrayList<>(), null, MovieGenre.DRAMA, "האשליה");
+            Movie movie2 = new Movie("The Matrix", "Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Hugo Weaving", null, "Lana Wachowski, Lilly Wachowski", "A computer hacker learns the world he lives in is a simulation and joins a rebellion against the machines.", 136, new ArrayList<>(), null, MovieGenre.COMEDY, "המטריקס");
+            Movie movie3 = new Movie("Interstellar", "Matthew McConaughey, Anne Hathaway, Jessica Chastain, Michael Caine", null, "Christopher Nolan", "A team of astronauts travel through a wormhole in search of a new home for humanity.", 169, new ArrayList<>(), null, MovieGenre.DOCUMENTARY, "בין כוכבים");
+            Movie movie4 = new Movie("The Dark Knight", "Christian Bale, Heath Ledger, Aaron Eckhart, Maggie Gyllenhaal", null, "Christopher Nolan", "Batman faces a new challenge from the Joker, who descends Gotham City into chaos.", 152, new ArrayList<>(), null, MovieGenre.DOCUMENTARY, "האביר האפל");
+            Movie movie5 = new Movie("Fight Club", "Brad Pitt, Edward Norton, Helena Bonham Carter, Meat Loaf", null, "David Fincher", "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much, much more.", 139, new ArrayList<>(), null, MovieGenre.ACTION, "מועדון קרב");
+            Movie movie6 = new Movie("Pulp Fiction", " John Travolta, Samuel L. Jackson, Uma Thurman, Bruce Willis", null, "Quentin Tarantino", "A hit man with a philosophical bent, a boxer on the fix, and their wives weave a darkly comedic tapestry.", 154, new ArrayList<>(), null, MovieGenre.COMEDY, "ספרות זולה");
+            Movie movie7 = new Movie("Forrest Gump", "Tom Hanks, Robin Wright, Gary Sinise, Sally Field", null, "Robert Zemeckis", "A simple man with a low IQ but a big heart runs through key events in American history.", 142, new ArrayList<>(), null, MovieGenre.ADVENTURE, "פורסט גאמפ");
+            Movie movie8 = new Movie("The Shawshank Redemption", "Tim Robbins, Morgan Freeman, Bob Gunton, William Sadler", null, "Frank Darabont", "A wrongly convicted man plans his escape from prison over a long period of time.", 142, new ArrayList<>(), null, MovieGenre.COMEDY, "חומות של תקווה");
+            Movie movie9 = new Movie("Gladiator", "Russell Crowe, Joaquin Phoenix, Connie Nielsen, Richard Harris", null, "Ridley Scott", "A former Roman general becomes a reluctant gladiator seeking revenge for the murder of his family.", 155, new ArrayList<>(), null, MovieGenre.HORROR, "הגלדיאטור");
+            Movie movie10 = new Movie("The Godfather", "Marlon Brando, Al Pacino, James Caan, Robert Duvall", null, "Francis Ford Coppola", "The aging patriarch of a powerful Italian-American crime family tries to maintain control of his empire.", 175, new ArrayList<>(), null, MovieGenre.DRAMA, "הסנדק");
 
             // Adding images to the movies
             movie1.setImage(readImage("MoviePictures/Inception.jpg"));
@@ -199,28 +218,28 @@ public class DataCommunicationDB
             }
 
             // create employees and save them in the DB
-            Employee e1 = new Employee("Josh","Burns","Burns@gmail.com","Base",
-                    "Password",false,null,BASE,null);
-            Employee e2 = new Employee("Jimmy","Cash","sherotlko7ot@gmail.com",
-                    "Service","Password",false,null,SERVICE,null);
-            Employee e3 = new Employee("Sherlott","Chance","tochen@gmail.com","1",
-                    "Content",false,null,CONTENT_MANAGER,null);
-            Employee e4 = new Employee("Moki","Shtut","CHM@gmail.com",
-                    "CEO","Password",false,null,CHAIN_MANAGER,null);
+            Employee e1 = new Employee("Josh","Burns","Burns@gmail.com", "Base",
+                    "Password", false, null, BASE, null);
+            Employee e2 = new Employee("Jimmy","Cash", "sherotlko7ot@gmail.com",
+                    "Service","Password", false, null, SERVICE, null);
+            Employee e3 = new Employee("Sherlott","Chance", "tochen@gmail.com", "1",
+                    "Content", false, null, CONTENT_MANAGER, null);
+            Employee e4 = new Employee("Moki","Shtut", "CHM@gmail.com",
+                    "CEO","Password", false, null, CHAIN_MANAGER, null);
             List<Employee> employees = Arrays.asList(e1, e2, e3, e4);
             for (Employee employee : employees) {
                 session.save(employee);
             }
 
             //customer
-            Customer customer1 = new Customer("Yossi","Smith","csm@gmail.com","123456789",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer2 = new Customer("David","Freeman","free@gmail.com","345345345",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer3 = new Customer("Abigail","Fox","cfox@gmail.com","888888888",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
-            Customer customer4 = new Customer("John","Al pacino","godfather@gmail.com","000000001",
-                    new ArrayList<Purchase>(),null,new ArrayList<Complaint>(),new ArrayList<InboxMessage>());
+            Customer customer1 = new Customer("Yossi","Smith", "csm@gmail.com", "123456789",
+                    new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
+            Customer customer2 = new Customer("David","Freeman", "free@gmail.com", "345345345",
+                    new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
+            Customer customer3 = new Customer("Abigail","Fox", "cfox@gmail.com", "888888888",
+                    new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
+            Customer customer4 = new Customer("John","Al pacino", "godfather@gmail.com", "000000001",
+                    new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
             List<Customer> customers = Arrays.asList(customer1, customer2, customer3, customer4);
             for (Customer customer : customers) {
                 session.save(customer);
@@ -229,27 +248,27 @@ public class DataCommunicationDB
 
             //complaints
 
-            Complaint comp = new Complaint("bad booklet","i dont want the booklet anymore, i've used 5 tickets out of 20",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"000000001",customer4,-1);
-            Complaint comp1 = new Complaint("bad link","the link is not working",
-                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_LINK,"000000001",customer4,-1);
-            Complaint comp2 = new Complaint("bad ticket","i don't want the ticket anymore",
-                    LocalDateTime.now(),"Open",PurchaseType.MOVIE_TICKET,"000000001",customer4,-1);
-            Complaint comp3 = new Complaint("not good movie","the dark knight is not as i expected",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"000000001",customer4,-1);
-            Complaint comp4 = new Complaint("bad booklet","the booklet is not working and i cant use it",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"888888888",customer3,-1);
-            Complaint comp5 = new Complaint("link corrupt","the stream stops in the middle ",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"888888888",customer3,-1);
-            Complaint comp6 = new Complaint("link corrupt","the stream stops in the middle ",
-                    LocalDateTime.now(),"Open",PurchaseType.BOOKLET,"345345345",customer2,-1);
-            List<Complaint> complaints = Arrays.asList(comp1, comp2, comp3, comp4,comp5,comp6);
+            Complaint comp = new Complaint("bad booklet", "i dont want the booklet anymore, i've used 5 tickets out of 20",
+                    LocalDateTime.now(), "Open", BOOKLET, "000000001", customer4, -1);
+            Complaint comp1 = new Complaint("bad link", "the link is not working",
+                    LocalDateTime.now(), "Open", MOVIE_LINK, "000000001", customer4, -1);
+            Complaint comp2 = new Complaint("bad ticket", "i don't want the ticket anymore",
+                    LocalDateTime.now(), "Open", MOVIE_TICKET, "000000001", customer4, -1);
+            Complaint comp3 = new Complaint("not good movie", "the dark knight is not as i expected",
+                    LocalDateTime.now(), "Open", BOOKLET, "000000001", customer4, -1);
+            Complaint comp4 = new Complaint("bad booklet", "the booklet is not working and i cant use it",
+                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
+            Complaint comp5 = new Complaint("link corrupt", "the stream stops in the middle ",
+                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
+            Complaint comp6 = new Complaint("link corrupt", "the stream stops in the middle ",
+                    LocalDateTime.now(), "Open", BOOKLET, "345345345", customer2, -1);
+            List<Complaint> complaints = Arrays.asList(comp1, comp2, comp3, comp4, comp5, comp6);
             for (Complaint complaint : complaints) {
                 session.save(complaint);
             }
 
             // prices
-            PriceConstants prices = new PriceConstants(250,40,30);
+            PriceConstants prices = new PriceConstants(250, 40, 30);
             session.save(prices);
 
             // Create 3 Branches
@@ -299,12 +318,12 @@ public class DataCommunicationDB
                                     LocalDateTime.of(year, month, day, 12, 0), theater);
                             movieSlot.setBranch(branch); // Set the branch for the movie slot
 
-                            List <Seat> seats = new ArrayList<>(); // Set seats list
-                            for(int a = 0; a < 70; a++ ){
+                            List<Seat> seats = new ArrayList<>(); // Set seats list
+                            for (int a = 0; a < 70; a++) {
                                 Seat seat = new Seat();
                                 seat.setTheater(theater);
                                 seat.setMovieSlot(movieSlot);
-                                seat.setSeatNum(a+1);
+                                seat.setSeatNum(a + 1);
                                 session.save(seat);
                                 seats.add(seat);
                             }
@@ -477,6 +496,7 @@ public class DataCommunicationDB
                 .setParameter("movieId", movieId)
                 .getResultList();
     }
+
     public static PriceConstants getPrices() {
         List<PriceConstants> prices = null;
         try {
@@ -492,24 +512,31 @@ public class DataCommunicationDB
         }
         return prices.get(0);
     }
-    public static Movie getMovieByID(int movieID){
+
+    public static Movie getMovieByID(int movieID) {
         return session.get(Movie.class, movieID);
     }
-    public static MovieSlot getMovieSlotByID(int movieSlotID){
+
+    public static MovieSlot getMovieSlotByID(int movieSlotID) {
         return session.get(MovieSlot.class, movieSlotID);
     }
-    public static Theater getTheaterByID(int theaterID){
+
+    public static Theater getTheaterByID(int theaterID) {
         return session.get(Theater.class, theaterID);
     }
-    public static Branch getBranchByID(int branchID){
-        return session.get(Branch.class,branchID);
+
+    public static Branch getBranchByID(int branchID) {
+        return session.get(Branch.class, branchID);
     }
-    public static TypeOfMovie getTypeOfMovieByID(int movieTypeID){
+
+    public static TypeOfMovie getTypeOfMovieByID(int movieTypeID) {
         return session.get(TypeOfMovie.class, movieTypeID);
     }
-    public static Seat getSeatByID(int seatID){
+
+    public static Seat getSeatByID(int seatID) {
         return session.get(Seat.class, seatID);
     }
+
     public static List<Branch> getBranches() {
         List<Branch> branches = null;
         try {
@@ -527,6 +554,7 @@ public class DataCommunicationDB
         }
         return branches;
     }
+
     public static List<MovieSlot> getMovieSlotsByBranch(int branchId) {
         Transaction transaction = null;
         List<MovieSlot> movieSlots = null;
@@ -545,7 +573,8 @@ public class DataCommunicationDB
         }
         return movieSlots;
     }
-    public static List<MovieSlot> getMovieSlotsByBranchIDAndMovieID(int movieID, int branchID){
+
+    public static List<MovieSlot> getMovieSlotsByBranchIDAndMovieID(int movieID, int branchID) {
         Transaction transaction = null;
         List<MovieSlot> movieSlots = null;
         try {
@@ -564,7 +593,8 @@ public class DataCommunicationDB
         }
         return movieSlots;
     }
-    public static List<Branch> getBranchesByMovieID(int movieID){
+
+    public static List<Branch> getBranchesByMovieID(int movieID) {
         Transaction transaction = null;
         List<Branch> branches = null;
         try {
@@ -582,6 +612,7 @@ public class DataCommunicationDB
         }
         return branches;
     }
+
     public static List<Movie> getMoviesByBranch(int branchId) {
         Transaction transaction = null;
         List<Movie> movies = null;
@@ -600,12 +631,14 @@ public class DataCommunicationDB
         }
         return movies;
     }
+
     // Method to get Customer by personal ID
     public static Customer getCustomerByPersonalID(Session session, String personalID) {
         Query<Customer> query = session.createQuery("FROM Customer WHERE personalID = :personalID", Customer.class);
         query.setParameter("personalID", personalID);
         return query.uniqueResult();
     }
+
     public static List<InboxMessage> getInboxMessagesByCustomerId(int customerId) {
         //Assuming transaction was already started.
         String hql = "FROM InboxMessage WHERE customer.id = :customerId";
@@ -613,20 +646,23 @@ public class DataCommunicationDB
                 .setParameter("customerId", customerId)
                 .getResultList();
     }
-    public static Purchase getPurchaseByID(int id){
+
+    public static Purchase getPurchaseByID(int id) {
         Query<Purchase> query = session.createQuery("FROM Purchase WHERE id = :id", Purchase.class);
         query.setParameter("id", id);
         return query.uniqueResult();
     }
-    public static List<Employee> getAllEmployees(){
+
+    public static List<Employee> getAllEmployees() {
         //Assume Transaction is already open
         return (List<Employee>) session.createQuery("FROM Employee").list();
     }
 
-    public static List<Theater> getAllTheaters(){
+    public static List<Theater> getAllTheaters() {
         return (List<Theater>) session.createQuery("From Theater").list();
     }
-    public static List<Employee> getAllBranchManagersEmployees(){
+
+    public static List<Employee> getAllBranchManagersEmployees() {
         //Assume transaction is already open.
         String hql = "FROM Employee WHERE employeeType = :employeeType";
         Query query = session.createQuery(hql);
@@ -668,6 +704,7 @@ public class DataCommunicationDB
             throw exception;
         }
     }
+
     public static void deleteMovieById(int movieId) {
         Transaction transaction = null;
         try {
@@ -739,7 +776,8 @@ public class DataCommunicationDB
             e.printStackTrace();
         }
     }
-    public static void updateEmployeeData(Employee updateEmployee){
+
+    public static void updateEmployeeData(Employee updateEmployee) {
         //Assume Transaction is already open
         Employee currentEmployee = session.get(Employee.class, updateEmployee.getId());
 
@@ -754,6 +792,7 @@ public class DataCommunicationDB
         currentEmployee.setBranch(updateEmployee.getBranch());
         session.getTransaction().commit();
     }
+
     public static void deleteEmployee(Employee employeeToDelete) {
         Employee delete = session.get(Employee.class, employeeToDelete.getId());
         if (delete != null) {
@@ -771,8 +810,9 @@ public class DataCommunicationDB
             session.getTransaction().commit();
         }
     }
-    public static void updateMovieSlot(MovieSlot slot){
-        try{
+
+    public static void updateMovieSlot(MovieSlot slot) {
+        try {
             session.beginTransaction();
             MovieSlot slotToUpdate = getMovieSlotByID(slot.getId());
 
@@ -782,8 +822,7 @@ public class DataCommunicationDB
             slotToUpdate.setEndDateTime(slot.getEndDateTime());
             session.saveOrUpdate(slotToUpdate);
             session.getTransaction().commit();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             if (session != null) {
                 session.getTransaction().rollback();
             }
@@ -791,7 +830,8 @@ public class DataCommunicationDB
             e.printStackTrace();
         }
     }
-    public static void removeSlotFromMovie(MovieSlot slot){
+
+    public static void removeSlotFromMovie(MovieSlot slot) {
         try {
             session.beginTransaction();
             Movie movie = getMovieByID(slot.getMovie().getId());
@@ -872,7 +912,7 @@ public class DataCommunicationDB
     //endregion
 
     //region Public Creation Methods
-    public static void addMovieSlotToMovie(int movieID, MovieSlot slot){
+    public static void addMovieSlotToMovie(int movieID, MovieSlot slot) {
 
         try {
             session.beginTransaction();
@@ -896,7 +936,7 @@ public class DataCommunicationDB
     }
 
 
-    public static void addMessageToCustomers(){
+    public static void addMessageToCustomers() {
         session.beginTransaction();
         try {
             List<Customer> customers = session.createQuery(
@@ -909,7 +949,7 @@ public class DataCommunicationDB
             ).getResultList();
 
             //Going over the customers and adding messages to their inbox.
-            for(Customer customer : customers){
+            for (Customer customer : customers) {
                 InboxMessage newContent = new InboxMessage();
                 newContent.setMessageContent("New movie was added to the theaters");
                 newContent.setMessageTitle("New Movie");
@@ -941,7 +981,7 @@ public class DataCommunicationDB
             for (int i = 0; i < 70; i++) {
                 Seat seat = new Seat(false, slot.getTheater());
                 seat.setMovieSlot(slot);  // Set the MovieSlot reference in Seat
-                seat.setSeatNum(i+1);   //70 seats
+                seat.setSeatNum(i + 1);   //70 seats
                 seats.add(seat);
             }
 
@@ -1004,13 +1044,13 @@ public class DataCommunicationDB
         session.getTransaction().commit();
     }
 
-    public static void createEmployee(Employee newEmployee){
+    public static void createEmployee(Employee newEmployee) {
         //Assume Transaction is already open
         session.save(newEmployee);
         session.getTransaction().commit();
     }
 
-    public static void createNewBranch(Branch branch){
+    public static void createNewBranch(Branch branch) {
         //assume transaction is already open.
         session.save(branch);
         session.getTransaction().commit();
@@ -1020,23 +1060,22 @@ public class DataCommunicationDB
     //endregion
 
     //region Private Methods
-    private static void addInboxMessageForMovie(Customer customer){
+    private static void addInboxMessageForMovie(Customer customer) {
         InboxMessage newContent = new InboxMessage();
         newContent.setMessageContent("New movie was added to the theaters");
         newContent.setMessageTitle("New Movie");
         newContent.setCustomer(customer);
-        if(customer.getInboxMessages() == null){
+        if (customer.getInboxMessages() == null) {
             List<InboxMessage> messages = new ArrayList<>();
             messages.add(newContent);
             customer.setInboxMessages(messages);
-        }
-        else{
+        } else {
             customer.getInboxMessages().add(newContent);
         }
     }
 
     private static Employee createEmployee(String firstName, String lastName, EmployeeType employeeType, String email, String username, String password) {
-        Employee emp = createEmployee(firstName,lastName,employeeType,email,username);
+        Employee emp = createEmployee(firstName, lastName, employeeType, email, username);
         emp.setPassword(password);
         session.save(emp);
         return emp;
@@ -1192,8 +1231,8 @@ public class DataCommunicationDB
         Purchase purchase = new Purchase();
         purchase.setCustomerPID(customer.getPersonalID());
         purchase.setPurchasedMovieTicket(ticket);
-        purchase.setPurchaseType(PurchaseType.MOVIE_TICKET);
-        purchase.SetPrice(session.get(PriceConstants.class,1));
+        purchase.setPurchaseType(MOVIE_TICKET);
+        purchase.SetPrice(session.get(PriceConstants.class, 1));
         purchase.setPriceByItem(purchase.getPurchaseType());
         purchase.setDateOfPurchase(LocalDateTime.now());
         purchase.setBranch(ticket.getBranch());
@@ -1208,8 +1247,8 @@ public class DataCommunicationDB
         Purchase purchase = new Purchase();
         purchase.setCustomerPID(customer.getPersonalID());
         purchase.setPurchasedMovieLink(link);
-        purchase.setPurchaseType(PurchaseType.MOVIE_LINK);
-        purchase.SetPrice(session.get(PriceConstants.class,1));
+        purchase.setPurchaseType(MOVIE_LINK);
+        purchase.SetPrice(session.get(PriceConstants.class, 1));
         purchase.setPriceByItem(purchase.getPurchaseType());
         purchase.setDateOfPurchase(LocalDateTime.now());
         purchase.setCustomer(customer);
@@ -1253,7 +1292,7 @@ public class DataCommunicationDB
     private static void assignBookletToCustomer(Customer customer, Booklet booklet, Session session) {
         Purchase purchase = new Purchase();
         purchase.setPurchasedBooklet(booklet);
-        purchase.setPurchaseType(PurchaseType.BOOKLET);
+        purchase.setPurchaseType(BOOKLET);
         purchase.setDateOfPurchase(LocalDateTime.now());
         purchase.setCustomerPID(customer.getPersonalID());
         purchase.setCustomer(customer);
@@ -1263,5 +1302,212 @@ public class DataCommunicationDB
     //endregion
 
     public static void main(String[] args) {
+    }
+
+    public static Month getQuarterStartMonth(Month month) {
+        switch (month) {
+            case JANUARY:
+            case FEBRUARY:
+            case MARCH:
+                return JANUARY;
+            case APRIL:
+            case MAY:
+            case JUNE:
+                return APRIL;
+            case JULY:
+            case AUGUST:
+            case SEPTEMBER:
+                return JULY;
+            case OCTOBER:
+            case NOVEMBER:
+            case DECEMBER:
+                return OCTOBER;
+            default:
+                throw new IllegalArgumentException("Invalid month: " + month);
+        }
+    }
+
+    public List<Purchase> retrievePurchasesByBranchAndMonth(RequestData requestData) {
+        Branch branch = requestData.branch();
+        Month month = requestData.month();
+        PurchaseType purchaseType = requestData.purchaseType();
+        return getSession().createQuery(
+                        "FROM Purchase WHERE branch = :branch AND purchaseType = :purchaseType AND MONTH(dateOfPurchase) = :month",
+                        Purchase.class)
+                .setParameter("branch", branch)
+                .setParameter("purchaseType", purchaseType)
+                .setParameter("month", month.getValue())
+                .getResultList();
+    }
+
+    // Method to save a Report to the database
+    public void persistReport(Report report) {
+        Session session = getSession();
+        session.beginTransaction();
+        session.merge(report);
+        session.getTransaction().commit();
+    }
+
+    // Method to fetch a report by its ID
+    public Report findReportById(Long reportId) {
+        return getSession().get(Report.class, reportId);
+    }
+
+    public void modifyReport(Report report) {
+        Session session = getSession();
+        session.beginTransaction();
+        session.update(report);
+        session.getTransaction().commit();
+    }
+
+    public void removeReport(Report report) {
+        Session session = getSession();
+        session.beginTransaction();
+        session.delete(report);
+        session.getTransaction().commit();
+    }
+
+    public List<Report> retrieveReportsForBranchAndMonth(Month month, RequestData requestData) {
+        Session session = ensureSession();
+        Transaction transaction = null;
+        List<Report> reports;
+        try {
+            transaction = startTransaction(session);
+
+            reports = executeReportQuery(session, month, requestData);
+
+            commitTransaction(transaction);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw e;  // Re-throw the exception to be handled further up
+        }
+
+        return reports;
+    }
+
+    public List<Complaint> retrieveComplaintsByBranchAndMonth(RequestData requestData) {
+        Session session = ensureSession();
+        Transaction transaction = null;
+        List<Complaint> complaints;
+        try {
+            transaction = startTransaction(session);
+
+            complaints = executeComplaintQuery(session, requestData);
+
+            commitTransaction(transaction);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw e;
+        }
+
+        return complaints;
+    }
+
+    public List<Purchase> retrieveAllPurchasesByBranchAndMonth(RequestData requestData) {
+        Session session = ensureSession();
+        Transaction transaction = null;
+        List<Purchase> purchases;
+        try {
+            transaction = startTransaction(session);
+            PurchaseType purchaseType = requestData.purchaseType();
+
+            if (purchaseType == ALL_TYPES) {
+                purchases = retrievePurchasesForAllTypes(session, requestData);
+            } else {
+                purchases = executePurchaseQueryForSpecificType(session, requestData, purchaseType);
+            }
+
+            commitTransaction(transaction);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw e;
+        }
+
+        return purchases;
+    }
+
+    private List<Purchase> retrievePurchasesForAllTypes(Session session, RequestData requestData) {
+        List<Purchase> purchases = new ArrayList<>();
+
+        for (PurchaseType type : PurchaseType.values()) {
+            if (type != ALL_TYPES) {
+                purchases.addAll(executePurchaseQueryForSpecificType(session, requestData, type));
+            }
+        }
+
+        return purchases;
+    }
+
+    private List<Purchase> executePurchaseQueryForSpecificType(Session session, RequestData requestData, PurchaseType purchaseType) {
+        // Define the base SQL query
+        String sql = "SELECT * FROM purchase WHERE purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
+
+        // Extend the SQL query if the purchase type requires branch_id
+        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+            sql += " AND branch_id = :branchId";
+        }
+
+        int monthOrdinal = requestData.month().getValue();
+
+        var query = session.createNativeQuery(sql, Purchase.class)
+                .setParameter("purchaseType", purchaseType.name())  // Use .name() for enum name as in DB
+                .setParameter("month", monthOrdinal);
+
+        // Only add branch_id parameter if necessary
+        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+            query.setParameter("branchId", requestData.branch().getId());
+        }
+
+        return query.getResultList();
+    }
+
+
+    private List<Complaint> executeComplaintQuery(Session session, RequestData requestData) {
+        String sql = "SELECT * FROM complaints WHERE branch_id = :branchId AND MONTH(dateOfComplaint) = :month";
+
+        return session.createNativeQuery(sql, Complaint.class)
+                .setParameter("branchId", requestData.branch().getId())
+                .setParameter("month", requestData.month().getValue()) // Assuming date_of_complaint is a date or timestamp column
+                .getResultList();
+    }
+
+    private Session ensureSession() {
+        Session session = getSession();
+        if (session == null || !session.isOpen()) {
+            session = getSessionFactory(DataCommunicationDB.getPassword()).openSession();
+            setSession(session);  // Ensure this session is reused later
+        }
+        return session;
+    }
+
+    private Transaction startTransaction(Session session) {
+        return session.beginTransaction();
+    }
+
+    private void commitTransaction(Transaction transaction) {
+        if (transaction != null && !transaction.getRollbackOnly()) {
+            transaction.commit();
+        }
+    }
+
+    private void rollbackTransaction(Transaction transaction) {
+        if (transaction != null && transaction.isActive()) {
+            transaction.rollback();
+        }
+    }
+
+    private List<Report> executeReportQuery(Session session, Month month, RequestData requestData) {
+        String sql = "SELECT * FROM Report JOIN report_data ON Report.id = report_data.report_id " +
+                    "WHERE branch_id = :branchId AND month = :month AND purchaseType = :purchaseType";
+//        "SELECT * FROM Report JOIN report_data ON Report.id = report_data.report_id WHERE branch_id = :branchId AND month = :month\n"
+
+        int ordinal = requestData.purchaseType().ordinal();
+        List<Report> resultList = session.createNativeQuery(sql, Report.class)
+                .setParameter("branchId", requestData.branch().getId())
+                .setParameter("month", month.name())
+                .setParameter("purchaseType", ordinal)
+                .getResultList();
+        System.out.println(resultList);
+        return resultList;
     }
 }

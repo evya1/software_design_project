@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.geometry.Point3D?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -21,47 +28,108 @@
             <AnchorPane prefHeight="100.0" prefWidth="1400.0" BorderPane.alignment="CENTER">
                 <Label layoutX="616.0" layoutY="39.0" text="Reports" textFill="WHITE">
                     <font>
-                        <Font name="SF Pro Display Heavy Italic" size="58.0"/>
+                        <Font name="SF Pro Display Heavy Italic" size="58.0" />
                     </font>
                 </Label>
-                <ImageView fitHeight="127.0" fitWidth="148.0" layoutX="46.0" layoutY="10.0" pickOnBounds="true"
-                           preserveRatio="true">
-                    <Image url="@../catalogM/logo.png"/>
+                <ImageView fitHeight="127.0" fitWidth="148.0" layoutX="46.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@../catalogM/logo.png" />
                 </ImageView>
             </AnchorPane>
         </top>
         <left>
 
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                <Button id="newBtn" fx:id="newBtn" layoutY="313.0" mnemonicParsing="false" onAction="#handleNewBtn"
-                        styleClass="button" stylesheets="@reportsStyle.css" text="New btn" AnchorPane.leftAnchor="0.0"
-                        AnchorPane.rightAnchor="0.0">
+               <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <Button id="newBtn" fx:id="newBtn" layoutY="360.0" mnemonicParsing="false" onAction="#handleNewBtn" styleClass="button" stylesheets="@reportsStyle.css" text="New BTN" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                     <cursor>
-                        <Cursor fx:constant="DEFAULT"/>
+                        <Cursor fx:constant="DEFAULT" />
                     </cursor>
                     <styleClass>
-                        <String fx:value="button"/>
-                        <String fx:value="rounded-corners"/>
-                        <String fx:value="hover-button"/>
+                        <String fx:value="button" />
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
                     </styleClass>
                 </Button>
-                <Button id="exitBtn" fx:id="ExitBtn" layoutY="400.0" mnemonicParsing="false"
-                        onAction="#handleBackAction" styleClass="button" stylesheets="@reportsStyle.css" text="Back"
-                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                <Button id="exitBtn" fx:id="ExitBtn" layoutY="400.0" mnemonicParsing="false" onAction="#handleBackAction" styleClass="button" stylesheets="@reportsStyle.css" text="Back" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                     <styleClass>
-                        <String fx:value="button"/>
-                        <String fx:value="rounded-corners"/>
-                        <String fx:value="hover-button"/>
+                        <String fx:value="button" />
+                        <String fx:value="rounded-corners" />
+                        <String fx:value="hover-button" />
                     </styleClass>
                 </Button>
+            <ButtonBar prefHeight="40.0" prefWidth="200.0" />
+            <ComboBox id="reportSpanSelectionButton" fx:id="supportedSpanSelectionComboBox" layoutY="10.0" maxWidth="1.7976931348623157E308" onAction="#chooseSupportedSpan" prefHeight="30.0" prefWidth="200.0" visibleRowCount="5" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass>
+               <stylesheets>
+                  <URL value="@../catalogM/styleColor.css" />
+                  <URL value="@../catalogM/ComboBox.css" />
+               </stylesheets>
+            </ComboBox>
+            <ComboBox id="selectReportTypeButton" fx:id="reportTypeSelectionComboBox" layoutY="60.0" maxWidth="1.7976931348623157E308" onAction="#chooseReportType" prefHeight="30.0" prefWidth="200.0" stylesheets="@reportsStyle.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <rotationAxis>
+                  <Point3D />
+               </rotationAxis>
+               <styleClass>
+                  <String fx:value="hover-button" />
+                  <String fx:value="rounded-corners" />
+               </styleClass>
+            </ComboBox>
+            <ComboBox id="branchSelectionButton" fx:id="branchSelectionComboBox" layoutY="160.0" onAction="#chooseBranch" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+                  <String fx:value="combo-box-display-node" />
+               </styleClass>
+               <stylesheets>
+                  <URL value="@../catalogM/styleColor.css" />
+                  <URL value="@../catalogM/ComboBox.css" />
+               </stylesheets>
+            </ComboBox>
+            <DatePicker id="datePickerID " fx:id="datePicker" layoutY="210.0" onAction="#dateFilterPicker" prefHeight="30.0" promptText="Select a Date" styleClass="date-with-movie" stylesheets="@../catalogM/styleColor.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+            <Button id="clearFilterButton" fx:id="clearFiltersBtn" layoutY="310.0" mnemonicParsing="false" onAction="#clearFilters" stylesheets="@reportsStyle.css" text="Clear Filters" textFill="#222831" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass>
+            </Button>
+            <Button id="getReportBtn" fx:id="getReportBtn" layoutY="260.0" mnemonicParsing="false" onAction="#getReport" stylesheets="@reportsStyle.css" text="Get Reprot" textFill="#222831" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+               </styleClass>
+            </Button>
+            <ComboBox id="purchaseTypeSelectionBtn" fx:id="purchaseTypeSelectionComboBox" layoutY="110.0" onAction="#choosePurchaseType" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+                  <String fx:value="combo-box-display-node" />
+               </styleClass>
+               <stylesheets>
+                  <URL value="@../catalogM/styleColor.css" />
+                  <URL value="@../catalogM/ComboBox.css" />
+               </stylesheets>
+            </ComboBox>
+            <ComboBox id="monthOrQuarterSelectionButtonID" fx:id="monthOrQuarterSelectionComboBox" layoutY="210.0" onAction="#chooseMonthOrQuarter" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <styleClass>
+                  <String fx:value="rounded-corners" />
+                  <String fx:value="hover-button" />
+                  <String fx:value="combo-box-display-node" />
+               </styleClass>
+               <stylesheets>
+                  <URL value="@../catalogM/styleColor.css" />
+                  <URL value="@../catalogM/ComboBox.css" />
+               </stylesheets>
+            </ComboBox>
             </AnchorPane>
 
         </left>
         <right>
-            <AnchorPane prefHeight="550.0" prefWidth="75.0" BorderPane.alignment="CENTER" />
+            <AnchorPane prefHeight="550.0" prefWidth="75.0" stylesheets="@reportsStyle.css" BorderPane.alignment="CENTER" />
         </right>
         <bottom>
-            <AnchorPane prefHeight="25.0" prefWidth="1400.0" BorderPane.alignment="CENTER" />
+            <AnchorPane prefHeight="25.0" prefWidth="1400.0" stylesheets="@reportsStyle.css" BorderPane.alignment="CENTER" />
         </bottom>
         <center>
         <BorderPane id="ChartBorderPane" fx:id="chartBorderPane" prefHeight="200.0" prefWidth="200.0" stylesheets="@reportsStyle.css">
@@ -91,6 +159,16 @@
             <right>
                 <ScrollBar orientation="VERTICAL" BorderPane.alignment="CENTER" />
             </right>
+            <left>
+               <TableView fx:id="table" prefHeight="461.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+                 <columns>
+                   <TableColumn fx:id="columnA" prefWidth="75.0" />
+                   <TableColumn fx:id="columnB" prefWidth="75.0" />
+                     <TableColumn fx:id="columnC" prefWidth="75.0" />
+                     <TableColumn fx:id="columnD" prefWidth="75.0" />
+                 </columns>
+               </TableView>
+            </left>
         </BorderPane>
         </center>
     </BorderPane>

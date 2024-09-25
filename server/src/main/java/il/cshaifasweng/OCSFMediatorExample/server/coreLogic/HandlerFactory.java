@@ -1,18 +1,24 @@
 package il.cshaifasweng.OCSFMediatorExample.server.coreLogic;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportService;
 import il.cshaifasweng.OCSFMediatorExample.server.SimpleServer;
 import il.cshaifasweng.OCSFMediatorExample.server.concreteHandlers.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
+
 public class HandlerFactory {
     private static HandlerFactory instance;
     private final Map<String, RequestHandler> handlers;
     private SimpleServer server;
+    private ReportService reportService;
 
-    private HandlerFactory(SimpleServer server) {
+    public HandlerFactory(SimpleServer server, ReportService reportService) {
         this.server = server;
+        this.reportService = reportService;
+        System.out.println("HandlerFactory initialized with reportService: " + reportService);
         handlers = new HashMap<>();
         initializeHandlers();
     }
@@ -35,11 +41,18 @@ public class HandlerFactory {
         handlers.put(RequestTypes.GET_CUSTOMER_INFO, new CustomerInfoHandler(server));
         handlers.put(RequestTypes.EMPLOYEE_INFORMATION, new EmployeeModificationHandler(server));
         handlers.put(RequestTypes.UPDATE_PURCHASE, new UpdatePurchaseHandler());
+        // Register report request handlers
+        handlers.put(FETCH_MONTHLY_REPORTS, new ReportsRequestHandler(reportService));
+        handlers.put(FETCH_LAST_QUARTER_REPORT, new ReportsRequestHandler(reportService));
     }
 
-    public static synchronized HandlerFactory getInstance(SimpleServer server) {
+    public static synchronized HandlerFactory getInstance(SimpleServer server, ReportService reportService) {
         if (instance == null) {
-            instance = new HandlerFactory(server);
+            if (reportService == null) {
+                throw new IllegalArgumentException("ReportService cannot be null");
+            }
+            System.out.println("Creating HandlerFactory instance with ReportService");
+            instance = new HandlerFactory(server, reportService);
         }
         return instance;
     }

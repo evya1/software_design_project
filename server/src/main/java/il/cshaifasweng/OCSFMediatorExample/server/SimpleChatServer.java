@@ -86,7 +86,8 @@ public class SimpleChatServer {
 
         try {
             DataCommunicationDB.generateMovieList();
-//             DataCommunicationDB.createMockData();
+            DataCommunicationDB.generateMovieList();
+            DataCommunicationDB.createMockData();
             DataCommunicationDB.printAllEntities();
 
             Thread expiredLinksCheckerThread = new Thread(new ExpiredLinksChecker(sessionFactory));
