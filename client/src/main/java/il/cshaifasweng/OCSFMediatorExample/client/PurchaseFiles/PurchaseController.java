@@ -116,25 +116,24 @@ public class PurchaseController implements ClientDependent {
             Message message = event.getMessage();
 
             Platform.runLater(() -> {
-
+                EventBus.getDefault().unregister(this);
                 if (Objects.equals(message.getMessage(), "New Purchase") && message.getPurchase() != null) {
                     Purchase purchase = message.getPurchase();
                     System.out.println("Purchase received: " + purchase);
                     final String title = "Purchase Confirmed!";
                     switch (purchase.getPurchaseType()) {
                         case BOOKLET:
-                            popUpAndReturnToMainScreen(client, returnBtn,title,"Booklet Purchased Successfully!");
+                            popUpAndReturnToMainScreen(client, returnBtn, title, "Booklet Purchased Successfully!");
                             break;
                         case MOVIE_LINK:
-                            popUpAndReturnToMainScreen(client,returnBtn,title,"Movie Link Purchased Successfully!");
+                            popUpAndReturnToMainScreen(client, returnBtn, title, "Movie Link Purchased Successfully!");
                             break;
                         case MOVIE_TICKET:
-                            popUpAndReturnToMainScreen(client,returnBtn,title,"Movie Ticket Purchased Successfully!");
+                            popUpAndReturnToMainScreen(client, returnBtn, title, "Movie Ticket Purchased Successfully!");
                             break;
                         default:
                             System.out.println("Unknown Command");
                     }
-                    EventBus.getDefault().unregister(this);
                 }
             });
 
