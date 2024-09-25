@@ -121,6 +121,7 @@ public class PurchaseController implements ClientDependent {
                     Purchase purchase = message.getPurchase();
                     System.out.println("Purchase received: " + purchase);
                     final String title = "Purchase Confirmed!";
+                    EventBus.getDefault().unregister(this);
                     switch (purchase.getPurchaseType()) {
                         case BOOKLET:
                             popUpAndReturnToMainScreen(client, returnBtn,title,"Booklet Purchased Successfully!");
@@ -134,7 +135,7 @@ public class PurchaseController implements ClientDependent {
                         default:
                             System.out.println("Unknown Command");
                     }
-                    EventBus.getDefault().unregister(this);
+
                 }
             });
 
