@@ -19,6 +19,7 @@ import org.hibernate.query.Query;
 import java.io.IOException;
 import java.util.List;
 
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.MOVIE_TICKET;
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.PURCHASE_NOT_FOUND;
 import static il.cshaifasweng.OCSFMediatorExample.server.coreLogic.RequestTypes.UPDATE_PURCHASE;
 
@@ -43,7 +44,7 @@ public class UpdatePurchaseHandler implements RequestHandler {
                     oldPurchase.setCancelled(updatePurchase.isCancelled());
 
                     //releasing the purchased seat and updating the number of available seats in the theater
-                    if (oldPurchase.getPurchaseType() == PurchaseType.MOVIE_TICKET) {
+                    if (oldPurchase.getPurchaseType() == MOVIE_TICKET) {
                         String hql = "FROM MovieSlot";
                         Query query = session.createQuery(hql);
                         List<MovieSlot> movieSlots = query.list();

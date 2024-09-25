@@ -48,7 +48,6 @@ public class Employee implements Serializable {
         this.username = username;
         this.password = password;
         this.active = active;
-        // Utilizes setBranchInCharge method to assign both branch and branchInCharge based on employee type.
         setBranchInCharge(branchInCharge);
         this.branch = workingBranch;
     }
@@ -141,7 +140,7 @@ public class Employee implements Serializable {
      * @return the branch in charge or null if the employee is not a theater manager
      */
     public Branch getBranchInCharge() {
-        if (employeeType == EmployeeType.BRANCH_MANAGER) {
+        if (employeeType == EmployeeType.BRANCH_MANAGER || employeeType == EmployeeType.CHAIN_MANAGER ) {
             return branchInCharge;
         }
         return null;
@@ -156,8 +155,11 @@ public class Employee implements Serializable {
      * @param branchInCharge the branch to set as the branch in charge
      */
     public void setBranchInCharge(Branch branchInCharge) {
+        if (employeeType == EmployeeType.CHAIN_MANAGER)
+            setBranch(branchInCharge);
         if (employeeType == EmployeeType.BRANCH_MANAGER) {
             this.branchInCharge = branchInCharge;
+            setBranch(branchInCharge);
         }
         else {
             this.branchInCharge = null;
@@ -166,19 +168,6 @@ public class Employee implements Serializable {
 
     @Override
     public String toString() {
-
         return "ID: " + getId() + " " +  getFirstName() + " " + getLastName();
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("Employee ID: ").append(id).append(", First Name: ").append(firstName).append(", Last Name: ").append(lastName).append(", Email: ").append(email).append(", Username: ").append(username).append(", Employee Type: ").append(employeeType);
-//
-//        if (employeeType == EmployeeType.BRANCH_MANAGER && branchInCharge != null) {
-//            sb.append(", Branch In Charge: ").append(branchInCharge.getBranchName());
-//        }
-//
-//        if (employeeType == EmployeeType.CHAIN_MANAGER) {
-//            sb.append(", Chain Manager");
-//        }
-//
-//        return sb.toString();
     }
 }

@@ -1,4 +1,4 @@
-package il.cshaifasweng.OCSFMediatorExample.client.Customer;
+package il.cshaifasweng.OCSFMediatorExample.client.customer;
 
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.MovieLink;
@@ -7,7 +7,6 @@ import javafx.application.Platform;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 
 public class ExpiredLinkChecker implements Runnable {
@@ -43,19 +42,28 @@ public class ExpiredLinkChecker implements Runnable {
                         long delay = Duration.between(now, expirationTime).toMillis();
 
                         if (delay < 0 && movieLink.isActive()) {
+                            System.out.println("time expired");
                             movieLink.setInvalid();
                             movieLink.setInactive();
                             Thread.sleep(1000);
-                            Platform.runLater(() -> customerController.linkRefreshRequest(true));
-                        }
-                        else if (!movieLink.isActive()) {
+                            Platform.runLater(() -> customerController.linkRefreshRequest(0, movieLink));
+                        } else if (!movieLink.isActive()) {
                             delay = Duration.between(creationTime, now).toMillis();
-                            if(delay > 0){
+                            if (delay > 0) {
+                                System.out.println("time active");
                                 Thread.sleep(1500);
                                 movieLink.setActive();
-                                Platform.runLater(() -> customerController.linkRefreshRequest(false));
+                                Platform.runLater(() -> customerController.linkRefreshRequest(1, movieLink));
+
+                            } else if (!movieLink.isNotified() && delay > -3600000) {
+                                System.out.println("active notification");
+                                Thread.sleep(1500);
+                                movieLink.setNotified();
+                                Platform.runLater(() -> customerController.linkRefreshRequest(2, movieLink));
 
                             }
+
+
                         }
                     }
                 }
@@ -68,4 +76,10 @@ public class ExpiredLinkChecker implements Runnable {
         this.stopChecker=true;
     }
 
+    public List<MovieLink> getMovieLinks() {return this.movieLinks;}
+
+    public void updateChecker(List<MovieLink> movieLinks){this.movieLinks=movieLinks;}
+
 }
+
+

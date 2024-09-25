@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.*;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.*;
 
+
+
 public class PrimaryController implements ClientDependent {
     public ImageView logoBtn;
 

@@ -26,6 +26,7 @@ public class MovieLink implements Serializable {
     private LocalDateTime expirationTime;
     private boolean isValid = true;
     private boolean isActive = false;
+    private boolean isNotified = false;
 
 
 
@@ -104,4 +105,8 @@ public class MovieLink implements Serializable {
     public void setCustomer_id(int customer_id) {this.customer_id = customer_id;}
 
     public int getCustomer_id() {return customer_id;}
+
+    public boolean isNotified() {return isNotified;}
+
+    public void setNotified() {isNotified = true;}
 }

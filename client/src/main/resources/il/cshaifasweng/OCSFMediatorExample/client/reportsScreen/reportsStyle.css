@@ -3,12 +3,53 @@
 
 .button {
     -fx-alignment: center;
-    -fx-pref-width: auto;
+    /* Remove auto, let the button size automatically based on content */
     -fx-text-fill: black;
-    -fx-font-size: 22.0;
-    -fx-padding: 10.0 16.8;
+    -fx-font-size: 16.0;
+    -fx-pref-height: 30;
 }
 
 #ChartBorderPane{
     -fx-background-color: white;
+}
+
+#exitBtn{
+    -fx-font-size: 20.0;
+    -fx-text-overrun: ellipsis;
+}
+
+#clearFilterButton{
+    -fx-background-color: #959595;
+}
+
+#getReportBtn{
+    -fx-background-color: #edff56;
+}
+
+/* Colors for Product A, B, and C in the pie chart */
+
+/* Colors for Product A, B, and C in the pie chart */
+.default-color0.chart-pie {
+    -fx-pie-color: #ff9999; /* Soft Red */
+}
+
+.default-color1.chart-pie {
+    -fx-pie-color: #ffa07a; /* Light Salmon */
+}
+
+.default-color2.chart-pie {
+    -fx-pie-color: #ff7f50; /* Coral */
+}
+
+/* Colors for Product A, B, and C in the bar chart */
+.default-color0.chart-bar {
+    -fx-bar-fill: #ff9999; /* Soft Red */
+}
+
+.default-color1.chart-bar {
+    -fx-bar-fill: #ffa07a; /* Light Salmon */
+}
+
+.default-color2.chart-bar {
+    -fx-bar-fill: #ff7f50; /* Coral */
 }

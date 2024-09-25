@@ -1,5 +1,4 @@
-package il.cshaifasweng.OCSFMediatorExample.client.Customer;
-import il.cshaifasweng.OCSFMediatorExample.entities.movieDetails.MovieSlot;
+package il.cshaifasweng.OCSFMediatorExample.client.customer;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.*;
 import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
@@ -410,6 +409,16 @@ public class CustomerController implements ClientDependent {
                         if (!movieLinks.isEmpty()) {
                             moviePackageTableView.getItems().clear(); // Clear existing items
                             moviePackageTableView.getItems().addAll(movieLinks); // Add new items
+                            try{
+
+                                expiredLinkCheckerThread.interrupt();
+                                this.expiredLinkChecker = new ExpiredLinkChecker(client, localCustomer.getId(), movieLinks, this);
+                                expiredLinkCheckerThread = new Thread(expiredLinkChecker);
+                                expiredLinkCheckerThread.start();
+                                System.out.println("Link Checker Updated");
+
+                            } catch (Exception e) {System.out.println("Link checker not found");}
+
                             moviePackageTableView.refresh(); // Refresh the table view to display new data
                         }
 
@@ -489,7 +498,7 @@ public class CustomerController implements ClientDependent {
     void loginLogoutAction(ActionEvent event) {
         if (connectedFlag) {
             loggedOutButtons();
-            expiredLinkChecker.stopChecker();
+            expiredLinkCheckerThread.interrupt();
             SimpleClient.showAlert(Alert.AlertType.INFORMATION, "Logged out", "Logged out successfully.");
 
             // Perform logout
@@ -864,12 +873,18 @@ public class CustomerController implements ClientDependent {
         }
     }
 
-    public void linkRefreshRequest(boolean isExpired){
+    public void linkRefreshRequest(int isExpired, MovieLink movieLink){
         Platform.runLater(() -> {
-            if (isExpired)
-                showAlert("Expiration Alert","A link has expired.");
-            else
+            if (isExpired==0) {
+                showAlert("Expiration Alert", "A link has expired.");
+            }
+            else if (isExpired==1) {
                 showAlert("Activated link", "A link has been activated! Please check your inbox");
+            }
+
+            else{
+                showAlert("Link will soon be activated!", "A link will be activated in an hour!\nFurther details in the inbox.");
+            }
             moviePackageTableView.refresh(); // Refresh the table view to display new data
 
             Message msg = new Message();

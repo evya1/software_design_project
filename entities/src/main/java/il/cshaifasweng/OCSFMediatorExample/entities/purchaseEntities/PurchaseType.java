@@ -3,7 +3,8 @@ package il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities;
 public enum PurchaseType {
     MOVIE_LINK("Movie Link"),
     MOVIE_TICKET("Movie Ticket"),
-    BOOKLET("Booklet");
+    BOOKLET("Booklet"),
+    ALL_TYPES("All Types");
 
 
     private final String description;
