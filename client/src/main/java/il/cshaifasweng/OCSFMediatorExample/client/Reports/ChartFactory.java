@@ -2,6 +2,8 @@ package il.cshaifasweng.OCSFMediatorExample.client.Reports;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
+import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Complaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Report;
 import javafx.application.Platform;
@@ -29,6 +31,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.ALL_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.INVALID_LABEL;
@@ -50,6 +53,7 @@ public class ChartFactory {
     private BorderPane chartBorderPane;
     private ObservableList<Purchase> purchasesList;
     private ObservableList<Complaint> complaintsList;
+    private Employee employee;
 
 
     // Constructor updated to initialize the observable chart data
@@ -313,13 +317,45 @@ public class ChartFactory {
         return convertToChartData(pair -> new PieChart.Data(pair.getKey(), pair.getValue()));
     }
 
-    // Converts Purchases to XYChart.Series data, grouped by purchase date
-    public XYChart.Series<String, Number> convertPurchasesToChartSeriesGroupedByDate(ObservableList<Purchase> purchases) {
-        return convertToChartSeriesGroupedByDate(
-                purchases,
-                Purchase::getDateOfPurchase,
-                PURCHASE_SERIES_NAME);
+    private XYChart.Series<String, Number> convertPurchasesToChartSeriesGroupedByDate(ObservableList<Purchase> purchases) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN);
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName(PURCHASE_SERIES_NAME);
+
+        Map<LocalDate, Long> purchaseCountByDate = purchases.stream()
+                .collect(Collectors.groupingBy(
+                        purchase -> purchase.getDateOfPurchase().toLocalDate(),
+                        Collectors.counting()
+                ));
+
+        purchaseCountByDate.forEach((date, count) -> {
+            XYChart.Data<String, Number> data = new XYChart.Data<>(date.format(formatter), count);
+            series.getData().add(data);
+        });
+
+        return series;
     }
+
+    private XYChart.Series<String, Number> convertPurchasesToChartSeriesGroupedByType(ObservableList<Purchase> purchases, PurchaseType type) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN);
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName(type.toString());
+
+        Map<LocalDate, Long> purchaseCountByDate = purchases.stream()
+                .filter(purchase -> purchase.getPurchaseType() == type)
+                .collect(Collectors.groupingBy(
+                        purchase -> purchase.getDateOfPurchase().toLocalDate(),
+                        Collectors.counting()
+                ));
+
+        purchaseCountByDate.forEach((date, count) -> {
+            XYChart.Data<String, Number> data = new XYChart.Data<>(date.format(formatter), count);
+            series.getData().add(data);
+        });
+
+        return series;
+    }
+
 
     // Converts Complaints to XYChart.Series data, grouped by complaint date
     public XYChart.Series<String, Number> convertComplaintsToChartSeriesGroupedByDate(ObservableList<Complaint> complaints) {
@@ -368,18 +404,6 @@ public class ChartFactory {
         return series;
     }
 
-    // Converts Purchases and Complaints to XYChart data, grouped by date
-    public ObservableList<XYChart.Series<String, Number>> convertPurchasesAndComplaintsToChartData(
-            ObservableList<Purchase> purchases, ObservableList<Complaint> complaints) {
-
-        // Generate series for Purchases and Complaints
-        XYChart.Series<String, Number> purchaseSeries = convertPurchasesToChartSeriesGroupedByDate(purchases);
-        XYChart.Series<String, Number> complaintSeries = convertComplaintsToChartSeriesGroupedByDate(complaints);
-
-        // Return both series to be displayed on the bar chart
-        return FXCollections.observableArrayList(purchaseSeries, complaintSeries);
-    }
-
     // General method for chart creation
     private <T extends Chart> T createChart(Supplier<T> chartSupplier, String contextDescription) {
         T chart = chartSupplier.get();
@@ -414,13 +438,13 @@ public class ChartFactory {
         pieChart.setData(dataList);
     }
 
-    // Method to apply CSS class based on product type, with a listener to handle late node creation
+    // Apply CSS classes and make sure they apply even if nodes are created later
     private <D> void applyCssClasses(ObservableList<D> dataList, Function<D, String> productExtractor) {
         for (D data : dataList) {
             String product = productExtractor.apply(data);
             Node node = getNodeFromData(data);
 
-            // If the node doesn't exist yet, listen for its creation and apply the style later
+            // If the node is not created yet, apply the CSS class when it gets created
             if (node == null) {
                 if (data instanceof XYChart.Data<?, ?> xyData) {
                     xyData.nodeProperty().addListener((obs, oldNode, newNode) -> {
@@ -441,17 +465,18 @@ public class ChartFactory {
         }
     }
 
-    // Applies a specific CSS class to a node based on the product name
+    // Utility method to apply CSS class for different product types
     private void applyCssClassForProduct(String product, Node node) {
-        if (PURCHASABLE_PRODUCT_A.equals(product)) {
-            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_A);
-        } else if (PURCHASABLE_PRODUCT_B.equals(product)) {
-            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_B);
-        } else if (PURCHASABLE_PRODUCT_C.equals(product)) {
-            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_C);
+        if (PURCHASABLE_PRODUCT_B.equals(product)) { // Movie Ticket
+            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_B); // Light Salmon for Movie Ticket
+        } else if (PURCHASABLE_PRODUCT_A.equals(product)) { // Movie Link
+            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_A); // Soft Red for Movie Link
+        } else if (PURCHASABLE_PRODUCT_C.equals(product)) { // Booklet
+            node.getStyleClass().add(CHART_CSS_CLASS_PRODUCT_C); // Coral for Booklet
+        } else if (COMPLAINT_SERIES_NAME.equals(product)) { // Complaints
+            node.getStyleClass().add(CHART_CSS_CLASS_COMPLAINTS); // Blue for Complaints
         } else {
-            // Optionally handle unknown product types
-            node.getStyleClass().add(CHART_CSS_CLASS_DEFAULT_PRODUCT);
+            node.getStyleClass().add(CHART_CSS_CLASS_DEFAULT_PRODUCT); // Default grey for unknown products
         }
     }
 
@@ -851,27 +876,110 @@ public class ChartFactory {
         this.complaintsList = complaintsList;
     }
 
-    // Utility method to display values above bars with externalized constants
     private void displayValueAboveBar(Node node, Long value) {
         final Text dataLabel = new Text(value.toString());
-        dataLabel.getStyleClass().add(CHART_LABEL_CSS_CLASS); // Apply CSS class
+        dataLabel.getStyleClass().add(CHART_LABEL_CSS_CLASS); // Apply CSS class for styling
 
+        // Debugging to check if the label is being added correctly
         node.parentProperty().addListener((obs, oldParent, newParent) -> {
             if (newParent != null) {
                 ((Group) newParent).getChildren().add(dataLabel);
+                System.out.println("Label added for value: " + value);
+            } else {
+                System.out.println("Parent is null, label not added");
             }
-
         });
 
-        // Reposition label based on node bounds and using constants
+        // Reposition the label correctly based on node bounds
         node.boundsInParentProperty().addListener((obs, oldBounds, newBounds) -> {
             double labelX = newBounds.getMinX() + (newBounds.getWidth() / LABEL_CENTERING_X_RATIO)
                     - dataLabel.prefWidth(-1) * LABEL_HORIZONTAL_OFFSET_RATIO;
             double labelY = newBounds.getMinY() - dataLabel.prefHeight(-1) * LABEL_VERTICAL_OFFSET_RATIO;
 
-            // Use constants for offsets to avoid magic numbers
+            // Debugging the label position
+            System.out.println("Label X: " + labelX + ", Label Y: " + labelY + " for value: " + value);
+
             dataLabel.setLayoutX(labelX);
             dataLabel.setLayoutY(labelY);
+            dataLabel.toFront();  // Bring the label to the front in case of overlap
         });
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    // Method to update the bar chart based on employee type, while ensuring labels and colors are correctly applied
+    public void updateBarChartByEmployeeType(ObservableList<Purchase> purchasesList, ObservableList<Complaint> complaintsList) {
+        if (employee == null || employee.getEmployeeType() == null) {
+            System.err.println("Employee or employee type is null, cannot refresh the chart.");
+            return;
+        }
+
+        // Clear existing chart
+        chartBorderPane.getChildren().clear();
+
+        boolean isBranchManager = employee != null && employee.getEmployeeType() == EmployeeType.BRANCH_MANAGER;
+        boolean isChainManager = employee != null && employee.getEmployeeType() == EmployeeType.CHAIN_MANAGER;
+
+        if (isBranchManager) {
+            // Filter only Movie Ticket Purchases for Branch Manager
+            ObservableList<Purchase> filteredPurchases = FXCollections.observableArrayList(
+                    purchasesList.stream()
+                            .filter(purchase -> purchase.getPurchaseType() == MOVIE_TICKET) // Only movie ticket purchases
+                            .collect(Collectors.toList())
+            );
+
+            // Convert filtered purchases to chart data
+            XYChart.Series<String, Number> purchaseSeries = convertPurchasesToChartSeriesGroupedByDate(filteredPurchases);
+            purchaseSeries.setName(PURCHASABLE_PRODUCT_B); // Set label to Movie Ticket Purchases
+
+            // Create the BarChart with Movie Ticket purchases
+            String branchName = employee.getBranch().getBranchName();
+            BarChart<String, Number> barChart = createBarChart(branchName + " - Movie Ticket Purchases by Date");
+            barChart.getData().add(purchaseSeries);
+
+            // Apply CSS classes for matching colors
+            applyCssClasses(purchaseSeries.getData(), XYChart.Data::getXValue);
+
+            // Add a label above each bar to display the value
+            purchaseSeries.getData().forEach(data -> displayValueAboveBar(data.getNode(), data.getYValue().longValue()));
+
+            // Force a layout update to ensure everything is displayed properly
+            chartBorderPane.setCenter(barChart);
+            chartBorderPane.layout();  // Ensure re-layout
+        } else if (isChainManager) {
+            // Chain managers can see everything, including complaints and purchases
+            XYChart.Series<String, Number> movieTicketSeries = convertPurchasesToChartSeriesGroupedByType(purchasesList, MOVIE_TICKET);
+            XYChart.Series<String, Number> movieLinkSeries = convertPurchasesToChartSeriesGroupedByType(purchasesList, MOVIE_LINK);
+            XYChart.Series<String, Number> bookletSeries = convertPurchasesToChartSeriesGroupedByType(purchasesList, BOOKLET);
+            XYChart.Series<String, Number> complaintSeries = convertComplaintsToChartSeriesGroupedByDate(complaintsList);
+
+            // Create the BarChart and add the series
+            BarChart<String, Number> barChart = createBarChart("Purchases and Complaints by Date");
+            barChart.getData().addAll(movieTicketSeries, movieLinkSeries, bookletSeries, complaintSeries);
+
+            // Apply CSS classes for color matching
+            applyCssClasses(movieTicketSeries.getData(), XYChart.Data::getXValue);
+            applyCssClasses(movieLinkSeries.getData(), XYChart.Data::getXValue);
+            applyCssClasses(bookletSeries.getData(), XYChart.Data::getXValue);
+            applyCssClasses(complaintSeries.getData(), XYChart.Data::getXValue);
+
+            // Add labels above each bar to display the value
+            movieTicketSeries.getData().forEach(data -> displayValueAboveBar(data.getNode(), data.getYValue().longValue()));
+            movieLinkSeries.getData().forEach(data -> displayValueAboveBar(data.getNode(), data.getYValue().longValue()));
+            bookletSeries.getData().forEach(data -> displayValueAboveBar(data.getNode(), data.getYValue().longValue()));
+            complaintSeries.getData().forEach(data -> displayValueAboveBar(data.getNode(), data.getYValue().longValue()));
+
+            // Force a layout update to ensure everything is displayed properly
+            chartBorderPane.setCenter(barChart);
+            chartBorderPane.layout();  // Ensure re-layout
+        } else {
+            System.out.println("Unsupported employee type: " + employee.getEmployeeType());
+        }
     }
 }

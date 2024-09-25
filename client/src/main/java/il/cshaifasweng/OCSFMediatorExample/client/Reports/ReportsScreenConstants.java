@@ -69,6 +69,7 @@ public class ReportsScreenConstants {
     public static final String CHART_CSS_CLASS_PRODUCT_A = "default-color0";
     public static final String CHART_CSS_CLASS_PRODUCT_B = "default-color1";
     public static final String CHART_CSS_CLASS_PRODUCT_C = "default-color2";
+    public static final String CHART_CSS_CLASS_COMPLAINTS = "default-color3";
     public static final String CHART_CSS_CLASS_DEFAULT_PRODUCT = "default-product";
 
     public static final String REPORTS_STYLE_PATH = "il/cshaifasweng/OCSFMediatorExample/client/reportsScreen/reportsStyle.css";

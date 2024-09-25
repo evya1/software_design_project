@@ -40,11 +40,19 @@
 }
 
 .default-color0.chart-bar {
-    -fx-bar-fill: #007bff; /* Blue for Complaints */
+    -fx-pie-color: #ff9999; /* Soft Red */
 }
 
 .default-color1.chart-bar {
-    -fx-bar-fill: #ff69b4; /* Pink for Purchases */
+    -fx-pie-color: #ffa07a; /* Light Salmon */
+}
+
+.default-color2.chart-bar {
+    -fx-pie-color: #ff7f50; /* Coral */
+}
+
+.default-color3.chart-bar {
+    -fx-bar-fill: #007bff; /* Blue for Complaints */
 }
 
 /* Chart Data Labels */

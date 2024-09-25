@@ -130,29 +130,23 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         // Initialize UI components (e.g., ComboBoxes, Tables)
         initializeUIComponents();
 
-        // Add the stylesheet to the scene if the chartBorderPane has a scene
-        if (chartBorderPane.getScene() != null) {
-            chartBorderPane.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getClassLoader()
-                    .getResource(REPORTS_STYLE_PATH)).toExternalForm());
-        }
-
-        // Set the chartBorderPane in the ChartFactory instance
+        // Set the chartBorderPane and employee in the ChartFactory instance
+        chartFactory.setEmployee(employee);
         chartFactory.setChartBorderPane(chartBorderPane);
 
-        // Pass the ObservableLists for purchases and complaints to ChartFactory
-        chartFactory.setPurchasesList(purchasesList);
-        chartFactory.setComplaintsList(complaintsList);
-
-        // Display the PieChart by default
+        // Optionally, display the PieChart by default
         String contextDescription = chartFactory.getContextDescription(chartContext);
         chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
 
-        // Get the local message and set employee and chart context
+        // Get the local message and process employee and chart context
         Message localMessage = getLocalMessage();
 
         if (localMessage != null) {
             setEmployee(localMessage.getEmployee());
             setChartContext(chartContext);
+
+            // Initialize the branch selection based on employee type
+            initializeBranchSelectionComboBoxBasedOnEmployeeType();
 
             // Fetch purchases and complaints from the server
             fetchPurchasesAndComplaints();
@@ -212,15 +206,11 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     @FXML
     public void handleShowBarChart(ActionEvent actionEvent) {
-        // Clear the table rows
+        // Clear the table rows (assuming you're also displaying data in a table)
         table.getItems().clear();
 
-        // Prepare the data for the BarChart (Purchases and Complaints)
-        ObservableList<XYChart.Series<String, Number>> barChartData = chartFactory.convertPurchasesAndComplaintsToChartData(purchasesList, complaintsList);
-
-        // Create the BarChart and populate it
-        BarChart<String, Number> barChart = chartFactory.createBarChart("Purchases and Complaints by Date");
-        chartFactory.populateBarChart(barChart, chartBorderPane, barChartData);
+        // Update the BarChart based on the employee type
+        chartFactory.updateBarChartByEmployeeType(purchasesList, complaintsList);
     }
 
     /**
@@ -615,22 +605,33 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private void initializeBranchSelectionComboBoxBasedOnEmployeeType() {
+        // If the employee is null, hide the combo box
         if (employee == null) {
             branchSelectionComboBox.setVisible(false);
             return;
         }
 
+        // If employee is a Chain Manager, request branches from the server
         if (employee.getEmployeeType() == CHAIN_MANAGER) {
             System.out.println("Chain Manager detected. Requesting branches from the server.");
             Message msg = new Message();
             msg.setMessage(BRANCH_THEATER_INFORMATION);
             msg.setData(GET_BRANCHES);
             client.sendMessage(msg);
-        } else if (employee.getEmployeeType() == BRANCH_MANAGER && employee.getBranchInCharge() != null) {
-            branchList.clear();
+
+            // Make the ComboBox visible to allow the Chain Manager to select a branch
+            branchSelectionComboBox.setVisible(true);
+        }
+        // If the employee is a Branch Manager, set their branch directly and hide ComboBox
+        else if (employee.getEmployeeType() == BRANCH_MANAGER && employee.getBranchInCharge() != null) {
+            branchList.clear();  // Ensure branchList is not null
             branchList.add(employee.getBranchInCharge().getBranchName());
+
+            // Automatically set the branch without showing the ComboBox
             branchSelectionComboBox.setVisible(false);
-        } else {
+        }
+        // In any other case, hide the ComboBox
+        else {
             branchSelectionComboBox.setVisible(false);
         }
     }
