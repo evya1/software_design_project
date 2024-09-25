@@ -15,7 +15,7 @@
 
 #exitBtn{
     -fx-font-size: 20.0;
-    -fx-text-overrun: red;
+    -fx-text-overrun: ellipsis;
 }
 
 #clearFilterButton{

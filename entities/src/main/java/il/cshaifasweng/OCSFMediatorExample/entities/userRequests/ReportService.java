@@ -71,9 +71,6 @@ public class ReportService {
 
     private List<Object> gatherReportData(RequestData requestData) {
         ReportType reportType = requestData.reportType();
-        Branch branch = requestData.branch();
-        Month month = requestData.month();
-        PurchaseType purchaseType = requestData.purchaseType();
         List<Object> combinedResults = new ArrayList<>();
 
         switch (reportType) {
@@ -110,14 +107,20 @@ public class ReportService {
 
     public List<Report> retrieveReportsByBranchAndMonth(Month month, RequestData requestData) {
 
-        // Retrieve the reports based on branch and month from the database
-        List<Report> retrievedReports = db.retrieveReportsForBranchAndMonth(month, requestData);
+//        // Retrieve the reports based on branch and month from the database
+//        // the line below can be removed if i want to make each time a report..
+//        List<Report> retrievedReports = db.retrieveReportsForBranchAndMonth(month, requestData);
+//
+//        // If no existing reports are found, create and persist a new report
+//        if (retrievedReports.isEmpty()) {
+//            Report newReport = createAndPersistReport(requestData);
+//            retrievedReports.add(newReport);
+//        }
 
-        // If no existing reports are found, create and persist a new report
-        if (retrievedReports.isEmpty()) {
-            Report newReport = createAndPersistReport(requestData);
-            retrievedReports.add(newReport);
-        }
+        List<Report> retrievedReports = new ArrayList<>();
+
+        Report newReport = createAndPersistReport(requestData);
+        retrievedReports.add(newReport);
 
         return retrievedReports;
     }

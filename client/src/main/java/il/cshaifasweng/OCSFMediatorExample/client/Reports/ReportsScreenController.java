@@ -4,13 +4,14 @@ import il.cshaifasweng.OCSFMediatorExample.client.ClientDependent;
 import il.cshaifasweng.OCSFMediatorExample.client.MessageEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.SimpleClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.Purchase;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
-import javafx.collections.FXCollections;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -31,6 +33,8 @@ import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.BRANCH_THEATER_INFORMATION;
+import static il.cshaifasweng.OCSFMediatorExample.client.ClientRequests.GET_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.client.FilePathController.REPORTS_SCREEN;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.ALL_BRANCHES;
 import static il.cshaifasweng.OCSFMediatorExample.client.Reports.ReportsScreenConstants.*;
@@ -39,10 +43,10 @@ import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.CHAIN_MANAGER;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportSpanType.*;
-import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.ALL_REPORT_TYPE;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportType.REPORT_TYPE_A;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
-import static javafx.scene.control.Alert.AlertType.INFORMATION;
 
 public class ReportsScreenController implements ClientDependent, Initializable, AutoCloseable {
 
@@ -103,11 +107,15 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
      * a data filter criterion, or any other relevant context.
      */
     private Object chartContext;
+    private List<Report> reports;
+    private ObservableList<String> branchList;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         EventBus.getDefault().register(this);
+        reports = new ArrayList<>();
+        branchList = FXCollections.observableArrayList();
 
         initializeUIComponents();
 
@@ -177,7 +185,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     private void handleShowChart(ActionEvent actionEvent, String chartType) {
         String contextDescription = chartFactory.getContextDescription(chartContext);
         if (BAR_CHART_TYPE.equals(chartType)) {
-            chartFactory.prepareAndDisplayBarChart(contextDescription, chartBorderPane);
+            chartFactory.refreshChartWithReportData(reports);
         } else if (PIE_CHART_TYPE.equals(chartType)) {
             chartFactory.prepareAndDisplayPieChart(contextDescription, chartBorderPane);
         }
@@ -235,47 +243,139 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
 
     @Subscribe
     public void dataReceived(MessageEvent event) {
-
         Message message = event.getMessage();
         String messageContent = message.getMessage();
         System.out.println("ReportsScreenController: dataReceived: Message received: " + messageContent);
 
         Platform.runLater(() -> {
-            List<Report> reports = message.getReports();
+            if (reports == null) {
+                reports = new ArrayList<>();  // Initialize the reports list if it's null
+            }
+
+            reports.clear();  // Clear the list before adding new data
+            reports = message.getReports();
 
             if (reports != null && !reports.isEmpty()) {
-                System.out.println("ReportsScreenController: dataReceived: " + "size of reports: " + reports.size() + "first  reprot: " + reports.getFirst().toString());
-                // Delegating everything to ChartFactory
-                chartFactory.updateChartWithReports(reports);
+                System.out.println("ReportsScreenController: dataReceived: " + "size of reports: " + reports.size() + " first report: " + reports.getFirst().toString());
+                chartFactory.refreshChartWithReportData(reports);
 
                 for (Report report : reports) {
                     if (report.getDataForGraphs() != null) {
-                        // Populate the table using the dataForGraphs from each report
                         populateTableWithDataForGraphs(report.getDataForGraphs());
                     }
                 }
             } else {
-                System.out.println("ReportsScreenController: dataReceived: No reports received.");
-                SimpleClient.showAlert(INFORMATION, "No Reports", messageContent);
+                System.out.println("ReportsScreenController: dataReceived: Received a message BUT No reports received.");
             }
         });
     }
 
-//    /**
-//     * Handles events when the chart data is updated.
-//     * <p>
-//     * This method listens for {@link ChartDataUpdatedEvent} and triggers the update of the charts in the UI.
-//     * </p>
-//     *
-//     * @param event The event that triggers the UI update.
-//     */
-//    @Subscribe
-//    public void onChartDataUpdatedEvent(ChartDataUpdatedEvent event) {
-//        System.out.println("ReportsScreenController: onChartDataUpdatedEvent Called");
-//        String contextDescription = chartFactory.getContextDescription(event.getContextParameter());
-//        chartFactory.prepareAndDisplayBarChart(contextDescription, event.getChartBorderPane());
-//        chartFactory.prepareAndDisplayPieChart(contextDescription, event.getChartBorderPane());
-//    }
+    @Subscribe
+    public void incrementAppropriateTableRow(MessageEvent event) {
+        Message message = event.getMessage();
+        String messageContent = message.getMessage();
+        System.out.println("ReportsScreenController: incrementAppropriateTableRow: Message received: " + messageContent);
+
+        if (!NEW_PURCHASE_MESSAGE.equals(messageContent)) {
+            return;  // Skip if the message is not a "New Purchase" message
+        }
+
+        Platform.runLater(() -> {
+            Purchase messagePurchase = message.getPurchase();
+            if (messagePurchase == null) {
+                System.out.println("ReportsScreenController: messagePurchase is null, skipping row update.");
+                return;
+            }
+
+            // Check if the purchase involves a branch (e.g., Movie Tickets have a branch, but Booklet/MovieLink do not)
+            boolean purchaseHasBranch = messagePurchase.getBranch() != null;
+            boolean branchIsTheSameAsNewPurchaseBranch = purchaseHasBranch &&
+                    employee.getBranch().getId() == messagePurchase.getBranch().getId();
+
+            boolean employeeIsChainManager = employee.getEmployeeType() == CHAIN_MANAGER;
+
+            if (branchIsTheSameAsNewPurchaseBranch || employeeIsChainManager || !purchaseHasBranch) {
+                // Normalize the purchase type from the message
+                String normalizedProductType = chartFactory.normalizeProductNameForCaseInsensitiveComparison(messagePurchase.getPurchaseType().toString());
+
+                // Extract local variables for better readability
+                String normalizedMovieTicket = chartFactory.normalizeProductNameForCaseInsensitiveComparison(MOVIE_TICKET.toString());
+                String normalizedBooklet = chartFactory.normalizeProductNameForCaseInsensitiveComparison(BOOKLET.toString());
+                String normalizedMovieLink = chartFactory.normalizeProductNameForCaseInsensitiveComparison(MOVIE_LINK.toString());
+
+                // Self-documenting variables for the comparison
+                boolean isPurchaseForMovieTicket = normalizedProductType.equals(normalizedMovieTicket);
+                boolean isPurchaseForBooklet = normalizedProductType.equals(normalizedBooklet);
+                boolean isPurchaseForMovieLink = normalizedProductType.equals(normalizedMovieLink);
+
+                // Check if the purchase is for Movie Tickets
+                if (isPurchaseForMovieTicket) {
+                    int purchasedAmount = message.getChosenSeats().size();
+                    incrementAppropriateTableRowOfMovieTicket(purchasedAmount);
+                    chartFactory.updateChartForSpecificPurchaseTypeAndAmount(MOVIE_TICKET, purchasedAmount);
+
+                    // Check if the purchase is for Booklet
+                } else if (isPurchaseForBooklet) {
+                    incrementAppropriateTableRowOfBooklet(DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+                    chartFactory.updateChartForSpecificPurchaseTypeAndAmount(BOOKLET, DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+
+                    // Check if the purchase is for Movie Link
+                } else if (isPurchaseForMovieLink) {
+                    incrementAppropriateTableRowOfMovieLink(DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+                    chartFactory.updateChartForSpecificPurchaseTypeAndAmount(MOVIE_LINK, DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK);
+                }
+            }
+        });
+    }
+
+    private void incrementAppropriateTableRowOfBooklet(int amountOfPurchasedBooklets) {
+        for (ReportDataRow row : reportDataRows) {
+            String normalizedRowLabel = chartFactory.normalizeProductNameForCaseInsensitiveComparison(row.getLabel());
+            String normalizedBooklet = chartFactory.normalizeProductNameForCaseInsensitiveComparison(BOOKLET.toString());
+
+            if (normalizedRowLabel.equals(normalizedBooklet)) {
+                Double updatedAmount = row.getAmount() + amountOfPurchasedBooklets;
+                row.setAmount(updatedAmount);
+                table.refresh();
+                break;
+            }
+        }
+    }
+
+    private void incrementAppropriateTableRowOfMovieLink(int amountOfPurchasedMovieLinks) {
+        for (ReportDataRow row : reportDataRows) {
+            String normalizedRowLabel = chartFactory.normalizeProductNameForCaseInsensitiveComparison(row.getLabel());
+            String normalizedMovieLink = chartFactory.normalizeProductNameForCaseInsensitiveComparison(MOVIE_LINK.toString());
+
+            if (normalizedRowLabel.equals(normalizedMovieLink)) {
+                Double updatedAmount = row.getAmount() + amountOfPurchasedMovieLinks;
+                row.setAmount(updatedAmount);
+                table.refresh();
+                break;
+            }
+        }
+    }
+
+    private void incrementAppropriateTableRowOfMovieTicket(int amountOfPurchasedTickets) {
+        for (ReportDataRow row : reportDataRows) {
+            String rowLabel = row.getLabel();
+            System.out.println("incrementAppropriateTableRowOfMovieTicket: " + rowLabel + " and MOVIE_TICKET is " + MOVIE_TICKET);
+
+            // Normalize both strings by replacing spaces and underscores, then convert to lowercase
+            boolean areEqual = rowLabel.replaceAll("[_ ]", "").equalsIgnoreCase(MOVIE_TICKET.toString().replaceAll("[_ ]", ""));
+            if (areEqual) {
+                System.out.println("The strings are equal!");
+
+                // Directly set the new amount for the row
+                Double updatedAmount = row.getAmount() + amountOfPurchasedTickets;
+                row.setAmount(updatedAmount);  // This should trigger the UI update if the amount is observable
+
+                // Optionally, force table refresh (though usually not needed with observable properties)
+                table.refresh();
+                break;
+            }
+        }
+    }
 
     /**
      * Handles the action event triggered by the user to request report data from the server.
@@ -357,16 +457,20 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     void getReport(ActionEvent event) {
         if (isNotInitialized(requestHandler, ERROR_MESSAGE_REQUEST_HANDLER_NOT_INITIALIZED)) return;
 
-        // Extracted local variables
+        // Extract relevant fields for the report request
         ReportType typeOfReport = getSelectedReportType();
-        String branch = getSelectedBranch();
+        String branch = getSelectedBranch();  // Ensure this fetches the correct branch
         LocalDate selectedDate = getSelectedDate();
         ReportSpanType spanType = getSelectedSpanType();
         PurchaseType purchaseType = getPurchasableTypes();
         int year = getSelectedYear(selectedDate);
         Month month = getSelectedMonth(selectedDate);
 
-        // Build RequestData using MessageUtilForReports
+        // Ensure branch is assigned for Branch Managers
+        if (employee.getEmployeeType() == BRANCH_MANAGER && employee.getBranchInCharge() != null) {
+            branch = employee.getBranchInCharge().getBranchName();
+        }
+
         RequestData requestData = MessageUtilForReports.buildRequestData(
                 getOperationType(spanType),
                 typeOfReport,
@@ -377,13 +481,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
                 month
         );
 
-        System.out.println(requestData);
-//        RequestData[requestType=Fetch Monthly Reports, reportType=All Reports, employee=ID: 5 Manager1 Branch 1, branch=Johns Cinema, reportSpanType=Monthly, month=SEPTEMBER, year=2024, purchaseType=All Types, label=Default Label, details=Default Details, dataForGraphs={}, serializedReportData=]
-//        RequestData[requestType=Fetch Monthly Reports, reportType=Sales Report, employee=ID: 5 Manager1 Branch 1, branch=Johns Cinema, reportSpanType=Monthly, month=SEPTEMBER, year=2024, purchaseType=Movie Ticket, label=Default Label, details=Default Details, dataForGraphs={}, serializedReportData=]
-
-        // Send the request
         requestHandler.sendRequest(requestData);
-
         System.out.println("Report request sent with type: " + typeOfReport + ", span: " + spanType + ", branch: " + branch + ", date: " + selectedDate);
     }
 
@@ -493,17 +591,52 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
     }
 
     private void initializeBranchSelectionComboBoxBasedOnEmployeeType() {
-        if (employee != null && employee.getEmployeeType() == CHAIN_MANAGER) {
-            ObservableList<String> comboBoxItems = branchSelectionComboBox.getItems();
-            comboBoxItems.clear();
-            List<String> branchNames = new ArrayList<>();
-            branchNames.add(employee.getBranchInCharge().getBranchName());
-            branchSelectionComboBox.setVisible(true);
-            resetComboBoxPromptAndValue(branchSelectionComboBox,
-                    DEFAULT_SELECTION_OPTION_PROMPT_TEXT_FOR_BRANCH,
-                    branchNames.getFirst());
+        if (employee == null) {
+            branchSelectionComboBox.setVisible(false);
+            return;
+        }
+
+        if (employee.getEmployeeType() == CHAIN_MANAGER) {
+            System.out.println("Chain Manager detected. Requesting branches from the server.");
+            Message msg = new Message();
+            msg.setMessage(BRANCH_THEATER_INFORMATION);
+            msg.setData(GET_BRANCHES);
+            client.sendMessage(msg);
+        } else if (employee.getEmployeeType() == BRANCH_MANAGER && employee.getBranchInCharge() != null) {
+            branchList.clear();
+            branchList.add(employee.getBranchInCharge().getBranchName());
+            branchSelectionComboBox.setVisible(false);
         } else {
             branchSelectionComboBox.setVisible(false);
+        }
+    }
+
+    @Subscribe
+    public void onBranchesReceived(MessageEvent event) {
+        Message message = event.getMessage();
+        if (message.equals(BRANCH_THEATER_INFORMATION)) {
+            List<Branch> allBranches = message.getBranches();
+
+            if (allBranches != null && !allBranches.isEmpty()) {
+                // Handle branch list on the JavaFX thread
+                Platform.runLater(() -> {
+                    branchList.clear();
+
+
+                    allBranches.stream()
+                            .filter(Objects::nonNull)
+                            .map(Branch::getBranchName)
+                            .forEach(branchList::add);
+
+                    // Make the combo box visible only if there are branches to display
+                    branchSelectionComboBox.setVisible(true);
+                });
+            } else {
+                branchSelectionComboBox.setVisible(false); // Hide if no branches
+            }
+
+            System.out.println("Received " + branchList.size());
+
         }
     }
 
@@ -739,7 +872,7 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         for (Report report : reports) {
             System.out.println("Report ID: " + report.getId());
             System.out.println("Branch: " + (report.getBranch() != null ? report.getBranch().getBranchName() : "N/A"));
-            System.out.println("Report Type: " + report.getReportType());
+            System.out.println("Report Type: " + report.getSpanType());
             System.out.println("Report Data:");
 //            System.out.println("Report Data:" + report.getDataForGraphs());
 //            report.getDataForGraphs().forEach((key, value) -> System.out.println(key + ": " + value));
@@ -826,5 +959,9 @@ public class ReportsScreenController implements ClientDependent, Initializable, 
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+    }
+
+    public void setBranchList(ObservableList<String> branchList) {
+        this.branchList = branchList;
     }
 }

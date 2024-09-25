@@ -2,7 +2,6 @@ package il.cshaifasweng.OCSFMediatorExample.entities.userRequests.Strategies;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.cinemaEntities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType;
-import il.cshaifasweng.OCSFMediatorExample.entities.userEntities.Employee;
 import il.cshaifasweng.OCSFMediatorExample.entities.userRequests.*;
 
 import java.time.Month;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.ALL_TYPES;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.*;
 
 /**
  * AbstractReportStrategy is an abstract class that provides a template for generating reports based on specific
@@ -58,50 +57,25 @@ public abstract class AbstractReportStrategy<T> implements ReportStrategy {
      */
     protected abstract Class<T> getGenericClass();
 
-    /**
-     * Assembles a RequestData object for a specific employee, year, and month, using the details of the strategy.
-     *
-     * @param employee the employee requesting the report.
-     * @param year     the year for which the report is generated.
-     * @param month    the month for which the report is generated.
-     * @return a RequestData object containing the necessary information for the report request.
-     */
     @Override
-    public RequestData assembleRequestData(Employee employee, int year, int month) {
-        Month monthEnum = Month.of(month);
-        return MessageUtilForReports.buildBasicRequestData(
-                getReportOperationType(),
-                getReportType(),
-                getReportSpanType(),
-                employee,
-                year,
-                monthEnum,
-                ALL_TYPES  // Default to ALL_TYPES unless overridden in subclass
-        );
-    }
-
-    /**
-     * Generates a Report entity by processing the given list of items and aggregating the data into a format suitable
-     * for the report's dataForGraphs field. The report is populated with branch, month, year, and span type.
-     *
-     * @param items  the list of items to be processed (e.g., Purchases, Complaints).
-     * @param branch the branch associated with the report.
-     * @param month  the month for which the report is generated.
-     * @return a Report entity containing the generated report data.
-     */
-    @Override
-    public Report generateReport(List<?> items, Branch branch, Month month) {
+    public Report generateReport(List<?> items, RequestData requestData) {
         // Safely filter and cast items to the generic type T
         List<T> typedItems = items.stream()
                 .filter(item -> getGenericClass().isInstance(item))
                 .map(item -> (T) item)
                 .toList();
 
+        Branch branch = requestData.branch();
+        Month month = requestData.month();
+        PurchaseType purchaseType = requestData.purchaseType();
+        ReportType reportType = getReportType();
         return new Report.Builder()
                 .withBranch(branch)
                 .withMonth(month)
-                .withYear(2024)  // Example year, could be parameterized
+                .withYear(2024)
+                .withReportType(reportType)
                 .withReportSpanType(getReportSpanType())
+                .withPurchaseType(purchaseType)
                 .withDataForGraphs(extractDataForGraphs(typedItems))
                 .build();
     }
@@ -113,14 +87,47 @@ public abstract class AbstractReportStrategy<T> implements ReportStrategy {
      * @param items the list of items of type T to be processed.
      * @return a map representing the aggregated data for graphs.
      */
+    /**
+     * Extracts data for graphs by processing items of type T. This method aggregates the data into a map where
+     * the keys are labels (e.g., purchase types), and the values are the corresponding data points (e.g., total sales).
+     *
+     * @param items the list of items of type T to be processed.
+     * @return a map representing the aggregated data for graphs.
+     */
     protected Map<String, Double> extractDataForGraphs(List<T> items) {
         Map<String, Double> dataForGraphs = new HashMap<>();
         Function<T, PurchaseType> purchaseTypeExtractor = getPurchaseTypeExtractor();
 
+        // Initialize counters for complaint statuses
+        double openCount = 0.0;
+        double closedCount = 0.0;
+
         for (T item : items) {
+            // Handle PurchaseType as before
             PurchaseType purchaseType = purchaseTypeExtractor.apply(item);
-            String key = (purchaseType != null) ? purchaseType.name() : "Unknown";
+            String key = (purchaseType != null) ? purchaseType.name() : PURCHASE_TYPE_UNKNOWN;
             dataForGraphs.merge(key, 1.0, Double::sum);
+
+            // If item is a Complaint, handle complaint status as well
+            if (item instanceof Complaint) {
+                Complaint complaint = (Complaint) item;
+                String complaintStatus = complaint.getComplaintStatus();
+
+                // Increment open/closed counters based on the status
+                if (COMPLAINT_STATUS_OPEN.equalsIgnoreCase(complaintStatus)) {
+                    openCount++;
+                } else if (COMPLAINT_STATUS_CLOSED.equalsIgnoreCase(complaintStatus)) {
+                    closedCount++;
+                }
+            }
+        }
+
+        // Add "Open" and "Closed" statuses to the map if processing complaints
+        if (openCount > 0) {
+            dataForGraphs.put(COMPLAINT_STATUS_OPEN, openCount);
+        }
+        if (closedCount > 0) {
+            dataForGraphs.put(COMPLAINT_STATUS_CLOSED, closedCount);
         }
 
         return dataForGraphs;

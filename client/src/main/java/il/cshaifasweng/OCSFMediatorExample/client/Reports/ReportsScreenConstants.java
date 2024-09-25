@@ -85,4 +85,7 @@ public class ReportsScreenConstants {
     public static final String REPORT_TABLE_COLUMN_C_PROPERTY_FIELD_BRANCH = "branch";
     public static final String REPORT_TABLE_COLUMN_D_PROPERTY_FIELD_AMOUNT = "amount";
 
+    public static final String NEW_PURCHASE_MESSAGE = "New Purchase";
+    public static final int DEFAULT_PURCHASED_AMOUNT_FOR_BOOKLET_AND_MOVIE_LINK = 1;
+
 }

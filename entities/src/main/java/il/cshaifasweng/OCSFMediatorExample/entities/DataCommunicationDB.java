@@ -31,6 +31,8 @@ import java.util.*;
 
 import static il.cshaifasweng.OCSFMediatorExample.entities.purchaseEntities.PurchaseType.*;
 import static il.cshaifasweng.OCSFMediatorExample.entities.userEntities.EmployeeType.*;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.COMPLAINT_STATUS_CLOSED;
+import static il.cshaifasweng.OCSFMediatorExample.entities.userRequests.ReportOperationTypes.COMPLAINT_STATUS_OPEN;
 import static java.time.Month.*;
 
 public class DataCommunicationDB {
@@ -168,13 +170,7 @@ public class DataCommunicationDB {
         // Print all Reports
         List<Report> reports = session.createQuery("FROM Report", Report.class).list();
         for (Report report : reports) {
-            System.out.println("Report ID: " + report.getId());
-
-            // Print Branch associated with Report
-            Branch branch = report.getBranch();
-            if (branch != null) {
-                System.out.println("\tBranch: " + branch.getBranchName());
-            }
+            System.out.println(report);
         }
 
         System.out.println("Print all the Branch Movies");
@@ -257,12 +253,12 @@ public class DataCommunicationDB {
             Complaint comp3 = new Complaint("not good movie", "the dark knight is not as i expected",
                     LocalDateTime.now(), "Open", BOOKLET, "000000001", customer4, -1);
             Complaint comp4 = new Complaint("bad booklet", "the booklet is not working and i cant use it",
-                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
+                    LocalDateTime.now(), COMPLAINT_STATUS_CLOSED, BOOKLET, "888888888", customer3, -1);
             Complaint comp5 = new Complaint("link corrupt", "the stream stops in the middle ",
-                    LocalDateTime.now(), "Open", BOOKLET, "888888888", customer3, -1);
+                    LocalDateTime.now(), COMPLAINT_STATUS_OPEN, BOOKLET, "888888888", customer3, -1);
             Complaint comp6 = new Complaint("link corrupt", "the stream stops in the middle ",
-                    LocalDateTime.now(), "Open", BOOKLET, "345345345", customer2, -1);
-            List<Complaint> complaints = Arrays.asList(comp1, comp2, comp3, comp4, comp5, comp6);
+                    LocalDateTime.now(), COMPLAINT_STATUS_OPEN, BOOKLET, "345345345", customer2, -1);
+            List<Complaint> complaints = Arrays.asList(comp, comp1, comp2, comp3, comp4, comp5, comp6);
             for (Complaint complaint : complaints) {
                 session.save(complaint);
             }
@@ -272,6 +268,7 @@ public class DataCommunicationDB {
             session.save(prices);
 
             // Create 3 Branches
+
             String[] branchNames = {"Johns Cinema", "General Bay Cinema", "Selection Cinema"};
             Movie[][] branchMovies = {
                     {movie1, movie2}, // Johns Cinema
@@ -289,8 +286,8 @@ public class DataCommunicationDB {
                 branchManager.setEmail("manager" + (i + 1) + "@branch.com");
                 branchManager.setFirstName("Manager" + (i + 1));
                 branchManager.setLastName("Branch " + (i + 1));
-                branchManager.setUsername("manager" + (i + 1));
-                branchManager.setPassword("password" + (i + 1));
+                branchManager.setUsername("bm" + (i + 1));
+                branchManager.setPassword("" + (i + 1));
                 session.save(branchManager);
 
                 branch.setBranchManager(branchManager);
@@ -435,6 +432,68 @@ public class DataCommunicationDB {
             session.save(customer1);
             session.flush();
 
+
+            session.getTransaction().commit();
+        } catch (Exception exception) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.err.println("An error occurred, changes have been rolled back.");
+            exception.printStackTrace();
+        }
+    }
+
+    public static void createAndAssignMovieTicketsToCustomers() throws Exception {
+        try {
+            session.beginTransaction();
+            Random random = new Random();
+
+            // Create movie tickets for branch id 1 ("Johns Cinema")
+            MovieTicket ticket1 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 2, 1, 1, session.get(MovieSlot.class, 24));
+            MovieTicket ticket2 = new MovieTicket(session.get(Movie.class, 2), session.get(Branch.class, 1), "The Matrix", "Johns Cinema", 1, 1, 1, session.get(MovieSlot.class, 11));
+            MovieTicket ticket5 = new MovieTicket(session.get(Movie.class, 1), session.get(Branch.class, 1), "Inception", "Johns Cinema", 1, 2, 1, session.get(MovieSlot.class, 5));
+
+            // 3 additional tickets for "Johns Cinema" (branch id 1)
+            MovieTicket ticket6 = new MovieTicket(session.get(Movie.class, 6), session.get(Branch.class, 1), "Pulp Fiction", "Johns Cinema", 3, 2, 1, session.get(MovieSlot.class, 35));
+            MovieTicket ticket7 = new MovieTicket(session.get(Movie.class, 5), session.get(Branch.class, 1), "Fight Club", "Johns Cinema", 2, 2, 1, session.get(MovieSlot.class, 42));
+            MovieTicket ticket8 = new MovieTicket(session.get(Movie.class, 7), session.get(Branch.class, 1), "Forrest Gump", "Johns Cinema", 4, 2, 1, session.get(MovieSlot.class, 55));
+
+            // Create movie tickets for branch id 2 ("General Bay Cinema")
+            MovieTicket ticket3 = new MovieTicket(session.get(Movie.class, 3), session.get(Branch.class, 2), "Interstellar", "General Bay Cinema", 5, 1, 1, session.get(MovieSlot.class, 90));
+            MovieTicket ticket4 = new MovieTicket(session.get(Movie.class, 4), session.get(Branch.class, 2), "The Dark Knight", "General Bay Cinema", 4, 2, 1, session.get(MovieSlot.class, 76));
+
+            // 3 additional tickets for "General Bay Cinema" (branch id 2)
+            MovieTicket ticket9 = new MovieTicket(session.get(Movie.class, 8), session.get(Branch.class, 2), "The Shawshank Redemption", "General Bay Cinema", 1, 2, 1, session.get(MovieSlot.class, 101));
+            MovieTicket ticket10 = new MovieTicket(session.get(Movie.class, 9), session.get(Branch.class, 2), "Gladiator", "General Bay Cinema", 3, 2, 1, session.get(MovieSlot.class, 115));
+            MovieTicket ticket11 = new MovieTicket(session.get(Movie.class, 10), session.get(Branch.class, 2), "The Godfather", "General Bay Cinema", 5, 2, 1, session.get(MovieSlot.class, 120));
+
+            // Save all tickets to the database
+            List<MovieTicket> tickets = Arrays.asList(ticket1, ticket2, ticket3, ticket4, ticket5, ticket6, ticket7, ticket8, ticket9, ticket10, ticket11);
+            for (MovieTicket ticket : tickets) {
+                session.save(ticket);
+            }
+
+            // Assign tickets to new or existing customers
+            Customer newCustomer1 = new Customer("Sarah", "Connor", "sconnor@gmail.com", "987654321", new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
+            Customer newCustomer2 = new Customer("Kyle", "Reese", "kyle@gmail.com", "876543210", new ArrayList<Purchase>(), null, new ArrayList<Complaint>(), new ArrayList<InboxMessage>());
+
+            session.save(newCustomer1);
+            session.save(newCustomer2);
+
+            // Assign tickets to customers
+            assignTicketToCustomer(newCustomer1, ticket1, session);
+            assignTicketToCustomer(newCustomer2, ticket2, session);
+            assignTicketToCustomer(session.get(Customer.class, 3), ticket3, session);
+            assignTicketToCustomer(session.get(Customer.class, 4), ticket4, session);
+            assignTicketToCustomer(newCustomer1, ticket5, session);
+
+            // Assign additional tickets to customers
+            assignTicketToCustomer(newCustomer1, ticket6, session);
+            assignTicketToCustomer(newCustomer2, ticket7, session);
+            assignTicketToCustomer(session.get(Customer.class, 3), ticket8, session);
+            assignTicketToCustomer(session.get(Customer.class, 4), ticket9, session);
+            assignTicketToCustomer(newCustomer1, ticket10, session);
+            assignTicketToCustomer(newCustomer2, ticket11, session);
 
             session.getTransaction().commit();
         } catch (Exception exception) {
@@ -1327,25 +1386,24 @@ public class DataCommunicationDB {
         }
     }
 
-    public List<Purchase> retrievePurchasesByBranchAndMonth(RequestData requestData) {
-        Branch branch = requestData.branch();
-        Month month = requestData.month();
-        PurchaseType purchaseType = requestData.purchaseType();
-        return getSession().createQuery(
-                        "FROM Purchase WHERE branch = :branch AND purchaseType = :purchaseType AND MONTH(dateOfPurchase) = :month",
-                        Purchase.class)
-                .setParameter("branch", branch)
-                .setParameter("purchaseType", purchaseType)
-                .setParameter("month", month.getValue())
-                .getResultList();
-    }
-
-    // Method to save a Report to the database
     public void persistReport(Report report) {
         Session session = getSession();
-        session.beginTransaction();
-        session.merge(report);
-        session.getTransaction().commit();
+        try {
+            session.beginTransaction();
+
+            // If the branch is null (for example, for Chain Managers), set a placeholder branch
+            if (report.getBranch() == null) {
+                Branch placeholderBranch = new Branch();
+                placeholderBranch.setId(-1);  // Assign -1 to indicate no specific branch
+                report.setBranch(placeholderBranch);
+            }
+
+            session.merge(report);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            throw e;
+        }
     }
 
     // Method to fetch a report by its ID
@@ -1392,7 +1450,12 @@ public class DataCommunicationDB {
         try {
             transaction = startTransaction(session);
 
+            // First query: Fetch complaints based on purchaseType and month
             complaints = executeComplaintQuery(session, requestData);
+
+            // Fallback query: If no complaints found, fetch all complaints
+            if (complaints.isEmpty())
+                complaints = fetchAllComplaints(session);
 
             commitTransaction(transaction);
         } catch (Exception e) {
@@ -1442,33 +1505,54 @@ public class DataCommunicationDB {
         // Define the base SQL query
         String sql = "SELECT * FROM purchase WHERE purchase_type = :purchaseType AND MONTH(dateOfPurchase) = :month";
 
-        // Extend the SQL query if the purchase type requires branch_id
-        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+        // Check if the query needs to filter by branch based on employee type
+        boolean isBranchManager = requestData.employee() != null &&
+                requestData.employee().getEmployeeType() == EmployeeType.BRANCH_MANAGER;
+
+        // Only branch managers should filter by branch ID
+        if (isBranchManager) {
             sql += " AND branch_id = :branchId";
         }
 
         int monthOrdinal = requestData.month().getValue();
 
+        // Create the query and set parameters
         var query = session.createNativeQuery(sql, Purchase.class)
-                .setParameter("purchaseType", purchaseType.name())  // Use .name() for enum name as in DB
+                .setParameter("purchaseType", purchaseType.name())
                 .setParameter("month", monthOrdinal);
 
-        // Only add branch_id parameter if necessary
-        if (purchaseType == PurchaseType.MOVIE_TICKET) {
+        // Apply branch filtering only for branch managers
+        if (isBranchManager && requestData.branch() != null) {
+            System.out.println("Branch Manager - Applying branch filtering for branch ID: " + requestData.branch().getId());
             query.setParameter("branchId", requestData.branch().getId());
+        } else if (isBranchManager && requestData.branch() == null) {
+            System.out.println("Branch Manager - No branch assigned, skipping filtering.");
+        } else {
+            System.out.println("No branch filtering required for Chain Manager or other employee type.");
         }
 
         return query.getResultList();
     }
 
-
     private List<Complaint> executeComplaintQuery(Session session, RequestData requestData) {
-        String sql = "SELECT * FROM complaints WHERE branch_id = :branchId AND MONTH(dateOfComplaint) = :month";
+        // Define the base SQL query to filter complaints by purchaseType and month
+        String sql = "SELECT * FROM complaints WHERE purchaseType = :purchaseType AND MONTH(dateOfComplaint) = :month";
 
-        return session.createNativeQuery(sql, Complaint.class)
-                .setParameter("branchId", requestData.branch().getId())
-                .setParameter("month", requestData.month().getValue()) // Assuming date_of_complaint is a date or timestamp column
-                .getResultList();
+        int monthOrdinal = requestData.month().getValue();
+        int purchaseTypeOrdinal = requestData.purchaseType().ordinal();  // Get the ordinal value for the enum
+
+        var query = session.createNativeQuery(sql, Complaint.class)
+                .setParameter("purchaseType", purchaseTypeOrdinal)  // Set the ordinal value for purchaseType
+                .setParameter("month", monthOrdinal);
+
+        return query.getResultList();
+    }
+
+    private List<Complaint> fetchAllComplaints(Session session) {
+        // Fallback query: Fetch all complaints if the first query returns an empty result
+        String sql = "SELECT * FROM complaints";
+
+        return session.createNativeQuery(sql, Complaint.class).getResultList();
     }
 
     private Session ensureSession() {
@@ -1501,11 +1585,11 @@ public class DataCommunicationDB {
                     "WHERE branch_id = :branchId AND month = :month AND purchaseType = :purchaseType";
 //        "SELECT * FROM Report JOIN report_data ON Report.id = report_data.report_id WHERE branch_id = :branchId AND month = :month\n"
 
-        int ordinal = requestData.purchaseType().ordinal();
+        String purchaseTypeName = requestData.purchaseType().name();    // Get the string name for the enum
         List<Report> resultList = session.createNativeQuery(sql, Report.class)
                 .setParameter("branchId", requestData.branch().getId())
                 .setParameter("month", month.name())
-                .setParameter("purchaseType", ordinal)
+                .setParameter("purchaseType", purchaseTypeName)
                 .getResultList();
         System.out.println(resultList);
         return resultList;

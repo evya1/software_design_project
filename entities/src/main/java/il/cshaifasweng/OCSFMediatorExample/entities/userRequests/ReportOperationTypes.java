@@ -32,6 +32,10 @@ public final class ReportOperationTypes {
     public static final String INVALID_LABEL = "Invalid Label";
     public static final String ALL_BRANCHES = "All Branches";
 
+    public static final String COMPLAINT_STATUS_OPEN = "Open";
+    public static final String COMPLAINT_STATUS_CLOSED = "Closed";
+    public static final String PURCHASE_TYPE_UNKNOWN = "Unknown";
+
     // Prevent instantiation
     private ReportOperationTypes() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
