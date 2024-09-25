@@ -606,11 +606,18 @@ public class DataCommunicationDB {
 
         // Get the number of days passed in the current month until today
         int dayOffset = random.nextInt(currentDateTime.getDayOfMonth()) + 1; // Ensure valid day in the past or today
-        LocalDateTime randomStartDateTime = startOfMonth.plusDays(dayOffset - 1).withHour(random.nextInt(10, currentDateTime.getHour() + 1)); // Random past time on that day
+
+        // Calculate random hour between 10 AM and the current hour
+        int startHour = 10;
+        int endHour = currentDateTime.getHour() + 1;
+        int randomHour = startHour + random.nextInt(endHour - startHour);
+
+        // Generate the random start and end times
+        LocalDateTime randomStartDateTime = startOfMonth.plusDays(dayOffset - 1).withHour(randomHour);
         LocalDateTime randomEndDateTime = randomStartDateTime.plusHours(2); // Movie duration of 2 hours
 
         // Create and return the MovieSlot
-        MovieSlot movieSlot = new MovieSlot(movie, randomStartDateTime, randomEndDateTime, null); // Theater will be assigned
+        MovieSlot movieSlot = new MovieSlot(movie, randomStartDateTime, randomEndDateTime, null); // Theater will be assigned later
         movieSlot.setBranch(branch);
         session.save(movieSlot); // Persist the MovieSlot
         return movieSlot;
